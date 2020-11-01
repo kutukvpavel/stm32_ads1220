@@ -18,8 +18,16 @@
     <ClInclude Include="__vm\.stm32_ads1220.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Protocentral_ADS1220.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="stm32_ads1220.ino" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Protocentral_ADS1220.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

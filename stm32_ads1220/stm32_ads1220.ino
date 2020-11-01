@@ -4,7 +4,7 @@
  Author:	Павел
 */
 
-#include <Protocentral_ADS1220.h>
+#include "Protocentral_ADS1220.h"
 #include <RTClock.h>
 
 /* Constant definitions */
