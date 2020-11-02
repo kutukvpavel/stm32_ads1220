@@ -1,22 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stm32_ads1220", "stm32_ads1220\stm32_ads1220.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdcControl", "AdcControl\AdcControl.csproj", "{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Debug|x86.Build.0 = Debug|Any CPU
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Release|x86.ActiveCfg = Release|Any CPU
+		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4741685A-7BF9-4D3D-80E6-388989096FCA}
 	EndGlobalSection
 EndGlobal

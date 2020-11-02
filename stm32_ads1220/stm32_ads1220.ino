@@ -48,6 +48,7 @@ void rtc_alarm_isr()
 void acq_timer_isr()
 {
 	status |= STATUS_TIMER_OVF;
+	//digitalWrite(PA3, !digitalRead(PA3));
 }
 
 /* Prototypes */
@@ -172,14 +173,14 @@ void setup() {
 	static_assert(arraySize(calibration_coefficients) >= arraySize(adc_module_channels), "Missing calibration coefficients!");
 	static_assert(arraySize(calibration_offset) >= arraySize(adc_module_channels), "Missing calibration offsets!");
 
+	pinMode(LED_BUILTIN, OUTPUT_OPEN_DRAIN);
+	digitalWrite(LED_BUILTIN, LOW);
 	adc_module.begin(PIN_ADC_CS, PIN_ADC_DRDY);
 	adc_module.set_pga_gain(PGA_GAIN_1);
 	adc_module.set_data_rate(DR_20SPS);
 	rtc_clock.attachAlarmInterrupt(rtc_alarm_isr);
 	acquisition_timer.attachInterrupt(0, acq_timer_isr);
 	acquisition_timer.setPeriod(ACQUISITION_PERIOD);
-	pinMode(LED_BUILTIN, OUTPUT_OPEN_DRAIN);
-	digitalWrite(LED_BUILTIN, LOW);
 	for (uint32_t i = 0; i < WAIT_FOR_PC; i++)
 	{
 		if (usb_serial) break;

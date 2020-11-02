@@ -1,0 +1,6 @@
+<VisualMicro>
+  <Program Name="DebugHelper" Ext=".ino" Location="E:\Doc\Паша\Программирование\микроконтроллеры STM32\stm32_ads1220\DebugHelper">
+    <Debug />
+    <Compile ReportDetailedMemoryUsage="1" ReportDisassembledView="1" />
+  </Program>
+</VisualMicro>
