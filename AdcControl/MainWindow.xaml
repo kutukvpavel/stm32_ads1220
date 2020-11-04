@@ -3,10 +3,84 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AdcControl"
+        xmlns:local="clr-namespace:AdcControl" xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:resx="clr-namespace:AdcControl.Resources"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" MinHeight="200" MinWidth="600"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+    <Window.Resources>
+    </Window.Resources>
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <ToolBarTray Grid.Row="0" Grid.ColumnSpan="2">
+            <ToolBar Grid.Row="0" Height="auto">
+                <Button x:Name="btnStartAcquisition" 
+                        ToolTip="{x:Static resx:Default.strStartButton}" 
+                        Margin="5,0,5,0"
+                        Click="btnStartAcquisition_Click"
+                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForAcquiring, Mode=OneWay}">
+                    <Image Source="/AdcControl;component/Resources/start.png" Height="32"></Image>
+                </Button>
+                <Button x:Name="btnStopAcquisition" 
+                        ToolTip="{x:Static resx:Default.strStopButton}" 
+                        Margin="5,0,5,0"
+                        Click="btnStopAcquisition_Click"
+                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=AcquisitionInProgress, Mode=OneWay}">
+                    <Image Source="/AdcControl;component/Resources/stop.png" Height="32"></Image>
+                </Button>
+            </ToolBar>
+            <ToolBar>
+                <Button x:Name="btnClearScreen" 
+                        ToolTip="{x:Static resx:Default.strClearScreenButton}"
+                        Margin="5,0,5,0"
+                        Click="btnClearScreen_Click">
+                    <Image Source="/AdcControl;component/Resources/delete.png" Height="36"></Image>
+                </Button>
+                <Button x:Name="btnExport" 
+                        ToolTip="{x:Static resx:Default.strExportButton}"
+                        Margin="5,0,5,0"
+                        Click="btnExport_Click">
+                    <Image Source="/AdcControl;component/Resources/csv_small.png" Height="36"></Image>
+                </Button>
+            </ToolBar>
+            <ToolBar>
+                <Button x:Name="btnConnect" 
+                        ToolTip="{x:Static resx:Default.strConnectButton}"
+                        Margin="5,0,5,0"
+                        Click="btnConnect_Click"
+                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForConnection, Mode=OneWay}">
+                    <Image Source="/AdcControl;component/Resources/wifi.png" Height="36"></Image>
+                </Button>
+                <Button x:Name="btnConfig" 
+                        ToolTip="{x:Static resx:Default.strConfigButton}"
+                        Margin="5,0,5,0"
+                        Click="btnConfig_Click">
+                    <Image Source="/AdcControl;component/Resources/config.png" Height="36"></Image>
+                </Button>
+                <Button x:Name="btnDisconnect" 
+                        ToolTip="{x:Static resx:Default.strDisconnectButton}"
+                        Margin="5,0,5,0"
+                        Click="btnDisconnect_Click"
+                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=IsConnected, Mode=OneWay}">
+                    <Image Source="/AdcControl;component/Resources/disconnect.png" Height="36"></Image>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+        <WpfPlot Grid.Row="1" x:Name="pltMainPlot"/>
+        <StatusBar Grid.Row="2" x:Name="stbMainStatusBar" Grid.ColumnSpan="2">
+            <TextBlock x:Name="txtStatus" Text="Status" FontSize="16"></TextBlock>
+        </StatusBar>
+        <Expander x:Name="ctlExpander" Grid.Column="1" Grid.Row="1" ExpandDirection="Left">
+            <TextBox x:Name="txtTerminal" MinWidth="100" MaxWidth="200"></TextBox>
+        </Expander>
     </Grid>
 </Window>
