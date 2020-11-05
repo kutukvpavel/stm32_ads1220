@@ -106,5 +106,29 @@ namespace AdcControl.Properties {
                 this["AcquisitionSpeed"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public int TerminalLimit {
+            get {
+                return ((int)(this["TerminalLimit"]));
+            }
+            set {
+                this["TerminalLimit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int TerminalRemoveStep {
+            get {
+                return ((int)(this["TerminalRemoveStep"]));
+            }
+            set {
+                this["TerminalRemoveStep"] = value;
+            }
+        }
     }
 }

@@ -6,14 +6,18 @@ using System.Linq;
 using System.Threading;
 using AdcControl.Resources;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace AdcControl
 {
-    public class Controller
+    public class Controller : INotifyPropertyChanged
     {
         /* Private */
 
         protected const char NewLine = '\n';
+        protected static readonly char[] ToTrim = { '\r', ' ' };
         protected const char Splitter = ':';
         protected const char ErrorDesignator = '!';
         protected const string ArrayHexCommandFormat = "{0}{1:2} {3:X}";
@@ -21,6 +25,7 @@ namespace AdcControl
         protected const string SimpleCommandFormat = "{0}{1}";
         protected const string AcquisitionSignature = "ACQ.";
         protected const string EndOfAcquisitionSignature = "END.";
+        protected const string ConnectionSignature = "READY...";
         protected static readonly Dictionary<Commands, string> CommandFormat = new Dictionary<Commands, string>()
         {
             { Commands.SetChannel,  ArrayHexCommandFormat },
@@ -30,57 +35,66 @@ namespace AdcControl
             { Commands.ToggleAcquisition, SimpleCommandFormat }
         };
         protected StringBuilder Buffer;
-        protected readonly ParameterizedThreadStart DataReceiverEventThreadStart;
         protected readonly ParameterizedThreadStart DataErrorEventThreadStart;
-        protected readonly ParameterizedThreadStart TerminalEventStart;
         protected readonly ParameterizedThreadStart DeviceErrorThreadStart;
-        protected bool IsAcquiring = false;
-        protected Task<bool> WaitForConnection;
-        protected Task<bool> WaitForCompletion;
+        protected bool _AcquisitionInProgress = false;
         protected bool _IsConnected = false;
-        protected bool _Completed = false;
-        protected object LockObject = new object(); 
+        protected bool _Completed = true;
+        protected object LockObject = new object();
+        protected BlockingCollectionQueue TerminalQueue;
+        protected BlockingCollectionQueue DataQueue;
 
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            string read = Port.ReadExisting();
+            Buffer.Append(Port.ReadExisting());
+            string read = Buffer.ToString();
             int i = read.IndexOf(NewLine);
             if (i > -1)
             {
-                string line = Buffer.Append(read, 0, i++).ToString(); //Skip the new line character here
                 Buffer.Clear();
-                Buffer.Append(read, i, read.Length - i);
-                var thread = new Thread(TerminalEventStart);
-                thread.Start(new TerminalEventArgs(line));
-                if (line.EndsWith(ErrorDesignator))
+                while (i > -1)
                 {
-                    thread = new Thread(DeviceErrorThreadStart);
-                    thread.Start(new TerminalEventArgs(line));
+                    string line = read.Substring(0, i++).Trim(ToTrim); //Skip the new line character here
+                    ParseLine(line);
+                    read = read.Remove(0, i);
+                    i = read.IndexOf(NewLine);
                 }
-                if (IsAcquiring)
+                Buffer.Append(read);
+            }
+        }
+        private void ParseLine(string line)
+        {
+            TerminalQueue.Enqueue(() => { TerminalEvent?.Invoke(this, new TerminalEventArgs(line)); });
+            if (line.EndsWith(ErrorDesignator))
+            {
+                new Thread(DeviceErrorThreadStart).Start(new TerminalEventArgs(line));
+                return;
+            }
+            if (IsConnected)
+            {
+                if (AcquisitionInProgress)
                 {
                     if (line.Length == EndOfAcquisitionSignature.Length)
                     {
                         if (line.SequenceEqual(EndOfAcquisitionSignature))
                         {
-                            IsAcquiring = false;
+                            AcquisitionInProgress = false;
                             return;
                         }
                     }
-                    thread = new Thread(DataReceiverEventThreadStart);
                     try
                     {
-
                         string[] parsed = line.Split(Splitter);
-                        thread.Start(new AcquisitionEventArgs(
-                            byte.Parse(parsed[0], System.Globalization.NumberStyles.HexNumber),
-                            float.Parse(parsed[1], System.Globalization.NumberStyles.AllowLeadingWhite)
-                            ));
+                        byte c = byte.Parse(parsed[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                        float v = float.Parse(parsed[1].Trim(ToTrim), CultureInfo.InvariantCulture);
+                        DataQueue.Enqueue(() =>
+                        {
+                            AcquisitionDataReceived?.Invoke(this, new AcquisitionEventArgs(c, v));
+                        });
                     }
                     catch (Exception exc)
                     {
-                        thread = new Thread(DataErrorEventThreadStart);
-                        thread.Start(new DataErrorEventArgs(exc, line));
+                        new Thread(DataErrorEventThreadStart).Start(new DataErrorEventArgs(exc, line));
                     }
                 }
                 else
@@ -89,7 +103,7 @@ namespace AdcControl
                     {
                         if (line.SequenceEqual(AcquisitionSignature))
                         {
-                            IsAcquiring = true;
+                            AcquisitionInProgress = true;
                             return;
                         }
                     }
@@ -97,7 +111,14 @@ namespace AdcControl
             }
             else
             {
-                Buffer.Append(read);
+                if (line.Length == ConnectionSignature.Length)
+                {
+                    if (line.SequenceEqual(ConnectionSignature))
+                    {
+                        IsConnected = true;
+                        return;
+                    }
+                }
             }
         }
         private void Log(Exception e, string m)
@@ -114,26 +135,22 @@ namespace AdcControl
             }
             return true;
         }
+        private void OnPropertyChanged()
+        {
+            new Thread(() => { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null)); }).Start();
+        }
 
         /* Public */
 
         public Controller(SerialPortStream port)
         {
             Buffer = new StringBuilder(16);
+            TerminalQueue = new BlockingCollectionQueue();
+            DataQueue = new BlockingCollectionQueue();
             Port = port;
             Port.DataReceived += Port_DataReceived;
-            DataReceiverEventThreadStart = (object x) => { AcquisitionDataReceived?.Invoke(this, (AcquisitionEventArgs)x); };
             DataErrorEventThreadStart = (object x) => { DataError?.Invoke(this, (DataErrorEventArgs)x); };
-            TerminalEventStart = (object x) => { TerminalEvent?.Invoke(this, (TerminalEventArgs)x); };
             DeviceErrorThreadStart = (object x) => { DeviceError?.Invoke(this, (TerminalEventArgs)x); };
-            WaitForConnection = new Task<bool>(() => 
-            {
-                return Wait(ref _IsConnected, ConnectionTimeout);
-            });
-            WaitForCompletion = new Task<bool>(() =>
-            {
-                return Wait(ref _Completed, CompletionTimeout);
-            });
         }
 
         public enum Commands : byte
@@ -153,16 +170,19 @@ namespace AdcControl
         public event EventHandler<TerminalEventArgs> DeviceError;
         public event EventHandler<LogEventArgs> LogEvent;
         public event EventHandler<TerminalEventArgs> TerminalEvent;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public SerialPortStream Port { get; }
         public int ConnectionTimeout { get; set; } = 5000; //mS
         public int CompletionTimeout { get; set; } = 3000; //mS
+        public int TerminalTimeout { get; set; } = 1000; //mS
         public bool IsConnected
         {
             get { return _IsConnected; }
             private set
             {
                 _IsConnected = value;
+                OnPropertyChanged();
             }
         }
         public bool CommandExecutionCompleted
@@ -171,19 +191,26 @@ namespace AdcControl
             set
             {
                 _Completed = value;
+                OnPropertyChanged();
+
             }
         }
         public bool AcquisitionInProgress
         {
-            get { return IsAcquiring; }
+            get { return _AcquisitionInProgress; }
+            private set
+            {
+                _AcquisitionInProgress = value;
+                OnPropertyChanged();
+            }
         }
         public bool ReadyForAcquisition
         {
-            get { return _IsConnected && !IsAcquiring; }
+            get { return _IsConnected && !_AcquisitionInProgress; }
         }
-        public bool ReadyForConnection
+        public bool IsNotConnected
         {
-            get { return Port.IsOpen && !_IsConnected; }
+            get { return !_IsConnected; }
         }
 
         public async Task<bool> SendCommand(Commands cmd, params object[] args)
@@ -201,7 +228,7 @@ namespace AdcControl
         }
         public async Task<bool> SendCustom(string cmd)
         {
-            await WaitForCompletion;
+            await Task.Run(() => { return Wait(ref _Completed, CompletionTimeout); });
             CommandExecutionCompleted = false;
             try
             {
@@ -212,17 +239,17 @@ namespace AdcControl
                 Log(e, string.Format("{0} Info: {1}", Default.msgPortWriteError, cmd));
                 return false;
             }
-            return await WaitForCompletion;
+            return await Task.Run(() => { return Wait(ref _Completed, CompletionTimeout); });
         }
         public async Task<bool> StartAcquisition(int duration = 0)
         {
-            if (!IsAcquiring)
+            if (!AcquisitionInProgress)
                 return await SendCommand(Commands.ToggleAcquisition, duration > 0 ? duration.ToString() : null);
             return false;
         }
         public async Task<bool> StopAcquisition()
         {
-            if (IsAcquiring) return await SendCommand(Commands.ToggleAcquisition);
+            if (AcquisitionInProgress) return await SendCommand(Commands.ToggleAcquisition);
             return false;
         }
         public async Task<bool> Connect(string portName = null)
@@ -242,7 +269,7 @@ namespace AdcControl
             {
                 Log(e, Default.msgPortOpenProblem);
             }
-            return await WaitForConnection;
+            return await Task.Run(() => { return Wait(ref _IsConnected, ConnectionTimeout); });
         }
         public bool Disconnect()
         {

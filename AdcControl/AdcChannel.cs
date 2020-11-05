@@ -3,74 +3,117 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace AdcControl
 {
-    public struct Point<TX, TY>
-    {
-        public TX X { get; }
-        public TY Y { get; }
-        public Point(TX x, TY y)
-        {
-            X = x;
-            Y = y;
-        }
-    }
-
     public class AdcChannel
     {
-        protected Queue<float> Buffer;
+        protected Queue<double> Buffer;
+        protected object LockObject = new object();
 
-        public AdcChannel(int rawCapacity, int averaging, long start)
+        public AdcChannel(int capacity, int averaging, double start)
         {
-            Points = new List<Point<double,float>>(rawCapacity);
-            CalculatedPoints = new List<Point<double, float>>(rawCapacity);
+            RawX = new double[capacity];
+            RawY = new double[capacity];
+            RawCount = 0;
+            CalculatedX = new double[capacity];
+            CalculatedY = new double[capacity];
+            CalculatedCount = 0;
             Averaging = averaging;
-            Buffer = new Queue<float>(averaging);
+            Buffer = new Queue<double>(averaging);
             StartTime = start;
         }
-        public AdcChannel(int rawCapacity, int averaging) : this(rawCapacity, averaging, DateTime.UtcNow.Ticks)
+        public AdcChannel(int rawCapacity, int averaging) : this(rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
 
-        public List<Point<double, float>> Points { get; set; }
-        public List<Point<double, float>> CalculatedPoints { get; private set; }
+        public event EventHandler Overflow;
+        public event EventHandler ArrayChanged;
+
+        public int RawCount { get; set; }
+        public double[] RawX;
+        public double[] RawY;
+        public int CalculatedCount { get; private set; }
+        public double[] CalculatedX;
+        public double[] CalculatedY;
         public int Averaging { get; set; }
         public double StartTime { get; set; }
 
-        public void AddPoint(float val)
+        public void AddPoint(double val)
         {
             AddPoint(val, DateTime.UtcNow.ToOADate());
         }
 
-        public void AddPoint(float val, double time)
+        public void AddPoint(double val, double time)
         {
-            Points.Add(new Point<double, float>(time, val));
-            Buffer.Enqueue(val);
-            CalculatedPoints.Add(new Point<double, float>(time - StartTime, Buffer.Average()));
-            while (Buffer.Count >= Averaging) //Lag-less buffering and dynamic window size support
+            lock (LockObject)
             {
-                Buffer.Dequeue();
+                if (RawCount == RawX.Length)
+                {
+                    var thread = new Thread(() =>
+                    {
+                        Overflow?.Invoke(this, new EventArgs());
+                    });
+                    return;
+                }
+                RawX[RawCount] = time;
+                RawY[RawCount++] = val;
+                Buffer.Enqueue(val);
+                CalculatedX[CalculatedCount] = time - StartTime;
+                CalculatedY[CalculatedCount++] = Buffer.Average();
+                while (Buffer.Count >= Averaging) //Lag-less buffering and dynamic window size support
+                {
+                    Buffer.Dequeue();
+                }
             }
         }
 
-        public void TrimExcess()
+        public async Task TrimExcess()
         {
-            Points.TrimExcess();
-            CalculatedPoints.TrimExcess();
+            var task = new Task(() =>
+            {
+                lock (LockObject)
+                {
+                    if (RawCount != RawX.Length)
+                    {
+                        Array.Resize(ref RawX, RawCount);
+                        Array.Resize(ref RawY, RawCount);
+                    }
+                    if (CalculatedCount != CalculatedX.Length)
+                    {
+                        Array.Resize(ref CalculatedX, CalculatedCount);
+                        Array.Resize(ref CalculatedY, CalculatedCount);
+                    }
+                }
+            });
+            await task;
+        }
+
+        public void Clear()
+        {
+            lock (LockObject)
+            {
+                RawCount = 0;
+                RawX = new double[RawX.Length];
+                RawY = new double[RawY.Length];
+                CalculatedCount = 0;
+                CalculatedX = new double[CalculatedX.Length];
+                CalculatedY = new double[CalculatedY.Length];
+                Buffer.Clear();
+            }
         }
 
         public static async Task Recalculate(AdcChannel c)
         {
             var task = new Task(() =>
             {
-                Point<double, float>[] backup = c.Points.ToArray();
-                c.Points.Clear();
-                c.CalculatedPoints.Clear();
-                c.Points.Capacity = backup.Length;
-                c.CalculatedPoints.Capacity = backup.Length;
-                for (int i = 0; i < backup.Length; i++)
+                double[] backupX = c.RawX;
+                double[] backupY = c.RawY;
+                int count = c.RawCount;
+                c.Clear();
+                for (int i = 0; i < count; i++)
                 {
-                    c.AddPoint(backup[i].Y, backup[i].X);
+                    c.AddPoint(backupY[i], backupX[i]);
                 }
             });
             await task;

@@ -175,4 +175,13 @@
   <data name="msgParsingProblem" xml:space="preserve">
     <value>Can't parse following data:</value>
   </data>
+  <data name="msgAdcChannelConcurrency" xml:space="preserve">
+    <value>Race condition detected for AdcChannel object.</value>
+  </data>
+  <data name="msgFatalContinue" xml:space="preserve">
+    <value>Continue?</value>
+  </data>
+  <data name="msgTerminalTimeout" xml:space="preserve">
+    <value>Timeout while waiting for terminal!</value>
+  </data>
 </root>

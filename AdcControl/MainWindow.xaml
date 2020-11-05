@@ -5,11 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AdcControl" xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:resx="clr-namespace:AdcControl.Resources"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         mc:Ignorable="d"
         Title="MainWindow" MinHeight="200" MinWidth="600"
         Loaded="Window_Loaded"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+        x:Name="_this">
     <Window.Resources>
+        <Style TargetType="Image">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.2" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -21,21 +30,24 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <ToolBarTray Grid.Row="0" Grid.ColumnSpan="2">
+        <ToolBarTray Grid.Row="0">
             <ToolBar Grid.Row="0" Height="auto">
                 <Button x:Name="btnStartAcquisition" 
                         ToolTip="{x:Static resx:Default.strStartButton}" 
                         Margin="5,0,5,0"
                         Click="btnStartAcquisition_Click"
-                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForAcquiring, Mode=OneWay}">
-                    <Image Source="/AdcControl;component/Resources/start.png" Height="32"></Image>
+                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForAcquisition, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}">
+                    <Image Source="/AdcControl;component/Resources/start.png" Height="32">
+                        
+                    </Image>
                 </Button>
                 <Button x:Name="btnStopAcquisition" 
                         ToolTip="{x:Static resx:Default.strStopButton}" 
                         Margin="5,0,5,0"
                         Click="btnStopAcquisition_Click"
                         IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=AcquisitionInProgress, Mode=OneWay}">
-                    <Image Source="/AdcControl;component/Resources/stop.png" Height="32"></Image>
+                    <Image Source="/AdcControl;component/Resources/stop.png" Height="32">
+                    </Image>
                 </Button>
             </ToolBar>
             <ToolBar>
@@ -57,7 +69,7 @@
                         ToolTip="{x:Static resx:Default.strConnectButton}"
                         Margin="5,0,5,0"
                         Click="btnConnect_Click"
-                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForConnection, Mode=OneWay}">
+                        IsEnabled="{Binding ElementName=_this, Path=ReadyForConnection, Mode=OneWay}">
                     <Image Source="/AdcControl;component/Resources/wifi.png" Height="36"></Image>
                 </Button>
                 <Button x:Name="btnConfig" 
@@ -76,11 +88,28 @@
             </ToolBar>
         </ToolBarTray>
         <WpfPlot Grid.Row="1" x:Name="pltMainPlot"/>
-        <StatusBar Grid.Row="2" x:Name="stbMainStatusBar" Grid.ColumnSpan="2">
+        <StatusBar Grid.Row="2" x:Name="stbMainStatusBar">
             <TextBlock x:Name="txtStatus" Text="Status" FontSize="16"></TextBlock>
         </StatusBar>
-        <Expander x:Name="ctlExpander" Grid.Column="1" Grid.Row="1" ExpandDirection="Left">
-            <TextBox x:Name="txtTerminal" MinWidth="100" MaxWidth="200"></TextBox>
+        <Expander x:Name="ctlExpander" Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" ExpandDirection="Left">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox FontSize="16" Grid.Column="0" Margin="3,3,3,3" x:Name="txtSendCustom"></TextBox>
+                    <Button Grid.Column="1" Margin="3,3,3,3" x:Name="btnSendCustom" Click="btnSendCustom_Click">
+                        <Image Source="/AdcControl;component/Resources/send.png" Height="32"></Image>
+                    </Button>
+                </Grid>
+                <TextBox x:Name="txtTerminal" MinWidth="150" MaxWidth="200" Grid.Row="1">
+                </TextBox>
+            </Grid>
         </Expander>
     </Grid>
 </Window>

@@ -88,11 +88,29 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Race condition detected for AdcChannel object..
+        /// </summary>
+        public static string msgAdcChannelConcurrency {
+            get {
+                return ResourceManager.GetString("msgAdcChannelConcurrency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на User opted to proceed after an unhandled exception..
         /// </summary>
         public static string msgExceptionOverride {
             get {
                 return ResourceManager.GetString("msgExceptionOverride", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Continue?.
+        /// </summary>
+        public static string msgFatalContinue {
+            get {
+                return ResourceManager.GetString("msgFatalContinue", resourceCulture);
             }
         }
         
@@ -147,6 +165,15 @@ namespace AdcControl.Resources {
         public static string msgPortWriteError {
             get {
                 return ResourceManager.GetString("msgPortWriteError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Timeout while waiting for terminal!.
+        /// </summary>
+        public static string msgTerminalTimeout {
+            get {
+                return ResourceManager.GetString("msgTerminalTimeout", resourceCulture);
             }
         }
         

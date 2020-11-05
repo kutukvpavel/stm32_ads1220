@@ -23,5 +23,11 @@
     <Setting Name="AcquisitionSpeed" Type="System.Single" Scope="User">
       <Value Profile="(Default)">4</Value>
     </Setting>
+    <Setting Name="TerminalLimit" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
+    <Setting Name="TerminalRemoveStep" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">50</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

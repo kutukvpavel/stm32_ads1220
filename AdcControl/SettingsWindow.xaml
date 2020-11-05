@@ -7,7 +7,8 @@
         xmlns:resx="clr-namespace:AdcControl.Resources"
         xmlns:props="clr-namespace:AdcControl.Properties"
         mc:Ignorable="d"
-        Title="SettingsWindow" Height="auto" Width="auto"
+        Title="SettingsWindow"
+        SizeToContent="WidthAndHeight"
         Loaded="Window_Loaded"
         x:Name="_this">
     <Grid>
@@ -33,7 +34,7 @@
             Height="auto" 
             Margin="10,5,10,5"
             x:Name="cmbPorts"
-            IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForConnection}">
+            IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=IsNotConnected}">
         </ComboBox>
         <Label 
             Content="{x:Static resx:Default.lblAveraging}"
@@ -45,7 +46,8 @@
             Grid.Row="3" Grid.ColumnSpan="2"
             Margin="10,5,10,10"
             PreviewTextInput="txtAveraging_PreviewTextInput"
-            FontSize="16">
+            FontSize="16"
+            TextChanged="txtAveraging_TextChanged">
         </TextBox>
         <Label 
             Content="{x:Static resx:Default.lblAcqDuration}"
@@ -57,7 +59,8 @@
             Grid.Row="5" Grid.ColumnSpan="2"
             Margin="10,5,10,10"
             PreviewTextInput="txtDuration_PreviewTextInput"
-            FontSize="16">
+            FontSize="16"
+            TextChanged="txtDuration_TextChanged">
         </TextBox>
         <Button
             Content="{x:Static resx:Default.strOKButton}" 

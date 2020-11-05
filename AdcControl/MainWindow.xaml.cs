@@ -15,17 +15,45 @@ using System.Windows.Shapes;
 using AdcControl.Resources;
 using AdcControl.Properties;
 using System.Data;
+using RJCP.IO.Ports;
+using System.ComponentModel;
 
 namespace AdcControl
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public MainWindow()
         {
+            App.InitGlobals();
             InitializeComponent();
+        }
+
+        private int TerminalLines = 0;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool ReadyForConnection 
+        { 
+            get 
+            {
+                try
+                {
+                    return App.Stm32Ads1220.IsNotConnected &&
+                        SerialPortStream.GetPortNames().Contains(App.Stm32Ads1220.Port.PortName);
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            } 
+        }
+
+        private void OnPropertyChanged()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -35,8 +63,45 @@ namespace AdcControl
             Height = Settings.Default.MainWindowSize.Height;
             Width = Settings.Default.MainWindowSize.Width;
             if (Settings.Default.Maximized) WindowState = WindowState.Maximized;
-            App.InitGlobals();
+            App.Stm32Ads1220.TerminalEvent += Stm32Ads1220_TerminalEvent;
+            App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
+            App.NewChannelDetected += App_NewChannelDetected;
+            pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss");
             App.Logger.Info("Main window loaded.");
+        }
+
+        private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
+        {
+            pltMainPlot.Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    pltMainPlot.plt.AxisAuto();
+                }
+                catch (InvalidOperationException)
+                {
+
+                }
+                pltMainPlot.Render();
+            });
+        }
+
+        private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
+        {
+            pltMainPlot.plt.PlotScatter(App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY);
+        }
+
+        private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
+        {
+            txtTerminal.Dispatcher.Invoke(() =>
+            {
+                txtTerminal.AppendText(e.Line + Environment.NewLine);
+                if (++TerminalLines > Settings.Default.TerminalLimit)
+                {
+                    txtTerminal.Text = txtTerminal.Text.Remove(0, Settings.Default.TerminalRemoveStep);
+                    TerminalLines -= Settings.Default.TerminalRemoveStep;
+                }
+            });
         }
 
         private async void btnStartAcquisition_Click(object sender, RoutedEventArgs e)
@@ -68,6 +133,8 @@ namespace AdcControl
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
             pltMainPlot.plt.Clear();
+            App.AdcChannels.Clear();
+            pltMainPlot.Render();
         }
 
         private void btnExport_Click(object sender, RoutedEventArgs e)
@@ -109,6 +176,8 @@ namespace AdcControl
                     }
                 }
             }
+            OnPropertyChanged();
+            pltMainPlot.Render();
         }
 
         private void btnDisconnect_Click(object sender, RoutedEventArgs e)
@@ -125,6 +194,11 @@ namespace AdcControl
             }
             Settings.Default.Maximized = WindowState == WindowState.Maximized;
             Settings.Default.Save();
+        }
+
+        private async void btnSendCustom_Click(object sender, RoutedEventArgs e)
+        {
+            await App.Stm32Ads1220.SendCustom(txtSendCustom.Text);
         }
     }
 }

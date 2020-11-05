@@ -12,13 +12,14 @@ using System.Windows.Shapes;
 using RJCP.IO.Ports;
 using AdcControl.Properties;
 using AdcControl.Resources;
+using System.ComponentModel;
 
 namespace AdcControl
 {
     /// <summary>
     /// Логика взаимодействия для Settings.xaml
     /// </summary>
-    public partial class SettingsWindow : Window
+    public partial class SettingsWindow : Window, INotifyPropertyChanged
     {
         public SettingsWindow()
         {
@@ -26,6 +27,8 @@ namespace AdcControl
         }
 
         public bool AllFieldsOK { get { return (txtAveraging.Text.Length > 0) && (txtDuration.Text.Length > 0); } }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private bool ValidateNumericInput(string val)
         {
@@ -39,10 +42,15 @@ namespace AdcControl
             }
         }
 
+        private void OnPropertyChanged()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             cmbPorts.Items.Clear();
-            cmbPorts.Items.Add(SerialPortStream.GetPortNames());
+            cmbPorts.ItemsSource = SerialPortStream.GetPortNames();
             int i = cmbPorts.Items.IndexOf(Settings.Default.PortName);
             if (i > -1)
             {
@@ -84,6 +92,16 @@ namespace AdcControl
         private void txtDuration_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !ValidateNumericInput(e.Text);
+        }
+
+        private void txtAveraging_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            OnPropertyChanged();
+        }
+
+        private void txtDuration_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            OnPropertyChanged();
         }
     }
 }

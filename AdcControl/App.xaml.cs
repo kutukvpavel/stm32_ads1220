@@ -9,6 +9,8 @@ using LLibrary;
 using System.IO;
 using AdcControl.Properties;
 using AdcControl.Resources;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace AdcControl
 {
@@ -27,20 +29,27 @@ namespace AdcControl
             }
             );
 
-        public static Controller Stm32Ads1220 { get; set; }
+        public static event EventHandler<NewChannelDetectedEventArgs> NewChannelDetected;
 
-        public static Dictionary<int, AdcChannel> AdcChannels { get; set; }
+        public static Controller Stm32Ads1220 { get { return _Stm32Ads1220; } }
+
+        public static List<ConcurrentDictionary<int, AdcChannel>> ArchivedChannels { get; set; }
+        public static ConcurrentDictionary<int, AdcChannel> AdcChannels { get; set; }
 
         public static void InitGlobals()
         {
-            Stm32Ads1220 = new Controller(new RJCP.IO.Ports.SerialPortStream());
-            Stm32Ads1220.Port.PortName = Settings.Default.PortName;
-            Stm32Ads1220.LogEvent += (sender, e) => { Logger.Error(e.Message); Logger.Info(e.Exception); };
-            Stm32Ads1220.TerminalEvent += (sender, e) => { Logger.Debug(e.Line); };
-            Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
-            Stm32Ads1220.DeviceError += Stm32Ads1220_DeviceError;
-            Stm32Ads1220.DataError += Stm32Ads1220_DataError;
+            AdcChannels = new ConcurrentDictionary<int, AdcChannel>();
+            ArchivedChannels = new List<ConcurrentDictionary<int, AdcChannel>>();
+            _Stm32Ads1220 = new Controller(new RJCP.IO.Ports.SerialPortStream());
+            _Stm32Ads1220.Port.PortName = Settings.Default.PortName;
+            _Stm32Ads1220.LogEvent += (sender, e) => { Logger.Error(e.Message); Logger.Info(e.Exception); };
+            _Stm32Ads1220.TerminalEvent += (sender, e) => { Logger.Debug(e.Line); };
+            _Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
+            _Stm32Ads1220.DeviceError += Stm32Ads1220_DeviceError;
+            _Stm32Ads1220.DataError += Stm32Ads1220_DataError;
         }
+
+        private static Controller _Stm32Ads1220;
 
         private static void Stm32Ads1220_DataError(object sender, DataErrorEventArgs e)
         {
@@ -57,13 +66,28 @@ namespace AdcControl
         private static void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
         {
             if (!AdcChannels.ContainsKey(e.Channel))
-                AdcChannels.Add(
+            {
+                bool added = AdcChannels.TryAdd(
                     e.Channel,
                     new AdcChannel(
                         (int)Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed),
                         Settings.Default.Average
                         )
                     );
+                if (!added)
+                {
+                    Logger.Error(Default.msgAdcChannelConcurrency);
+                    return;
+                }
+                else
+                {
+                    var thread = new Thread(() =>
+                    {
+                        NewChannelDetected?.Invoke(Stm32Ads1220, new NewChannelDetectedEventArgs(e.Channel));
+                    });
+                    thread.Start();
+                }
+            }
             AdcChannels[e.Channel].AddPoint(e.Value);
         }
 
@@ -76,7 +100,7 @@ namespace AdcControl
             catch (Exception) { }
             finally
             {
-                if (MessageBox.Show(e.ToString(), "Continue?", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                if (MessageBox.Show(e.ToString(), Default.msgFatalContinue, MessageBoxButton.YesNo) == MessageBoxResult.No)
                 {
                     Environment.Exit(-1);
                 }
@@ -87,6 +111,15 @@ namespace AdcControl
                 }
                 catch (Exception) { }
             }
+        }
+    }
+
+    public class NewChannelDetectedEventArgs : EventArgs
+    {
+        public int Code { get; }
+        public NewChannelDetectedEventArgs(int code)
+        {
+            Code = code;
         }
     }
 }
