@@ -51,6 +51,8 @@ namespace AdcControl
             } 
         }
 
+        private Dictionary<int, ScottPlot.Plottable> Plotted = new Dictionary<int, ScottPlot.Plottable>();
+
         private void OnPropertyChanged()
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
@@ -88,7 +90,16 @@ namespace AdcControl
 
         private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
         {
-            pltMainPlot.plt.PlotScatter(App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY);
+            Plotted.Add(e.Code,
+                pltMainPlot.plt.PlotScatter(App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY));
+            App.AdcChannels[e.Code].ArrayChanged += UpdateArray;
+        }
+
+        private void UpdateArray(object sender, EventArgs e)
+        {
+            int code = ((AdcChannel)sender).Code;
+            pltMainPlot.plt.Remove(Plotted[code]);
+            pltMainPlot.plt.PlotScatter(App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY);
         }
 
         private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
@@ -133,6 +144,7 @@ namespace AdcControl
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
             pltMainPlot.plt.Clear();
+            Plotted.Clear();
             App.AdcChannels.Clear();
             pltMainPlot.Render();
         }

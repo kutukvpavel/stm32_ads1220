@@ -12,7 +12,7 @@ namespace AdcControl
         protected Queue<double> Buffer;
         protected object LockObject = new object();
 
-        public AdcChannel(int capacity, int averaging, double start)
+        public AdcChannel(int code, int capacity, int averaging, double start)
         {
             RawX = new double[capacity];
             RawY = new double[capacity];
@@ -24,10 +24,9 @@ namespace AdcControl
             Buffer = new Queue<double>(averaging);
             StartTime = start;
         }
-        public AdcChannel(int rawCapacity, int averaging) : this(rawCapacity, averaging, DateTime.UtcNow.ToOADate())
+        public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
 
-        public event EventHandler Overflow;
         public event EventHandler ArrayChanged;
 
         public int RawCount { get; set; }
@@ -38,10 +37,19 @@ namespace AdcControl
         public double[] CalculatedY;
         public int Averaging { get; set; }
         public double StartTime { get; set; }
+        public int Code { get; }
 
         public void AddPoint(double val)
         {
             AddPoint(val, DateTime.UtcNow.ToOADate());
+        }
+
+        private void OnArrayChanged()
+        {
+            var thread = new Thread(() =>
+            {
+                ArrayChanged?.Invoke(this, new EventArgs());
+            });
         }
 
         public void AddPoint(double val, double time)
@@ -50,11 +58,12 @@ namespace AdcControl
             {
                 if (RawCount == RawX.Length)
                 {
-                    var thread = new Thread(() =>
-                    {
-                        Overflow?.Invoke(this, new EventArgs());
-                    });
-                    return;
+                    int newSize = RawX.Length * 2;
+                    Array.Resize(ref RawX, newSize);
+                    Array.Resize(ref RawY, newSize);
+                    Array.Resize(ref CalculatedX, newSize);
+                    Array.Resize(ref CalculatedY, newSize);
+                    OnArrayChanged();
                 }
                 RawX[RawCount] = time;
                 RawY[RawCount++] = val;
@@ -74,16 +83,20 @@ namespace AdcControl
             {
                 lock (LockObject)
                 {
+                    bool c = false;
                     if (RawCount != RawX.Length)
                     {
                         Array.Resize(ref RawX, RawCount);
                         Array.Resize(ref RawY, RawCount);
+                        c = true;
                     }
                     if (CalculatedCount != CalculatedX.Length)
                     {
                         Array.Resize(ref CalculatedX, CalculatedCount);
                         Array.Resize(ref CalculatedY, CalculatedCount);
+                        c = true;
                     }
+                    if (c) OnArrayChanged();
                 }
             });
             await task;

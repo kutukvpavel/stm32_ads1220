@@ -69,7 +69,7 @@ namespace AdcControl
             {
                 bool added = AdcChannels.TryAdd(
                     e.Channel,
-                    new AdcChannel(
+                    new AdcChannel(e.Channel,
                         (int)Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed),
                         Settings.Default.Average
                         )
