@@ -66,7 +66,7 @@
             Content="{x:Static resx:Default.strOKButton}" 
             FontSize="16" Height="30" Width="90" 
             Grid.Column="0" Grid.Row="6" 
-            Margin="10,5,10,5"
+            Margin="10,5,10,10"
             x:Name="btnOK"
             Click="btnOK_Click"
             IsEnabled="{Binding ElementName=_this, Path=AllFieldsOK, Mode=OneWay}">
@@ -75,7 +75,7 @@
             Content="{x:Static resx:Default.strCancelButton}" 
             FontSize="16" Height="30" Width="90" 
             Grid.Column="1" Grid.Row="6" 
-            Margin="10,5,10,5"
+            Margin="10,5,10,10"
             x:Name="btnCancel"
             Click="btnCancel_Click">
             

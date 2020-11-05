@@ -130,5 +130,29 @@ namespace AdcControl.Properties {
                 this["TerminalRemoveStep"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\AdcCsvExports")]
+        public string CsvSavePath {
+            get {
+                return ((string)(this["CsvSavePath"]));
+            }
+            set {
+                this["CsvSavePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool RussianExcelCompatible {
+            get {
+                return ((bool)(this["RussianExcelCompatible"]));
+            }
+            set {
+                this["RussianExcelCompatible"] = value;
+            }
+        }
     }
 }

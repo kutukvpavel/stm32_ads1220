@@ -29,5 +29,11 @@
     <Setting Name="TerminalRemoveStep" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">50</Value>
     </Setting>
+    <Setting Name="CsvSavePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\AdcCsvExports</Value>
+    </Setting>
+    <Setting Name="RussianExcelCompatible" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

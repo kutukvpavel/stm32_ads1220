@@ -184,4 +184,25 @@
   <data name="msgTerminalTimeout" xml:space="preserve">
     <value>Timeout while waiting for terminal!</value>
   </data>
+  <data name="msgControllerTimeout" xml:space="preserve">
+    <value>Timed out while waiting in command queue.</value>
+  </data>
+  <data name="stsDisconnected" xml:space="preserve">
+    <value>Disconnected.</value>
+  </data>
+  <data name="msgCsvSaveFailed" xml:space="preserve">
+    <value>Can't save CSV file.</value>
+  </data>
+  <data name="stsCsvSaveFailed" xml:space="preserve">
+    <value>Failed to save one or more channels.</value>
+  </data>
+  <data name="stsCsvSaveSuccess" xml:space="preserve">
+    <value>All channels saved.</value>
+  </data>
+  <data name="stsAcqCompleted" xml:space="preserve">
+    <value>Acquisition completed.</value>
+  </data>
+  <data name="stsCommandCompleted" xml:space="preserve">
+    <value>Command completed.</value>
+  </data>
 </root>

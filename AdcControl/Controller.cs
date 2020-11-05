@@ -26,6 +26,7 @@ namespace AdcControl
         protected const string AcquisitionSignature = "ACQ.";
         protected const string EndOfAcquisitionSignature = "END.";
         protected const string ConnectionSignature = "READY...";
+        protected const string CompletionSignature = "PARSED.";
         protected static readonly Dictionary<Commands, string> CommandFormat = new Dictionary<Commands, string>()
         {
             { Commands.SetChannel,  ArrayHexCommandFormat },
@@ -72,6 +73,17 @@ namespace AdcControl
             }
             if (IsConnected)
             {
+                if (!CommandExecutionCompleted)
+                {
+                    if (line.Length == CompletionSignature.Length)
+                    {
+                        if (line.SequenceEqual(CompletionSignature))
+                        {
+                            CommandExecutionCompleted = true;
+                            return;
+                        }
+                    }
+                }
                 if (AcquisitionInProgress)
                 {
                     if (line.Length == EndOfAcquisitionSignature.Length)
@@ -125,15 +137,21 @@ namespace AdcControl
         {
             new Thread(() => { LogEvent?.Invoke(this, new LogEventArgs(e, m)); }).Start();
         }
+        /// <summary>
+        /// Check for timeout
+        /// </summary>
+        /// <param name="flag"></param>
+        /// <param name="timeout"></param>
+        /// <returns>True = timeout, False = ok</returns>
         private bool Wait(ref bool flag, int timeout)
         {
             int i = 0;
             while (!flag)
             {
                 Thread.Sleep(1);
-                if (i++ > timeout) return false;
+                if (i++ > timeout) return true;
             }
-            return true;
+            return false;
         }
         private void OnPropertyChanged()
         {
@@ -171,6 +189,8 @@ namespace AdcControl
         public event EventHandler<LogEventArgs> LogEvent;
         public event EventHandler<TerminalEventArgs> TerminalEvent;
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler AcquisitionFinished;
+        public event EventHandler CommandCompleted;
 
         public SerialPortStream Port { get; }
         public int ConnectionTimeout { get; set; } = 5000; //mS
@@ -192,7 +212,8 @@ namespace AdcControl
             {
                 _Completed = value;
                 OnPropertyChanged();
-
+                if (_Completed)
+                    new Thread(() => { CommandCompleted?.Invoke(this, new EventArgs()); }).Start();
             }
         }
         public bool AcquisitionInProgress
@@ -202,6 +223,8 @@ namespace AdcControl
             {
                 _AcquisitionInProgress = value;
                 OnPropertyChanged();
+                if (!_AcquisitionInProgress)
+                    new Thread(() => { AcquisitionFinished?.Invoke(this, new EventArgs()); }).Start();
             }
         }
         public bool ReadyForAcquisition
@@ -228,7 +251,12 @@ namespace AdcControl
         }
         public async Task<bool> SendCustom(string cmd)
         {
-            await Task.Run(() => { return Wait(ref _Completed, CompletionTimeout); });
+            bool timeout = await Task.Run(() => { return Wait(ref _Completed, CompletionTimeout); });
+            if (timeout)
+            {
+                Log(new TimeoutException(), Default.msgControllerTimeout);
+                return false;
+            }    
             CommandExecutionCompleted = false;
             try
             {
@@ -239,7 +267,7 @@ namespace AdcControl
                 Log(e, string.Format("{0} Info: {1}", Default.msgPortWriteError, cmd));
                 return false;
             }
-            return await Task.Run(() => { return Wait(ref _Completed, CompletionTimeout); });
+            return await Task.Run(() => { return !Wait(ref _Completed, CompletionTimeout); });
         }
         public async Task<bool> StartAcquisition(int duration = 0)
         {
@@ -269,7 +297,9 @@ namespace AdcControl
             {
                 Log(e, Default.msgPortOpenProblem);
             }
-            return await Task.Run(() => { return Wait(ref _IsConnected, ConnectionTimeout); });
+            var result = await Task.Run(() => { return !Wait(ref _IsConnected, ConnectionTimeout); });
+            if (result) _Completed = true;
+            return result;
         }
         public bool Disconnect()
         {

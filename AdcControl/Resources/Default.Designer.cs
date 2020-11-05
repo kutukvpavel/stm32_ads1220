@@ -97,6 +97,24 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Timed out while waiting in command queue..
+        /// </summary>
+        public static string msgControllerTimeout {
+            get {
+                return ResourceManager.GetString("msgControllerTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Can&apos;t save CSV file..
+        /// </summary>
+        public static string msgCsvSaveFailed {
+            get {
+                return ResourceManager.GetString("msgCsvSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на User opted to proceed after an unhandled exception..
         /// </summary>
         public static string msgExceptionOverride {
@@ -259,11 +277,29 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Acquisition completed..
+        /// </summary>
+        public static string stsAcqCompleted {
+            get {
+                return ResourceManager.GetString("stsAcqCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Acquisition in progress....
         /// </summary>
         public static string stsAcqInProgress {
             get {
                 return ResourceManager.GetString("stsAcqInProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Command completed..
+        /// </summary>
+        public static string stsCommandCompleted {
+            get {
+                return ResourceManager.GetString("stsCommandCompleted", resourceCulture);
             }
         }
         
@@ -282,6 +318,33 @@ namespace AdcControl.Resources {
         public static string stsConnecting {
             get {
                 return ResourceManager.GetString("stsConnecting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to save one or more channels..
+        /// </summary>
+        public static string stsCsvSaveFailed {
+            get {
+                return ResourceManager.GetString("stsCsvSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на All channels saved..
+        /// </summary>
+        public static string stsCsvSaveSuccess {
+            get {
+                return ResourceManager.GetString("stsCsvSaveSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Disconnected..
+        /// </summary>
+        public static string stsDisconnected {
+            get {
+                return ResourceManager.GetString("stsDisconnected", resourceCulture);
             }
         }
         

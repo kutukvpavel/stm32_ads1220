@@ -12,6 +12,7 @@
     <None Remove="Resources\csv_small.png" />
     <None Remove="Resources\delete.png" />
     <None Remove="Resources\Disconnect.png" />
+    <None Remove="Resources\send.png" />
     <None Remove="Resources\start.png" />
     <None Remove="Resources\stop.png" />
     <None Remove="Resources\wifi.png" />
@@ -65,6 +66,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Disconnect.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\send.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\start.png">

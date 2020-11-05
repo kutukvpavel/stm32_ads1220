@@ -11,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.IO;
 using AdcControl.Resources;
 using AdcControl.Properties;
 using System.Data;
@@ -51,7 +51,7 @@ namespace AdcControl
             } 
         }
 
-        private Dictionary<int, ScottPlot.Plottable> Plotted = new Dictionary<int, ScottPlot.Plottable>();
+        private Dictionary<int, ScottPlot.PlottableScatter> Plotted = new Dictionary<int, ScottPlot.PlottableScatter>();
 
         private void OnPropertyChanged()
         {
@@ -67,9 +67,27 @@ namespace AdcControl
             if (Settings.Default.Maximized) WindowState = WindowState.Maximized;
             App.Stm32Ads1220.TerminalEvent += Stm32Ads1220_TerminalEvent;
             App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
+            App.Stm32Ads1220.AcquisitionFinished += Stm32Ads1220_AcquisitionFinished;
+            App.Stm32Ads1220.CommandCompleted += Stm32Ads1220_CommandCompleted;
             App.NewChannelDetected += App_NewChannelDetected;
-            pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss");
+            pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss", numericFormatStringY: "F6");
             App.Logger.Info("Main window loaded.");
+        }
+
+        private void Stm32Ads1220_CommandCompleted(object sender, EventArgs e)
+        {
+            if (!App.Stm32Ads1220.AcquisitionInProgress)
+            {
+                txtStatus.Dispatcher.Invoke(() =>
+                {
+                    txtStatus.Text = Default.stsCommandCompleted;
+                });
+            }
+        }
+
+        private void Stm32Ads1220_AcquisitionFinished(object sender, EventArgs e)
+        {
+            txtStatus.Dispatcher.Invoke(() => { txtStatus.Text = Default.stsAcqCompleted; });
         }
 
         private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
@@ -99,7 +117,9 @@ namespace AdcControl
         {
             int code = ((AdcChannel)sender).Code;
             pltMainPlot.plt.Remove(Plotted[code]);
-            pltMainPlot.plt.PlotScatter(App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY);
+            Plotted.Remove(code);
+            Plotted.Add(code,
+                pltMainPlot.plt.PlotScatter(App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY));
         }
 
         private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
@@ -149,9 +169,14 @@ namespace AdcControl
             pltMainPlot.Render();
         }
 
-        private void btnExport_Click(object sender, RoutedEventArgs e)
+        private async void btnExport_Click(object sender, RoutedEventArgs e)
         {
-
+            bool success = true;
+            foreach (var item in Plotted)
+            {
+                if (!await CsvExporter.Export(item.Key, item.Value)) success = false;
+            }
+            txtStatus.Text = success ? Default.stsCsvSaveSuccess : Default.stsCsvSaveFailed;
         }
 
         private async void btnConnect_Click(object sender, RoutedEventArgs e)
@@ -165,6 +190,7 @@ namespace AdcControl
             {
                 txtStatus.Text = Default.stsFailure;
             }
+            OnPropertyChanged();
         }
 
         private async void btnConfig_Click(object sender, RoutedEventArgs e)
@@ -194,11 +220,22 @@ namespace AdcControl
 
         private void btnDisconnect_Click(object sender, RoutedEventArgs e)
         {
-            App.Stm32Ads1220.Disconnect();
+            if (App.Stm32Ads1220.Disconnect())
+            {
+                txtStatus.Text = Default.stsDisconnected;
+            }
+            else
+            {
+                txtStatus.Text = Default.stsFailure;
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (App.Stm32Ads1220.IsConnected)
+            {
+                App.Stm32Ads1220.Disconnect();
+            }
             if (WindowState != WindowState.Maximized)
             {
                 Settings.Default.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);

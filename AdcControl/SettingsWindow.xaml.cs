@@ -26,20 +26,28 @@ namespace AdcControl
             InitializeComponent();
         }
 
-        public bool AllFieldsOK { get { return (txtAveraging.Text.Length > 0) && (txtDuration.Text.Length > 0); } }
+        public bool AllFieldsOK 
+        { 
+            get 
+            { 
+                if ((txtAveraging.Text.Length > 0) && (txtDuration.Text.Length > 0))
+                {
+                    int.TryParse(txtAveraging.Text, out int i);
+                    int.TryParse(txtDuration.Text, out int j);
+                    return i > 0 && j > 0;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private bool ValidateNumericInput(string val)
         {
-            if (int.TryParse(val, out int i))
-            {
-                return (i > 0);
-            }
-            else
-            {
-                return false;
-            }
+            return int.TryParse(val, out _);
         }
 
         private void OnPropertyChanged()
