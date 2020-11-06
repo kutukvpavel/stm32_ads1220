@@ -46,14 +46,17 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
-            var thread = new Thread(() =>
+            /*var thread = new Thread(() =>
             {
                 ArrayChanged?.Invoke(this, new EventArgs());
             });
+            thread.Start();*/
+            ArrayChanged?.Invoke(this, new EventArgs());
         }
 
         public void AddPoint(double val, double time)
         {
+            bool arrayChanged = false;
             lock (LockObject)
             {
                 if (RawCount == RawX.Length)
@@ -63,7 +66,7 @@ namespace AdcControl
                     Array.Resize(ref RawY, newSize);
                     Array.Resize(ref CalculatedX, newSize);
                     Array.Resize(ref CalculatedY, newSize);
-                    OnArrayChanged();
+                    arrayChanged = true;
                 }
                 RawX[RawCount] = time;
                 RawY[RawCount++] = val;
@@ -75,15 +78,16 @@ namespace AdcControl
                     Buffer.Dequeue();
                 }
             }
+            if (arrayChanged) OnArrayChanged();
         }
 
         public async Task TrimExcess()
         {
             var task = new Task(() =>
             {
+                bool c = false;
                 lock (LockObject)
                 {
-                    bool c = false;
                     if (RawCount != RawX.Length)
                     {
                         Array.Resize(ref RawX, RawCount);
@@ -96,8 +100,8 @@ namespace AdcControl
                         Array.Resize(ref CalculatedY, CalculatedCount);
                         c = true;
                     }
-                    if (c) OnArrayChanged();
                 }
+                if (c) OnArrayChanged();
             });
             await task;
         }
@@ -114,6 +118,7 @@ namespace AdcControl
                 CalculatedY = new double[CalculatedY.Length];
                 Buffer.Clear();
             }
+            OnArrayChanged();
         }
 
         public static async Task Recalculate(AdcChannel c)

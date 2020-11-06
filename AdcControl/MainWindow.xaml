@@ -51,6 +51,12 @@
                 </Button>
             </ToolBar>
             <ToolBar>
+                <Button x:Name="btnForceRender"
+                        ToolTip="{x:Static resx:Default.strForceRender}"
+                        Margin="5,0,5,0"
+                        Click="btnForceRender_Click">
+                    <Image Source="/AdcControl;component/Resources/update.png" Height="32"></Image>
+                </Button>
                 <Button x:Name="btnClearScreen" 
                         ToolTip="{x:Static resx:Default.strClearScreenButton}"
                         Margin="5,0,5,0"

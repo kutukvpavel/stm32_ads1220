@@ -17,6 +17,7 @@ using AdcControl.Properties;
 using System.Data;
 using RJCP.IO.Ports;
 using System.ComponentModel;
+using System.Collections.Concurrent;
 
 namespace AdcControl
 {
@@ -51,7 +52,9 @@ namespace AdcControl
             } 
         }
 
-        private Dictionary<int, ScottPlot.PlottableScatter> Plotted = new Dictionary<int, ScottPlot.PlottableScatter>();
+        private ConcurrentDictionary<int, ScottPlot.PlottableScatter> Plotted = 
+            new ConcurrentDictionary<int, ScottPlot.PlottableScatter>();
+        private BlockingCollectionQueue UpdateArrayQueue = new BlockingCollectionQueue();
 
         private void OnPropertyChanged()
         {
@@ -108,18 +111,42 @@ namespace AdcControl
 
         private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
         {
-            Plotted.Add(e.Code,
-                pltMainPlot.plt.PlotScatter(App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY));
-            App.AdcChannels[e.Code].ArrayChanged += UpdateArray;
+            bool success = false;
+            pltMainPlot.Dispatcher.Invoke(() =>
+            {
+                success = Plotted.TryAdd(e.Code,
+                    pltMainPlot.plt.PlotScatter(App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY));
+                pltMainPlot.Render();
+            });
+            if (success)
+            {
+                App.AdcChannels[e.Code].ArrayChanged += UpdateArray;
+            }
+            else
+            {
+                App.Logger.Error(Default.msgChannelPlotConcurrency);
+            }
         }
 
         private void UpdateArray(object sender, EventArgs e)
         {
-            int code = ((AdcChannel)sender).Code;
-            pltMainPlot.plt.Remove(Plotted[code]);
-            Plotted.Remove(code);
-            Plotted.Add(code,
-                pltMainPlot.plt.PlotScatter(App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY));
+            UpdateArrayQueue.Enqueue(() =>
+            {
+                int code = ((AdcChannel)sender).Code;
+                bool success = false;
+                pltMainPlot.Dispatcher.Invoke(() =>
+                {
+                    pltMainPlot.plt.Remove(Plotted[code]);
+                    success = Plotted.TryRemove(code, out _);
+                    success = success && Plotted.TryAdd(code,
+                        pltMainPlot.plt.PlotScatter(App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY));
+                    pltMainPlot.Render();
+                });
+                if (!success)
+                {
+                    App.Logger.Error(Default.msgUpdateChannelPlotFailed);
+                }
+            }
         }
 
         private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
@@ -248,6 +275,11 @@ namespace AdcControl
         private async void btnSendCustom_Click(object sender, RoutedEventArgs e)
         {
             await App.Stm32Ads1220.SendCustom(txtSendCustom.Text);
+        }
+
+        private void btnForceRender_Click(object sender, RoutedEventArgs e)
+        {
+            pltMainPlot.Render();
         }
     }
 }

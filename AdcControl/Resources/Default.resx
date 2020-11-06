@@ -205,4 +205,13 @@
   <data name="stsCommandCompleted" xml:space="preserve">
     <value>Command completed.</value>
   </data>
+  <data name="strForceRender" xml:space="preserve">
+    <value>Force plot update</value>
+  </data>
+  <data name="msgChannelPlotConcurrency" xml:space="preserve">
+    <value>Failed to add new channel to plotted channels.</value>
+  </data>
+  <data name="msgUpdateChannelPlotFailed" xml:space="preserve">
+    <value>Can't update channel data array, used by the plot.</value>
+  </data>
 </root>

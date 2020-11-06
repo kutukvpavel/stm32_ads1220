@@ -97,6 +97,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to add new channel to plotted channels..
+        /// </summary>
+        public static string msgChannelPlotConcurrency {
+            get {
+                return ResourceManager.GetString("msgChannelPlotConcurrency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Timed out while waiting in command queue..
         /// </summary>
         public static string msgControllerTimeout {
@@ -196,6 +205,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Can&apos;t update channel data array, used by the plot..
+        /// </summary>
+        public static string msgUpdateChannelPlotFailed {
+            get {
+                return ResourceManager.GetString("msgUpdateChannelPlotFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Cancel.
         /// </summary>
         public static string strCancelButton {
@@ -246,6 +264,15 @@ namespace AdcControl.Resources {
         public static string strExportButton {
             get {
                 return ResourceManager.GetString("strExportButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Force plot update.
+        /// </summary>
+        public static string strForceRender {
+            get {
+                return ResourceManager.GetString("strForceRender", resourceCulture);
             }
         }
         

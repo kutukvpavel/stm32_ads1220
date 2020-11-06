@@ -15,6 +15,7 @@
     <None Remove="Resources\send.png" />
     <None Remove="Resources\start.png" />
     <None Remove="Resources\stop.png" />
+    <None Remove="Resources\update.png" />
     <None Remove="Resources\wifi.png" />
   </ItemGroup>
 
@@ -75,6 +76,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\stop.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\update.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\wifi.png">
