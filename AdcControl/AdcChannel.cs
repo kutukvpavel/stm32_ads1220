@@ -23,11 +23,13 @@ namespace AdcControl
             Averaging = averaging;
             Buffer = new Queue<double>(averaging);
             StartTime = start;
+            Code = code;
         }
         public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
 
         public event EventHandler ArrayChanged;
+        public event EventHandler<LogEventArgs> DebugLogEvent;
 
         public int RawCount { get; set; }
         public double[] RawX;
@@ -54,6 +56,14 @@ namespace AdcControl
             ArrayChanged?.Invoke(this, new EventArgs());
         }
 
+        protected void DebugTrace(string msg)
+        {
+            new Thread(() =>
+            {
+                DebugLogEvent?.Invoke(this, new LogEventArgs(new Exception(msg), "AdcChannel trace"));
+            }).Start();
+        }
+
         public void AddPoint(double val, double time)
         {
             bool arrayChanged = false;
@@ -78,7 +88,11 @@ namespace AdcControl
                     Buffer.Dequeue();
                 }
             }
-            if (arrayChanged) OnArrayChanged();
+            if (arrayChanged)
+            {
+                OnArrayChanged();
+                DebugTrace("AddPoint arrayChanged fired for: " + Code.ToString());
+            }
         }
 
         public async Task TrimExcess()

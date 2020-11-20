@@ -8,8 +8,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.IO;
 using AdcControl.Resources;
@@ -18,6 +16,7 @@ using System.Data;
 using RJCP.IO.Ports;
 using System.ComponentModel;
 using System.Collections.Concurrent;
+using System.Drawing;
 
 namespace AdcControl
 {
@@ -52,6 +51,12 @@ namespace AdcControl
             } 
         }
 
+        public static readonly Dictionary<int, Color?> Colorset = new Dictionary<int, Color?>()
+        {
+            { 0, Color.FromKnownColor(KnownColor.Blue) },
+            { 0x50, Color.FromKnownColor(KnownColor.Orange) }
+        };
+
         private ConcurrentDictionary<int, ScottPlot.PlottableScatter> Plotted = 
             new ConcurrentDictionary<int, ScottPlot.PlottableScatter>();
         private BlockingCollectionQueue UpdateArrayQueue = new BlockingCollectionQueue();
@@ -59,6 +64,11 @@ namespace AdcControl
         private void OnPropertyChanged()
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+        }
+
+        private ScottPlot.PlottableScatter PlotScatter(int code, double[] dataX, double[] dataY)
+        {
+            return pltMainPlot.plt.PlotScatter(dataX, dataY, Colorset.ContainsKey(code) ? Colorset[code] : null);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -115,12 +125,15 @@ namespace AdcControl
             pltMainPlot.Dispatcher.Invoke(() =>
             {
                 success = Plotted.TryAdd(e.Code,
-                    pltMainPlot.plt.PlotScatter(App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY));
+                    PlotScatter(e.Code, App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY));
                 pltMainPlot.Render();
             });
             if (success)
             {
                 App.AdcChannels[e.Code].ArrayChanged += UpdateArray;
+#if DEBUG
+                App.AdcChannels[e.Code].DebugLogEvent += MainWindow_DebugLogEvent;
+#endif
             }
             else
             {
@@ -128,25 +141,32 @@ namespace AdcControl
             }
         }
 
+        private void MainWindow_DebugLogEvent(object sender, LogEventArgs e)
+        {
+            App.Logger.Debug(e.Message);
+            App.Logger.Debug(e.Exception.Message);
+        }
+
         private void UpdateArray(object sender, EventArgs e)
         {
+            int code = ((AdcChannel)sender).Code;
             UpdateArrayQueue.Enqueue(() =>
             {
-                int code = ((AdcChannel)sender).Code;
                 bool success = false;
                 pltMainPlot.Dispatcher.Invoke(() =>
                 {
                     pltMainPlot.plt.Remove(Plotted[code]);
                     success = Plotted.TryRemove(code, out _);
                     success = success && Plotted.TryAdd(code,
-                        pltMainPlot.plt.PlotScatter(App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY));
+                        PlotScatter(code, App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY));
                     pltMainPlot.Render();
+                    App.Logger.Debug("UpdateArray executed: readded " + code.ToString());
                 });
                 if (!success)
                 {
                     App.Logger.Error(Default.msgUpdateChannelPlotFailed);
                 }
-            }
+            });
         }
 
         private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
@@ -279,6 +299,7 @@ namespace AdcControl
 
         private void btnForceRender_Click(object sender, RoutedEventArgs e)
         {
+            pltMainPlot.plt.AxisAuto();
             pltMainPlot.Render();
         }
     }
