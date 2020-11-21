@@ -214,4 +214,7 @@
   <data name="msgUpdateChannelPlotFailed" xml:space="preserve">
     <value>Can't update channel data array, used by the plot.</value>
   </data>
+  <data name="msgCantCheckPortExistence" xml:space="preserve">
+    <value></value>
+  </data>
 </root>

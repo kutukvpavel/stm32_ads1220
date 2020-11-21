@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using AdcControl.Resources;
 using RJCP.IO.Ports;
-using System.Linq;
-using System.Threading;
-using AdcControl.Resources;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AdcControl
 {
@@ -267,6 +266,7 @@ namespace AdcControl
                 Log(e, string.Format("{0} Info: {1}", Default.msgPortWriteError, cmd));
                 return false;
             }
+            TerminalQueue.Enqueue(() => { TerminalEvent?.Invoke(this, new TerminalEventArgs(cmd)); });
             return await Task.Run(() => { return !Wait(ref _Completed, CompletionTimeout); });
         }
         public async Task<bool> StartAcquisition(int duration = 0)

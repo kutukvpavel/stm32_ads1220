@@ -10,7 +10,9 @@
         Title="MainWindow" MinHeight="200" MinWidth="600"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
-        x:Name="_this">
+        x:Name="_this"
+        Icon="/Resources/chart.png"
+        >
     <Window.Resources>
         <Style TargetType="Image">
             <Style.Triggers>
@@ -93,7 +95,11 @@
                 </Button>
             </ToolBar>
         </ToolBarTray>
-        <WpfPlot Grid.Row="1" x:Name="pltMainPlot"/>
+        <WpfPlot Grid.Row="1" x:Name="pltMainPlot">
+            <WpfPlot.ContextMenu>
+                <ContextMenu></ContextMenu>
+            </WpfPlot.ContextMenu>
+        </WpfPlot>
         <StatusBar Grid.Row="2" x:Name="stbMainStatusBar">
             <TextBlock x:Name="txtStatus" Text="Status" FontSize="16"></TextBlock>
         </StatusBar>
@@ -113,7 +119,14 @@
                         <Image Source="/AdcControl;component/Resources/send.png" Height="32"></Image>
                     </Button>
                 </Grid>
-                <TextBox x:Name="txtTerminal" MinWidth="150" MaxWidth="200" Grid.Row="1">
+                <TextBox 
+                    x:Name="txtTerminal"
+                    MinWidth="150"
+                    MaxWidth="200"
+                    Grid.Row="1"
+                    VerticalScrollBarVisibility="Visible"
+                    HorizontalScrollBarVisibility="Auto"
+                    >
                 </TextBox>
             </Grid>
         </Expander>

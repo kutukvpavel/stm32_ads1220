@@ -97,6 +97,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на .
+        /// </summary>
+        public static string msgCantCheckPortExistence {
+            get {
+                return ResourceManager.GetString("msgCantCheckPortExistence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Failed to add new channel to plotted channels..
         /// </summary>
         public static string msgChannelPlotConcurrency {

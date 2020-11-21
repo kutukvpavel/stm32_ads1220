@@ -10,7 +10,7 @@ namespace AdcControl
 {
     public static class CsvExporter
     {
-        public static async Task<bool> Export(int channel, ScottPlot.PlottableScatter plottable)
+        public static async Task<bool> Export(int channel, AdcChannel data)
         {
             return await Task.Run(() =>
             {
@@ -21,7 +21,7 @@ namespace AdcControl
                         string.Format("{0}_{1}.csv", DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"), channel.ToString()));
                     string dir = Path.GetDirectoryName(path);
                     if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-                    plottable.SaveCSV(path, Settings.Default.RussianExcelCompatible ? ";" : ",", Environment.NewLine);
+                    data.Plot.SaveCSV(path, Settings.Default.RussianExcelCompatible ? ";" : ",", Environment.NewLine);
                     return true;
                 }
                 catch (Exception ex)

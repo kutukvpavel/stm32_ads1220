@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Navigation;
-using System.IO;
+﻿using AdcControl.Properties;
 using AdcControl.Resources;
-using AdcControl.Properties;
-using System.Data;
 using RJCP.IO.Ports;
-using System.ComponentModel;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Windows;
 
 namespace AdcControl
 {
@@ -46,6 +38,7 @@ namespace AdcControl
                 }
                 catch (Exception)
                 {
+                    App.Logger.Error(Default.msgCantCheckPortExistence);
                     return false;
                 }
             } 
@@ -54,21 +47,22 @@ namespace AdcControl
         public static readonly Dictionary<int, Color?> Colorset = new Dictionary<int, Color?>()
         {
             { 0, Color.FromKnownColor(KnownColor.Blue) },
-            { 0x50, Color.FromKnownColor(KnownColor.Orange) }
+            { 0x50, Color.FromKnownColor(KnownColor.Red) }
         };
 
-        private ConcurrentDictionary<int, ScottPlot.PlottableScatter> Plotted = 
-            new ConcurrentDictionary<int, ScottPlot.PlottableScatter>();
         private BlockingCollectionQueue UpdateArrayQueue = new BlockingCollectionQueue();
+        private ConcurrentDictionary<int, string> ChannelNames;
+        private ConcurrentDictionary<int, bool> ChannelEnable;
 
         private void OnPropertyChanged()
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
 
-        private ScottPlot.PlottableScatter PlotScatter(int code, double[] dataX, double[] dataY)
+        private void PlotScatter(AdcChannel channel)
         {
-            return pltMainPlot.plt.PlotScatter(dataX, dataY, Colorset.ContainsKey(code) ? Colorset[code] : null);
+            var res = pltMainPlot.plt.PlotScatter(channel.CalculatedX, channel.CalculatedY);
+            channel.Plot = res; //This will apply predefined label, visibility and color if they exist
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -78,12 +72,14 @@ namespace AdcControl
             Height = Settings.Default.MainWindowSize.Height;
             Width = Settings.Default.MainWindowSize.Width;
             if (Settings.Default.Maximized) WindowState = WindowState.Maximized;
+            ChannelNames = DictionarySaver.Parse(Settings.Default.ChannelNameMapping, x => x);
+            ChannelEnable = DictionarySaver.Parse(Settings.Default.ChannelEnableMapping, x => bool.Parse(x));
             App.Stm32Ads1220.TerminalEvent += Stm32Ads1220_TerminalEvent;
             App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             App.Stm32Ads1220.AcquisitionFinished += Stm32Ads1220_AcquisitionFinished;
             App.Stm32Ads1220.CommandCompleted += Stm32Ads1220_CommandCompleted;
             App.NewChannelDetected += App_NewChannelDetected;
-            pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss", numericFormatStringY: "F6");
+            pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss", numericFormatStringY: "F5");
             App.Logger.Info("Main window loaded.");
         }
 
@@ -124,9 +120,21 @@ namespace AdcControl
             bool success = false;
             pltMainPlot.Dispatcher.Invoke(() =>
             {
-                success = Plotted.TryAdd(e.Code,
-                    PlotScatter(e.Code, App.AdcChannels[e.Code].CalculatedX, App.AdcChannels[e.Code].CalculatedY));
+                if (ChannelEnable.ContainsKey(e.Code))
+                {
+                    App.AdcChannels[e.Code].IsVisible = ChannelEnable[e.Code];
+                }
+                if (ChannelNames.ContainsKey(e.Code))
+                {
+                    App.AdcChannels[e.Code].Name = ChannelNames[e.Code];
+                }
+                if (Colorset.ContainsKey(e.Code))
+                {
+                    App.AdcChannels[e.Code].Color = Colorset[e.Code];
+                }
+                PlotScatter(App.AdcChannels[e.Code]);
                 pltMainPlot.Render();
+                pltMainPlot.ContextMenu.Items.Add(DictionarySaver.WriteMapping(e.Code, App.AdcChannels[e.Code].Name));
             });
             if (success)
             {
@@ -155,10 +163,8 @@ namespace AdcControl
                 bool success = false;
                 pltMainPlot.Dispatcher.Invoke(() =>
                 {
-                    pltMainPlot.plt.Remove(Plotted[code]);
-                    success = Plotted.TryRemove(code, out _);
-                    success = success && Plotted.TryAdd(code,
-                        PlotScatter(code, App.AdcChannels[code].CalculatedX, App.AdcChannels[code].CalculatedY));
+                    pltMainPlot.plt.Remove(App.AdcChannels[code].Plot);
+                    PlotScatter(App.AdcChannels[code]);
                     pltMainPlot.Render();
                     App.Logger.Debug("UpdateArray executed: readded " + code.ToString());
                 });
@@ -179,6 +185,7 @@ namespace AdcControl
                     txtTerminal.Text = txtTerminal.Text.Remove(0, Settings.Default.TerminalRemoveStep);
                     TerminalLines -= Settings.Default.TerminalRemoveStep;
                 }
+                txtTerminal.ScrollToEnd();
             });
         }
 
@@ -211,7 +218,7 @@ namespace AdcControl
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
             pltMainPlot.plt.Clear();
-            Plotted.Clear();
+            pltMainPlot.ContextMenu.Items.Clear();
             App.AdcChannels.Clear();
             pltMainPlot.Render();
         }
@@ -219,7 +226,7 @@ namespace AdcControl
         private async void btnExport_Click(object sender, RoutedEventArgs e)
         {
             bool success = true;
-            foreach (var item in Plotted)
+            foreach (var item in App.AdcChannels)
             {
                 if (!await CsvExporter.Export(item.Key, item.Value)) success = false;
             }
@@ -275,9 +282,10 @@ namespace AdcControl
             {
                 txtStatus.Text = Default.stsFailure;
             }
+            OnPropertyChanged();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             if (App.Stm32Ads1220.IsConnected)
             {
@@ -289,6 +297,8 @@ namespace AdcControl
                 Settings.Default.MainWindowSize = new System.Drawing.Size((int)Width, (int)Height);
             }
             Settings.Default.Maximized = WindowState == WindowState.Maximized;
+            DictionarySaver.Save(Settings.Default.ChannelNameMapping, ChannelNames);
+            DictionarySaver.Save(Settings.Default.ChannelEnableMapping, ChannelEnable);
             Settings.Default.Save();
         }
 

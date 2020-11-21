@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using LLibrary;
-using System.IO;
-using AdcControl.Properties;
+﻿using AdcControl.Properties;
 using AdcControl.Resources;
+using LLibrary;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
+using System.Windows;
 
 namespace AdcControl
 {
@@ -31,6 +27,9 @@ namespace AdcControl
 
         public static event EventHandler<NewChannelDetectedEventArgs> NewChannelDetected;
 
+        /// <summary>
+        /// Do not make this property automatic (possible data binding reasons)!
+        /// </summary>
         public static Controller Stm32Ads1220 { get { return _Stm32Ads1220; } }
 
         public static List<ConcurrentDictionary<int, AdcChannel>> ArchivedChannels { get; set; }

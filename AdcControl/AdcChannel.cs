@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AdcControl
 {
@@ -40,6 +39,58 @@ namespace AdcControl
         public int Averaging { get; set; }
         public double StartTime { get; set; }
         public int Code { get; }
+        protected string _Name;
+        public string Name
+        {
+            get { return _Name ?? Code.ToString("X"); }
+            set
+            {
+                _Name = value;
+                if (Plot != null) Plot.label = _Name;
+            }
+        }
+        protected bool _IsVisible = true;
+        public bool IsVisible
+        {
+            get { return _IsVisible; }
+            set
+            {
+                _IsVisible = value;
+                if (Plot != null) Plot.visible = _IsVisible;
+            }
+        }
+        protected System.Drawing.Color? _Color = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.Black);
+        public System.Drawing.Color? Color
+        {
+            get { return _Color; }
+            set
+            {
+                _Color = value;
+                if (Plot != null && _Color != null) Plot.color = (System.Drawing.Color)_Color;
+            }
+        }
+        protected ScottPlot.PlottableScatter _Plot;
+        public ScottPlot.PlottableScatter Plot
+        {
+            get { return _Plot; }
+            set
+            {
+                _Plot = value;
+                _Plot.label = _Name;
+                _Plot.visible = _IsVisible;
+                if (_Color != null) _Plot.color = (System.Drawing.Color)_Color;
+            }
+        }
+        protected AdcChannelContextMenuItem _ContextMenuItem;
+        public AdcChannelContextMenuItem ContextMenuItem
+        {
+            get 
+            {
+                if (_ContextMenuItem == null) _ContextMenuItem = 
+                        new AdcChannelContextMenuItem(() => { return Code; }, () => { return Name; });
+                return _ContextMenuItem;
+            }
+        }
 
         public void AddPoint(double val)
         {
@@ -149,6 +200,25 @@ namespace AdcControl
                 }
             });
             await task;
+        }
+    }
+
+    public class AdcChannelContextMenuItem
+    {
+        public AdcChannelContextMenuItem(Func<int> code, Func<string> name)
+        {
+            Code = code;
+            Name = name;
+        }
+
+        private Func<int> Code;
+        private Func<string> Name;
+
+        public override string ToString()
+        {
+            int c = Code();
+            string n = Name();
+            return DictionarySaver.WriteMapping(c, n ?? c.ToString("X"));
         }
     }
 }

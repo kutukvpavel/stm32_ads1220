@@ -154,5 +154,33 @@ namespace AdcControl.Properties {
                 this["RussianExcelCompatible"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>0=AIN0_AIN1</string>\r\n  <string>50=AIN2_AIN3</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection ChannelNameMapping {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["ChannelNameMapping"]));
+            }
+            set {
+                this["ChannelNameMapping"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>0=True</string>\r\n  <string>50=True</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection ChannelEnableMapping {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["ChannelEnableMapping"]));
+            }
+            set {
+                this["ChannelEnableMapping"] = value;
+            }
+        }
     }
 }
