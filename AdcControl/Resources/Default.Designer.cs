@@ -97,7 +97,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на .
+        ///   Ищет локализованную строку, похожую на Can&apos;t check if selected serial port exists..
         /// </summary>
         public static string msgCantCheckPortExistence {
             get {
@@ -106,11 +106,29 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Failed to add new channel to plotted channels..
+        ///   Ищет локализованную строку, похожую на Failed to create a directory for CSV export..
         /// </summary>
-        public static string msgChannelPlotConcurrency {
+        public static string msgCantCreateCsvDirectory {
             get {
-                return ResourceManager.GetString("msgChannelPlotConcurrency", resourceCulture);
+                return ResourceManager.GetString("msgCantCreateCsvDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to delete an old autosaved file..
+        /// </summary>
+        public static string msgCantDeleteOldAutosave {
+            get {
+                return ResourceManager.GetString("msgCantDeleteOldAutosave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to open export folder in Explorer..
+        /// </summary>
+        public static string msgCantOpenExportFolder {
+            get {
+                return ResourceManager.GetString("msgCantOpenExportFolder", resourceCulture);
             }
         }
         
@@ -124,11 +142,29 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на File already exists. Overwrite?.
+        /// </summary>
+        public static string msgCsvAlreadyExistsReplace {
+            get {
+                return ResourceManager.GetString("msgCsvAlreadyExistsReplace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Can&apos;t save CSV file..
         /// </summary>
         public static string msgCsvSaveFailed {
             get {
                 return ResourceManager.GetString("msgCsvSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Deleted an old autosaved file..
+        /// </summary>
+        public static string msgDeletedOldAutosave {
+            get {
+                return ResourceManager.GetString("msgDeletedOldAutosave", resourceCulture);
             }
         }
         
@@ -156,6 +192,15 @@ namespace AdcControl.Resources {
         public static string msgInvalidPortSetting {
             get {
                 return ResourceManager.GetString("msgInvalidPortSetting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Main window loaded..
+        /// </summary>
+        public static string msgLoadedMainWindow {
+            get {
+                return ResourceManager.GetString("msgLoadedMainWindow", resourceCulture);
             }
         }
         
@@ -205,11 +250,20 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Timeout while waiting for terminal!.
+        ///   Ищет локализованную строку, похожую на Exported data to CSV file..
         /// </summary>
-        public static string msgTerminalTimeout {
+        public static string msgSuccessfullyExportedToFile {
             get {
-                return ResourceManager.GetString("msgTerminalTimeout", resourceCulture);
+                return ResourceManager.GetString("msgSuccessfullyExportedToFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Unrecognized export error..
+        /// </summary>
+        public static string msgUnknownExportError {
+            get {
+                return ResourceManager.GetString("msgUnknownExportError", resourceCulture);
             }
         }
         
@@ -268,6 +322,24 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Toggle autoscaling.
+        /// </summary>
+        public static string strEnableAutoAxis {
+            get {
+                return ResourceManager.GetString("strEnableAutoAxis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Enter experiment name:.
+        /// </summary>
+        public static string strEnterExperimentName {
+            get {
+                return ResourceManager.GetString("strEnterExperimentName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Export data as CSV.
         /// </summary>
         public static string strExportButton {
@@ -286,11 +358,38 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Prevent Y axis autoscaling.
+        /// </summary>
+        public static string strLockVerticalAxis {
+            get {
+                return ResourceManager.GetString("strLockVerticalAxis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на AdcControl.
+        /// </summary>
+        public static string strMessageBoxCaption {
+            get {
+                return ResourceManager.GetString("strMessageBoxCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на OK.
         /// </summary>
         public static string strOKButton {
             get {
                 return ResourceManager.GetString("strOKButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Open export folder.
+        /// </summary>
+        public static string strOpenExportFolder {
+            get {
+                return ResourceManager.GetString("strOpenExportFolder", resourceCulture);
             }
         }
         
@@ -363,6 +462,15 @@ namespace AdcControl.Resources {
         public static string stsCsvSaveFailed {
             get {
                 return ResourceManager.GetString("stsCsvSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Saving CSV....
+        /// </summary>
+        public static string stsCsvSaveInProgress {
+            get {
+                return ResourceManager.GetString("stsCsvSaveInProgress", resourceCulture);
             }
         }
         

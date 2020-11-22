@@ -7,12 +7,12 @@
         xmlns:resx="clr-namespace:AdcControl.Resources"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="200" MinWidth="600"
+        Title="MainWindow" MinHeight="200" MinWidth="750"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
         x:Name="_this"
         Icon="/Resources/chart.png"
-        >
+        FontSize="16">
     <Window.Resources>
         <Style TargetType="Image">
             <Style.Triggers>
@@ -20,6 +20,9 @@
                     <Setter Property="Opacity" Value="0.2" />
                 </Trigger>
             </Style.Triggers>
+        </Style>
+        <Style x:Key="{x:Static ToolBar.ButtonStyleKey}" TargetType="Button">
+            <Setter Property="Margin" Value="5,0,5,0"></Setter>
         </Style>
     </Window.Resources>
     <Grid>
@@ -36,16 +39,14 @@
             <ToolBar Grid.Row="0" Height="auto">
                 <Button x:Name="btnStartAcquisition" 
                         ToolTip="{x:Static resx:Default.strStartButton}" 
-                        Margin="5,0,5,0"
                         Click="btnStartAcquisition_Click"
-                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForAcquisition, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}">
+                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForAcquisition, Mode=OneWay}">
                     <Image Source="/AdcControl;component/Resources/start.png" Height="32">
                         
                     </Image>
                 </Button>
                 <Button x:Name="btnStopAcquisition" 
                         ToolTip="{x:Static resx:Default.strStopButton}" 
-                        Margin="5,0,5,0"
                         Click="btnStopAcquisition_Click"
                         IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=AcquisitionInProgress, Mode=OneWay}">
                     <Image Source="/AdcControl;component/Resources/stop.png" Height="32">
@@ -53,55 +54,73 @@
                 </Button>
             </ToolBar>
             <ToolBar>
+                <ToggleButton x:Name="btnLockVerticalAxis"
+                        Click="btnLockVerticalAxis_Click"
+                        ToolTip="{x:Static resx:Default.strLockVerticalAxis}"
+                        Margin="5,0,3,0">
+                    <Image Source="/AdcControl;component/Resources/lock_vertical.png" Height="38"></Image>
+                </ToggleButton>
+                <ToggleButton x:Name="btnEnableAutoAxis"
+                        Click="btnEnableAutoAxis_Click"
+                        ToolTip="{x:Static resx:Default.strEnableAutoAxis}"
+                        Margin="5,0,3,0">
+                    <Image Source="/AdcControl;component/Resources/scaling.png" Height="38"></Image>
+                </ToggleButton>
                 <Button x:Name="btnForceRender"
                         ToolTip="{x:Static resx:Default.strForceRender}"
-                        Margin="5,0,5,0"
                         Click="btnForceRender_Click">
                     <Image Source="/AdcControl;component/Resources/update.png" Height="32"></Image>
                 </Button>
                 <Button x:Name="btnClearScreen" 
                         ToolTip="{x:Static resx:Default.strClearScreenButton}"
-                        Margin="5,0,5,0"
                         Click="btnClearScreen_Click">
                     <Image Source="/AdcControl;component/Resources/delete.png" Height="36"></Image>
                 </Button>
+            </ToolBar>
+            <ToolBar>
                 <Button x:Name="btnExport" 
                         ToolTip="{x:Static resx:Default.strExportButton}"
-                        Margin="5,0,5,0"
                         Click="btnExport_Click">
                     <Image Source="/AdcControl;component/Resources/csv_small.png" Height="36"></Image>
+                </Button>
+                <Button x:Name="btnOpenExportFolder"
+                        ToolTip="{x:Static resx:Default.strOpenExportFolder}"
+                        Click="btnOpenExportFolder_Click">
+                    <Image Source="/AdcControl;component/Resources/folder.png" Height="36"></Image>
                 </Button>
             </ToolBar>
             <ToolBar>
                 <Button x:Name="btnConnect" 
                         ToolTip="{x:Static resx:Default.strConnectButton}"
-                        Margin="5,0,5,0"
                         Click="btnConnect_Click"
                         IsEnabled="{Binding ElementName=_this, Path=ReadyForConnection, Mode=OneWay}">
                     <Image Source="/AdcControl;component/Resources/wifi.png" Height="36"></Image>
                 </Button>
                 <Button x:Name="btnConfig" 
                         ToolTip="{x:Static resx:Default.strConfigButton}"
-                        Margin="5,0,5,0"
                         Click="btnConfig_Click">
                     <Image Source="/AdcControl;component/Resources/config.png" Height="36"></Image>
                 </Button>
                 <Button x:Name="btnDisconnect" 
                         ToolTip="{x:Static resx:Default.strDisconnectButton}"
-                        Margin="5,0,5,0"
                         Click="btnDisconnect_Click"
                         IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=IsConnected, Mode=OneWay}">
                     <Image Source="/AdcControl;component/Resources/disconnect.png" Height="36"></Image>
                 </Button>
             </ToolBar>
         </ToolBarTray>
-        <WpfPlot Grid.Row="1" x:Name="pltMainPlot">
+        <WpfPlot Grid.Row="1" x:Name="pltMainPlot" MouseMove="pltMainPlot_MouseMove">
             <WpfPlot.ContextMenu>
-                <ContextMenu></ContextMenu>
+                <ContextMenu />
             </WpfPlot.ContextMenu>
         </WpfPlot>
-        <StatusBar Grid.Row="2" x:Name="stbMainStatusBar">
-            <TextBlock x:Name="txtStatus" Text="Status" FontSize="16"></TextBlock>
+        <StatusBar FontSize="16" Grid.Row="2" x:Name="stbMainStatusBar">
+            <StatusBarItem>
+                <TextBlock x:Name="txtStatus" Text="Status"></TextBlock>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock x:Name="txtCoordinates" Text="Coordinates"></TextBlock>
+            </StatusBarItem>
         </StatusBar>
         <Expander x:Name="ctlExpander" Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" ExpandDirection="Left">
             <Grid>
@@ -114,9 +133,9 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <TextBox FontSize="16" Grid.Column="0" Margin="3,3,3,3" x:Name="txtSendCustom"></TextBox>
+                    <TextBox Grid.Column="0" Margin="3,3,3,3" x:Name="txtSendCustom" FontSize="15"></TextBox>
                     <Button Grid.Column="1" Margin="3,3,3,3" x:Name="btnSendCustom" Click="btnSendCustom_Click">
-                        <Image Source="/AdcControl;component/Resources/send.png" Height="32"></Image>
+                        <Image Source="/AdcControl;component/Resources/send.png" Height="24"></Image>
                     </Button>
                 </Grid>
                 <TextBox 
@@ -126,7 +145,7 @@
                     Grid.Row="1"
                     VerticalScrollBarVisibility="Visible"
                     HorizontalScrollBarVisibility="Auto"
-                    >
+                    FontSize="15">
                 </TextBox>
             </Grid>
         </Expander>

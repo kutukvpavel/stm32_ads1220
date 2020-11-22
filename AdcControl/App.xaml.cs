@@ -4,6 +4,7 @@ using LLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -32,6 +33,8 @@ namespace AdcControl
         /// </summary>
         public static Controller Stm32Ads1220 { get { return _Stm32Ads1220; } }
 
+        public static System.Timers.Timer AutosaveTimer { get; set; }
+
         public static List<ConcurrentDictionary<int, AdcChannel>> ArchivedChannels { get; set; }
         public static ConcurrentDictionary<int, AdcChannel> AdcChannels { get; set; }
 
@@ -46,9 +49,33 @@ namespace AdcControl
             _Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             _Stm32Ads1220.DeviceError += Stm32Ads1220_DeviceError;
             _Stm32Ads1220.DataError += Stm32Ads1220_DataError;
+            AutosaveTimer = new System.Timers.Timer(Settings.Default.AutosaveInterval * 1000)
+            {
+                AutoReset = true,
+                Enabled = false
+            };
+            AutosaveTimer.Elapsed += AutosaveTimer_Elapsed;
+        }
+
+        public static void ConfigureCsvExporter()
+        {
+            var c = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+            c.NumberFormat.NumberDecimalSeparator = Settings.Default.RussianExcelCompatible ? "," : ".";
+            CsvExporter.Configuration.CultureInfo = c;
+            CsvExporter.Configuration.Delimiter = Settings.Default.RussianExcelCompatible ? ";" : ",";
+            CsvExporter.Configuration.NewLine = CsvHelper.Configuration.NewLine.Environment;
         }
 
         private static Controller _Stm32Ads1220;
+
+        private static void AutosaveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (!Stm32Ads1220.AcquisitionInProgress) AutosaveTimer.Stop();
+            if (AdcChannels.Values.Count > 0)
+            {
+                new Thread(() => { CsvExporter.AutoSave(AdcChannels.Values); }).Start();
+            }
+        }
 
         private static void Stm32Ads1220_DataError(object sender, DataErrorEventArgs e)
         {
@@ -88,6 +115,7 @@ namespace AdcControl
                 }
             }
             AdcChannels[e.Channel].AddPoint(e.Value);
+            if (!AutosaveTimer.Enabled) AutosaveTimer.Start();
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
@@ -106,7 +134,7 @@ namespace AdcControl
                 e.Handled = true;
                 try
                 {
-                    Logger.Info(AdcControl.Resources.Default.msgExceptionOverride);
+                    Logger.Info(Default.msgExceptionOverride);
                 }
                 catch (Exception) { }
             }

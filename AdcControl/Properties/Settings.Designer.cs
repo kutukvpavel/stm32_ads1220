@@ -182,5 +182,89 @@ namespace AdcControl.Properties {
                 this["ChannelEnableMapping"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\AdcCsvAutosaves")]
+        public string CsvAutosavePath {
+            get {
+                return ((string)(this["CsvAutosavePath"]));
+            }
+            set {
+                this["CsvAutosavePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableAutoscaling {
+            get {
+                return ((bool)(this["EnableAutoscaling"]));
+            }
+            set {
+                this["EnableAutoscaling"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int AutosaveInterval {
+            get {
+                return ((int)(this["AutosaveInterval"]));
+            }
+            set {
+                this["AutosaveInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int AutosaveFileLimit {
+            get {
+                return ((int)(this["AutosaveFileLimit"]));
+            }
+            set {
+                this["AutosaveFileLimit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LockVerticalScale {
+            get {
+                return ((bool)(this["LockVerticalScale"]));
+            }
+            set {
+                this["LockVerticalScale"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double YMax {
+            get {
+                return ((double)(this["YMax"]));
+            }
+            set {
+                this["YMax"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public double YMin {
+            get {
+                return ((double)(this["YMin"]));
+            }
+            set {
+                this["YMin"] = value;
+            }
+        }
     }
 }

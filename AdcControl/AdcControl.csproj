@@ -13,6 +13,9 @@
     <None Remove="Resources\csv_small.png" />
     <None Remove="Resources\delete.png" />
     <None Remove="Resources\Disconnect.png" />
+    <None Remove="Resources\folder.png" />
+    <None Remove="Resources\lock_vertical.png" />
+    <None Remove="Resources\scaling.png" />
     <None Remove="Resources\send.png" />
     <None Remove="Resources\start.png" />
     <None Remove="Resources\stop.png" />
@@ -21,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Csv" Version="1.0.58" />
+    <PackageReference Include="CsvHelper" Version="16.1.0" />
     <PackageReference Include="L" Version="5.0.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="ScottPlot.WPF" Version="4.0.42" />
@@ -71,6 +74,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Disconnect.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\folder.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\lock_vertical.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\scaling.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\send.png">

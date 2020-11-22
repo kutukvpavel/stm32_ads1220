@@ -5,8 +5,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -24,8 +26,20 @@ namespace AdcControl
         }
 
         private int TerminalLines = 0;
+        private string _CurrentStatus = "";
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public string CurrentStatus
+        {
+            get { return _CurrentStatus; }
+            private set
+            {
+                _CurrentStatus = value;
+                txtStatus.Text = _CurrentStatus;
+                App.Logger.Info(_CurrentStatus);
+            }
+        }
 
         public bool ReadyForConnection 
         { 
@@ -50,7 +64,6 @@ namespace AdcControl
             { 0x50, Color.FromKnownColor(KnownColor.Red) }
         };
 
-        private BlockingCollectionQueue UpdateArrayQueue = new BlockingCollectionQueue();
         private ConcurrentDictionary<int, string> ChannelNames;
         private ConcurrentDictionary<int, bool> ChannelEnable;
 
@@ -65,6 +78,8 @@ namespace AdcControl
             channel.Plot = res; //This will apply predefined label, visibility and color if they exist
         }
 
+        #region Window Events
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Top = Settings.Default.MainWindowLocation.Y;
@@ -74,14 +89,49 @@ namespace AdcControl
             if (Settings.Default.Maximized) WindowState = WindowState.Maximized;
             ChannelNames = DictionarySaver.Parse(Settings.Default.ChannelNameMapping, x => x);
             ChannelEnable = DictionarySaver.Parse(Settings.Default.ChannelEnableMapping, x => bool.Parse(x));
+            btnEnableAutoAxis.IsChecked = Settings.Default.EnableAutoscaling;
+            btnLockVerticalAxis.IsChecked = Settings.Default.LockVerticalScale;
             App.Stm32Ads1220.TerminalEvent += Stm32Ads1220_TerminalEvent;
             App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             App.Stm32Ads1220.AcquisitionFinished += Stm32Ads1220_AcquisitionFinished;
             App.Stm32Ads1220.CommandCompleted += Stm32Ads1220_CommandCompleted;
             App.NewChannelDetected += App_NewChannelDetected;
             pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss", numericFormatStringY: "F5");
-            App.Logger.Info("Main window loaded.");
+            pltMainPlot.plt.Axis(y1: Settings.Default.YMin, y2: Settings.Default.YMax);
+            pltMainPlot.Render();
+            App.ConfigureCsvExporter();
+            App.Logger.Info(Default.msgLoadedMainWindow);
         }
+
+        private void MainWindow_DebugLogEvent(object sender, LogEventArgs e)
+        {
+            App.Logger.Debug(e.Message);
+            App.Logger.Debug(e.Exception.Message);
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (App.Stm32Ads1220.IsConnected)
+            {
+                App.Stm32Ads1220.Disconnect();
+            }
+            if (WindowState != WindowState.Maximized)
+            {
+                Settings.Default.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
+                Settings.Default.MainWindowSize = new System.Drawing.Size((int)Width, (int)Height);
+            }
+            Settings.Default.Maximized = WindowState == WindowState.Maximized;
+            var s = pltMainPlot.plt.GetSettings().axes.y;
+            Settings.Default.YMax = s.max;
+            Settings.Default.YMin = s.min;
+            DictionarySaver.Save(Settings.Default.ChannelNameMapping, ChannelNames);
+            DictionarySaver.Save(Settings.Default.ChannelEnableMapping, ChannelEnable);
+            Settings.Default.Save();
+        }
+
+        #endregion
+
+        #region UI-related Application Events
 
         private void Stm32Ads1220_CommandCompleted(object sender, EventArgs e)
         {
@@ -89,27 +139,30 @@ namespace AdcControl
             {
                 txtStatus.Dispatcher.Invoke(() =>
                 {
-                    txtStatus.Text = Default.stsCommandCompleted;
+                    CurrentStatus = Default.stsCommandCompleted;
                 });
             }
         }
 
         private void Stm32Ads1220_AcquisitionFinished(object sender, EventArgs e)
         {
-            txtStatus.Dispatcher.Invoke(() => { txtStatus.Text = Default.stsAcqCompleted; });
+            txtStatus.Dispatcher.Invoke(() => { CurrentStatus = Default.stsAcqCompleted; });
         }
 
         private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
         {
             pltMainPlot.Dispatcher.Invoke(() =>
             {
-                try
+                if (Settings.Default.EnableAutoscaling)
                 {
-                    pltMainPlot.plt.AxisAuto();
-                }
-                catch (InvalidOperationException)
-                {
-
+                    if (Settings.Default.LockVerticalScale)
+                    {
+                        pltMainPlot.plt.AxisAutoX();
+                    }
+                    else
+                    {
+                        pltMainPlot.plt.AxisAuto();
+                    }
                 }
                 pltMainPlot.Render();
             });
@@ -117,7 +170,6 @@ namespace AdcControl
 
         private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
         {
-            bool success = false;
             pltMainPlot.Dispatcher.Invoke(() =>
             {
                 if (ChannelEnable.ContainsKey(e.Code))
@@ -133,46 +185,16 @@ namespace AdcControl
                     App.AdcChannels[e.Code].Color = Colorset[e.Code];
                 }
                 PlotScatter(App.AdcChannels[e.Code]);
+                pltMainPlot.plt.Legend();
                 pltMainPlot.Render();
-                pltMainPlot.ContextMenu.Items.Add(DictionarySaver.WriteMapping(e.Code, App.AdcChannels[e.Code].Name));
+                pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
             });
-            if (success)
-            {
-                App.AdcChannels[e.Code].ArrayChanged += UpdateArray;
-#if DEBUG
-                App.AdcChannels[e.Code].DebugLogEvent += MainWindow_DebugLogEvent;
-#endif
-            }
-            else
-            {
-                App.Logger.Error(Default.msgChannelPlotConcurrency);
-            }
+            App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
         }
 
-        private void MainWindow_DebugLogEvent(object sender, LogEventArgs e)
+        private void ContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            App.Logger.Debug(e.Message);
-            App.Logger.Debug(e.Exception.Message);
-        }
-
-        private void UpdateArray(object sender, EventArgs e)
-        {
-            int code = ((AdcChannel)sender).Code;
-            UpdateArrayQueue.Enqueue(() =>
-            {
-                bool success = false;
-                pltMainPlot.Dispatcher.Invoke(() =>
-                {
-                    pltMainPlot.plt.Remove(App.AdcChannels[code].Plot);
-                    PlotScatter(App.AdcChannels[code]);
-                    pltMainPlot.Render();
-                    App.Logger.Debug("UpdateArray executed: readded " + code.ToString());
-                });
-                if (!success)
-                {
-                    App.Logger.Error(Default.msgUpdateChannelPlotFailed);
-                }
-            });
+            pltMainPlot.Dispatcher.Invoke(() => { pltMainPlot.Render(); });
         }
 
         private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
@@ -189,29 +211,70 @@ namespace AdcControl
             });
         }
 
+        #endregion
+
+        #region UI Events
+
+        private void btnLockVerticalAxis_Click(object sender, RoutedEventArgs e)
+        {
+            Settings.Default.LockVerticalScale = btnLockVerticalAxis.IsChecked ?? false;
+        }
+
+        private void pltMainPlot_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
+            txtCoordinates.Text = string.Format(
+                "{0:F6} V @ {1}",
+                mouseY,
+                DateTime.FromOADate(mouseX).ToString("HH:mm:ss.ff")
+                );
+        }
+
+        private void btnEnableAutoAxis_Click(object sender, RoutedEventArgs e)
+        {
+            Settings.Default.EnableAutoscaling = btnEnableAutoAxis.IsChecked ?? false;
+        }
+
+        private void btnOpenExportFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var s = new ProcessStartInfo(Path.GetFullPath(Environment.CurrentDirectory + Settings.Default.CsvSavePath))
+                {
+                    UseShellExecute = true
+                };
+                Process.Start(s);
+            }
+            catch (Exception ex)
+            {
+                App.Logger.Error(Default.msgCantOpenExportFolder);
+                App.Logger.Info(ex.ToString());
+            }
+        }
+
         private async void btnStartAcquisition_Click(object sender, RoutedEventArgs e)
         {
-            txtStatus.Text = Default.stsStartingAcq;
+            CurrentStatus = Default.stsStartingAcq;
             if (await App.Stm32Ads1220.StartAcquisition(Settings.Default.AcquisitionDuration))
             {
-                txtStatus.Text = Default.stsAcqInProgress;
+                CurrentStatus = Default.stsAcqInProgress;
             }
             else
             {
-                txtStatus.Text = Default.stsFailure;
+                CurrentStatus = Default.stsFailure;
             }
         }
 
         private async void btnStopAcquisition_Click(object sender, RoutedEventArgs e)
         {
-            txtStatus.Text = Default.stsStoppingAcq;
+            CurrentStatus = Default.stsStoppingAcq;
             if (await App.Stm32Ads1220.StopAcquisition())
             {
-                txtStatus.Text = Default.stsReady;
+                CurrentStatus = Default.stsReady;
             }
             else
             {
-                txtStatus.Text = Default.stsFailure;
+                CurrentStatus = Default.stsFailure;
             }
         }
 
@@ -219,30 +282,62 @@ namespace AdcControl
         {
             pltMainPlot.plt.Clear();
             pltMainPlot.ContextMenu.Items.Clear();
+            foreach (var item in App.AdcChannels.Values)
+            {
+                item.ContextMenuItem.Click -= ContextMenuItem_Click;
+            }
             App.AdcChannels.Clear();
             pltMainPlot.Render();
         }
 
         private async void btnExport_Click(object sender, RoutedEventArgs e)
         {
-            bool success = true;
-            foreach (var item in App.AdcChannels)
+            InputBox dialog = null;
+            Func<bool> showDialog = () =>
             {
-                if (!await CsvExporter.Export(item.Key, item.Value)) success = false;
+                dialog = new InputBox()
+                {
+                    PromptLabel = Default.strEnterExperimentName,
+                    InvalidCharacters = Path.GetInvalidFileNameChars()
+                };
+                return dialog.ShowDialog() ?? false;
+            };
+            while (showDialog())
+            {
+                if (CsvExporter.CheckIfAlreadyExists(dialog.InputText))
+                {
+                    if (MessageBox.Show(
+                        Default.msgCsvAlreadyExistsReplace,
+                        Default.strMessageBoxCaption,
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question) == MessageBoxResult.No) continue;
+                }
+                try
+                {
+                    CurrentStatus = Default.stsCsvSaveInProgress;
+                    CurrentStatus = (await CsvExporter.Export(dialog.InputText, App.AdcChannels.Values)) ?
+                        Default.stsCsvSaveSuccess :
+                        Default.stsCsvSaveFailed;
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.Error(Default.msgUnknownExportError);
+                    App.Logger.Info(ex.ToString());
+                }
+                break;
             }
-            txtStatus.Text = success ? Default.stsCsvSaveSuccess : Default.stsCsvSaveFailed;
         }
 
         private async void btnConnect_Click(object sender, RoutedEventArgs e)
         {
-            txtStatus.Text = Default.stsConnecting;
+            CurrentStatus = Default.stsConnecting;
             if (await App.Stm32Ads1220.Connect())
             {
-                txtStatus.Text = Default.stsConnected;
+                CurrentStatus = Default.stsConnected;
             }
             else
             {
-                txtStatus.Text = Default.stsFailure;
+                CurrentStatus = Default.stsFailure;
             }
             OnPropertyChanged();
         }
@@ -276,30 +371,13 @@ namespace AdcControl
         {
             if (App.Stm32Ads1220.Disconnect())
             {
-                txtStatus.Text = Default.stsDisconnected;
+                CurrentStatus = Default.stsDisconnected;
             }
             else
             {
-                txtStatus.Text = Default.stsFailure;
+                CurrentStatus = Default.stsFailure;
             }
             OnPropertyChanged();
-        }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            if (App.Stm32Ads1220.IsConnected)
-            {
-                App.Stm32Ads1220.Disconnect();
-            }
-            if (WindowState != WindowState.Maximized)
-            {
-                Settings.Default.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
-                Settings.Default.MainWindowSize = new System.Drawing.Size((int)Width, (int)Height);
-            }
-            Settings.Default.Maximized = WindowState == WindowState.Maximized;
-            DictionarySaver.Save(Settings.Default.ChannelNameMapping, ChannelNames);
-            DictionarySaver.Save(Settings.Default.ChannelEnableMapping, ChannelEnable);
-            Settings.Default.Save();
         }
 
         private async void btnSendCustom_Click(object sender, RoutedEventArgs e)
@@ -312,5 +390,7 @@ namespace AdcControl
             pltMainPlot.plt.AxisAuto();
             pltMainPlot.Render();
         }
+
+        #endregion
     }
 }

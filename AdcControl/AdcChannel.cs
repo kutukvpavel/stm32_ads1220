@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace AdcControl
 {
@@ -26,9 +28,6 @@ namespace AdcControl
         }
         public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
-
-        public event EventHandler ArrayChanged;
-        public event EventHandler<LogEventArgs> DebugLogEvent;
 
         public int RawCount { get; set; }
         public double[] RawX;
@@ -57,6 +56,7 @@ namespace AdcControl
             {
                 _IsVisible = value;
                 if (Plot != null) Plot.visible = _IsVisible;
+                if (ContextMenuItem != null) ContextMenuItem.IsChecked = _IsVisible;
             }
         }
         protected System.Drawing.Color? _Color = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.Black);
@@ -86,10 +86,29 @@ namespace AdcControl
         {
             get 
             {
-                if (_ContextMenuItem == null) _ContextMenuItem = 
-                        new AdcChannelContextMenuItem(() => { return Code; }, () => { return Name; });
+                if (_ContextMenuItem == null)
+                {
+                    _ContextMenuItem =
+                        new AdcChannelContextMenuItem(ReturnCode, ReturnName) { IsChecked = IsVisible };
+                    _ContextMenuItem.Click += ContextMenuItem_Click;
+                }
                 return _ContextMenuItem;
             }
+        }
+
+        private int ReturnCode()
+        {
+            return Code;
+        }
+
+        private string ReturnName()
+        {
+            return Name;
+        }
+
+        private void ContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            IsVisible = ContextMenuItem.IsChecked;
         }
 
         public void AddPoint(double val)
@@ -99,20 +118,8 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
-            /*var thread = new Thread(() =>
-            {
-                ArrayChanged?.Invoke(this, new EventArgs());
-            });
-            thread.Start();*/
-            ArrayChanged?.Invoke(this, new EventArgs());
-        }
-
-        protected void DebugTrace(string msg)
-        {
-            new Thread(() =>
-            {
-                DebugLogEvent?.Invoke(this, new LogEventArgs(new Exception(msg), "AdcChannel trace"));
-            }).Start();
+            Plot.xs = CalculatedX;
+            Plot.ys = CalculatedY;
         }
 
         public void AddPoint(double val, double time)
@@ -139,11 +146,7 @@ namespace AdcControl
                     Buffer.Dequeue();
                 }
             }
-            if (arrayChanged)
-            {
-                OnArrayChanged();
-                DebugTrace("AddPoint arrayChanged fired for: " + Code.ToString());
-            }
+            if (arrayChanged) OnArrayChanged();
         }
 
         public async Task TrimExcess()
@@ -203,22 +206,45 @@ namespace AdcControl
         }
     }
 
-    public class AdcChannelContextMenuItem
+    public class AdcChannelContextMenuItem : MenuItem
     {
         public AdcChannelContextMenuItem(Func<int> code, Func<string> name)
         {
-            Code = code;
-            Name = name;
+            ChannelCode = code;
+            ChannelName = name;
+            base.Click += AdcChannelContextMenuItem_Click;
+            base.Loaded += AdcChannelContextMenuItem_Loaded;
         }
 
-        private Func<int> Code;
-        private Func<string> Name;
+        private void AdcChannelContextMenuItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            Header = ToString();
+        }
+
+        private void AdcChannelContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            IsChecked = !IsChecked;
+            Click?.Invoke(this, e);
+        }
+
+        private Func<int> ChannelCode { get; }
+        private Func<string> ChannelName { get; }
+
+        public new event RoutedEventHandler Click;
 
         public override string ToString()
         {
-            int c = Code();
-            string n = Name();
-            return DictionarySaver.WriteMapping(c, n ?? c.ToString("X"));
+            return DictionarySaver.WriteMapping(ChannelCode(), ChannelName());
+        }
+
+        public int GetChannelCode()
+        {
+            return ChannelCode();
+        }
+
+        public string GetChannelName()
+        {
+            return ChannelName();
         }
     }
 }

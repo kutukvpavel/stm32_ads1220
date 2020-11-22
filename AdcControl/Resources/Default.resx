@@ -181,9 +181,6 @@
   <data name="msgFatalContinue" xml:space="preserve">
     <value>Continue?</value>
   </data>
-  <data name="msgTerminalTimeout" xml:space="preserve">
-    <value>Timeout while waiting for terminal!</value>
-  </data>
   <data name="msgControllerTimeout" xml:space="preserve">
     <value>Timed out while waiting in command queue.</value>
   </data>
@@ -208,13 +205,52 @@
   <data name="strForceRender" xml:space="preserve">
     <value>Force plot update</value>
   </data>
-  <data name="msgChannelPlotConcurrency" xml:space="preserve">
-    <value>Failed to add new channel to plotted channels.</value>
-  </data>
   <data name="msgUpdateChannelPlotFailed" xml:space="preserve">
     <value>Can't update channel data array, used by the plot.</value>
   </data>
   <data name="msgCantCheckPortExistence" xml:space="preserve">
-    <value></value>
+    <value>Can't check if selected serial port exists.</value>
+  </data>
+  <data name="msgCantCreateCsvDirectory" xml:space="preserve">
+    <value>Failed to create a directory for CSV export.</value>
+  </data>
+  <data name="strEnterExperimentName" xml:space="preserve">
+    <value>Enter experiment name:</value>
+  </data>
+  <data name="stsCsvSaveInProgress" xml:space="preserve">
+    <value>Saving CSV...</value>
+  </data>
+  <data name="strOpenExportFolder" xml:space="preserve">
+    <value>Open export folder</value>
+  </data>
+  <data name="msgCantOpenExportFolder" xml:space="preserve">
+    <value>Failed to open export folder in Explorer.</value>
+  </data>
+  <data name="msgCsvAlreadyExistsReplace" xml:space="preserve">
+    <value>File already exists. Overwrite?</value>
+  </data>
+  <data name="strMessageBoxCaption" xml:space="preserve">
+    <value>AdcControl</value>
+  </data>
+  <data name="msgUnknownExportError" xml:space="preserve">
+    <value>Unrecognized export error.</value>
+  </data>
+  <data name="strEnableAutoAxis" xml:space="preserve">
+    <value>Toggle autoscaling</value>
+  </data>
+  <data name="msgCantDeleteOldAutosave" xml:space="preserve">
+    <value>Failed to delete an old autosaved file.</value>
+  </data>
+  <data name="msgDeletedOldAutosave" xml:space="preserve">
+    <value>Deleted an old autosaved file.</value>
+  </data>
+  <data name="msgLoadedMainWindow" xml:space="preserve">
+    <value>Main window loaded.</value>
+  </data>
+  <data name="msgSuccessfullyExportedToFile" xml:space="preserve">
+    <value>Exported data to CSV file.</value>
+  </data>
+  <data name="strLockVerticalAxis" xml:space="preserve">
+    <value>Prevent Y axis autoscaling</value>
   </data>
 </root>
