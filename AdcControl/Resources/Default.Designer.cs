@@ -79,6 +79,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Enter one element per line, format: XX=XXXX:.
+        /// </summary>
+        public static string lblCollectionSettingPrompt {
+            get {
+                return ResourceManager.GetString("lblCollectionSettingPrompt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Port name:.
         /// </summary>
         public static string lblPortName {
@@ -300,6 +309,15 @@ namespace AdcControl.Resources {
         public static string strConfigButton {
             get {
                 return ResourceManager.GetString("strConfigButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Channel configuration.
+        /// </summary>
+        public static string strConfigChannels {
+            get {
+                return ResourceManager.GetString("strConfigChannels", resourceCulture);
             }
         }
         

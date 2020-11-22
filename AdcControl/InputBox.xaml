@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AdcControl"
         mc:Ignorable="d"
-        Title="InputBox" Height="auto" Width="300"
+        Title="InputBox" Height="auto" Width="300" MinWidth="250"
         xmlns:resx="clr-namespace:AdcControl.Resources"
         FontSize="16"
-        SizeToContent="Height">
+        SizeToContent="Height"
+        x:Name="_this">
     <Grid Margin="5,5,5,5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -21,9 +22,11 @@
         </Grid.RowDefinitions>
         <Label x:Name="lblPrompt" Content="Example" Grid.Row="0" Grid.ColumnSpan="2"></Label>
         <TextBox x:Name="txtInput" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,5" 
-                 PreviewTextInput="txtInput_PreviewTextInput"></TextBox>
+                 PreviewTextInput="txtInput_PreviewTextInput"
+                 TextChanged="txtInput_TextChanged"></TextBox>
         <Button x:Name="btnOK" Grid.Row="2" Grid.Column="0" Margin="0,0,3,0" Click="btnOK_Click" IsDefault="True"
-                Content="{ Binding Source={ x:Static resx:Default.strOKButton }}"></Button>
+                Content="{ Binding Source={ x:Static resx:Default.strOKButton }}"
+                IsEnabled="{ Binding ElementName=_this, Path=PassedValidation }"></Button>
         <Button x:Name="btnCancel" Grid.Row="2" Grid.Column="1" Margin="3,0,0,0" Click="btnCancel_Click" IsCancel="True"
                 Content="{ Binding Source={ x:Static resx:Default.strCancelButton }}"></Button>
     </Grid>

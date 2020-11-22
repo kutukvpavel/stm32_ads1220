@@ -253,4 +253,10 @@
   <data name="strLockVerticalAxis" xml:space="preserve">
     <value>Prevent Y axis autoscaling</value>
   </data>
+  <data name="lblCollectionSettingPrompt" xml:space="preserve">
+    <value>Enter one element per line, format: XX=XXXX:</value>
+  </data>
+  <data name="strConfigChannels" xml:space="preserve">
+    <value>Channel configuration</value>
+  </data>
 </root>

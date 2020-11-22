@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using AdcControl.Properties;
+﻿using AdcControl.Properties;
 using AdcControl.Resources;
-using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AdcControl
 {

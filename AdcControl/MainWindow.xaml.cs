@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -25,10 +24,17 @@ namespace AdcControl
             InitializeComponent();
         }
 
-        private int TerminalLines = 0;
-        private string _CurrentStatus = "";
+        //Public
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public static readonly Dictionary<int, Color?> Colorset = new Dictionary<int, Color?>()
+        {
+            { 0, Color.FromKnownColor(KnownColor.Blue) },
+            { 0x50, Color.FromKnownColor(KnownColor.Red) }
+        };
+
+        #region Properties
 
         public string CurrentStatus
         {
@@ -58,14 +64,16 @@ namespace AdcControl
             } 
         }
 
-        public static readonly Dictionary<int, Color?> Colorset = new Dictionary<int, Color?>()
-        {
-            { 0, Color.FromKnownColor(KnownColor.Blue) },
-            { 0x50, Color.FromKnownColor(KnownColor.Red) }
-        };
+        #endregion
 
+        //Private
+
+        private int TerminalLines = 0;
+        private string _CurrentStatus = "";
         private ConcurrentDictionary<int, string> ChannelNames;
         private ConcurrentDictionary<int, bool> ChannelEnable;
+
+        #region Functions
 
         private void OnPropertyChanged()
         {
@@ -78,6 +86,30 @@ namespace AdcControl
             channel.Plot = res; //This will apply predefined label, visibility and color if they exist
         }
 
+        private void SaveAxisLimits()
+        {
+            var s = pltMainPlot.plt.GetSettings().axes.y;
+            Settings.Default.YMax = s.max;
+            Settings.Default.YMin = s.min;
+        }
+
+        private void RestoreAxisLimits()
+        {
+            pltMainPlot.plt.Axis(y1: Settings.Default.YMin, y2: Settings.Default.YMax);
+        }
+
+        private void LoadChannelNames()
+        {
+            ChannelNames = DictionarySaver.Parse(Settings.Default.ChannelNameMapping, x => x);
+        }
+
+        private void SaveChannelNames()
+        {
+            DictionarySaver.Save(Settings.Default.ChannelNameMapping, ChannelNames);
+        }
+
+        #endregion
+
         #region Window Events
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -87,7 +119,7 @@ namespace AdcControl
             Height = Settings.Default.MainWindowSize.Height;
             Width = Settings.Default.MainWindowSize.Width;
             if (Settings.Default.Maximized) WindowState = WindowState.Maximized;
-            ChannelNames = DictionarySaver.Parse(Settings.Default.ChannelNameMapping, x => x);
+            LoadChannelNames();
             ChannelEnable = DictionarySaver.Parse(Settings.Default.ChannelEnableMapping, x => bool.Parse(x));
             btnEnableAutoAxis.IsChecked = Settings.Default.EnableAutoscaling;
             btnLockVerticalAxis.IsChecked = Settings.Default.LockVerticalScale;
@@ -97,7 +129,7 @@ namespace AdcControl
             App.Stm32Ads1220.CommandCompleted += Stm32Ads1220_CommandCompleted;
             App.NewChannelDetected += App_NewChannelDetected;
             pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss", numericFormatStringY: "F5");
-            pltMainPlot.plt.Axis(y1: Settings.Default.YMin, y2: Settings.Default.YMax);
+            RestoreAxisLimits();
             pltMainPlot.Render();
             App.ConfigureCsvExporter();
             App.Logger.Info(Default.msgLoadedMainWindow);
@@ -121,10 +153,8 @@ namespace AdcControl
                 Settings.Default.MainWindowSize = new System.Drawing.Size((int)Width, (int)Height);
             }
             Settings.Default.Maximized = WindowState == WindowState.Maximized;
-            var s = pltMainPlot.plt.GetSettings().axes.y;
-            Settings.Default.YMax = s.max;
-            Settings.Default.YMin = s.min;
-            DictionarySaver.Save(Settings.Default.ChannelNameMapping, ChannelNames);
+            SaveAxisLimits();
+            SaveChannelNames();
             DictionarySaver.Save(Settings.Default.ChannelEnableMapping, ChannelEnable);
             Settings.Default.Save();
         }
@@ -215,9 +245,27 @@ namespace AdcControl
 
         #region UI Events
 
+        private void btnConfigChannels_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ChannelSettingEditor();
+            SaveChannelNames();
+            dialog.SetDefaultInputValue(Settings.Default.ChannelNameMapping);
+            if (dialog.ShowDialog() ?? false)
+            {
+                Settings.Default.ChannelNameMapping = dialog.ParsedInput;
+                //ChannelNames = DictionarySaver.Parse(dialog.ParsedInput, x => x);
+                LoadChannelNames();
+                Settings.Default.Save();
+            }
+        }
+
         private void btnLockVerticalAxis_Click(object sender, RoutedEventArgs e)
         {
             Settings.Default.LockVerticalScale = btnLockVerticalAxis.IsChecked ?? false;
+            if (Settings.Default.LockVerticalScale)
+            {
+                SaveAxisLimits();
+            }
         }
 
         private void pltMainPlot_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -287,6 +335,7 @@ namespace AdcControl
                 item.ContextMenuItem.Click -= ContextMenuItem_Click;
             }
             App.AdcChannels.Clear();
+            RestoreAxisLimits();
             pltMainPlot.Render();
         }
 

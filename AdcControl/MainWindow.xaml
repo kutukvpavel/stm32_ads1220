@@ -71,13 +71,13 @@
                         Click="btnForceRender_Click">
                     <Image Source="/AdcControl;component/Resources/update.png" Height="32"></Image>
                 </Button>
+            </ToolBar>
+            <ToolBar>
                 <Button x:Name="btnClearScreen" 
                         ToolTip="{x:Static resx:Default.strClearScreenButton}"
                         Click="btnClearScreen_Click">
                     <Image Source="/AdcControl;component/Resources/delete.png" Height="36"></Image>
                 </Button>
-            </ToolBar>
-            <ToolBar>
                 <Button x:Name="btnExport" 
                         ToolTip="{x:Static resx:Default.strExportButton}"
                         Click="btnExport_Click">
@@ -90,6 +90,11 @@
                 </Button>
             </ToolBar>
             <ToolBar>
+                <Button x:Name="btnConfigChannels"
+                        ToolTip="{ Binding Source={x:Static resx:Default.strConfigChannels }}"
+                        Click="btnConfigChannels_Click">
+                    <Image Source="/AdcControl;component/Resources/settings_code.png" Height="36"></Image>
+                </Button>
                 <Button x:Name="btnConnect" 
                         ToolTip="{x:Static resx:Default.strConnectButton}"
                         Click="btnConnect_Click"

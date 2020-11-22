@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,9 +9,6 @@ namespace AdcControl
 {
     public class AdcChannel
     {
-        protected Queue<double> Buffer;
-        protected object LockObject = new object();
-
         public AdcChannel(int code, int capacity, int averaging, double start)
         {
             RawX = new double[capacity];
@@ -29,15 +25,22 @@ namespace AdcControl
         public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
 
-        public int RawCount { get; set; }
         public double[] RawX;
         public double[] RawY;
-        public int CalculatedCount { get; private set; }
         public double[] CalculatedX;
         public double[] CalculatedY;
+
+        protected Queue<double> Buffer;
+        protected object LockObject = new object();
+
+        #region Properties
+
+        public int RawCount { get; set; }
+        public int CalculatedCount { get; private set; }
         public int Averaging { get; set; }
         public double StartTime { get; set; }
         public int Code { get; }
+
         protected string _Name;
         public string Name
         {
@@ -96,6 +99,10 @@ namespace AdcControl
             }
         }
 
+        #endregion
+
+        #region Private Functions
+
         private int ReturnCode()
         {
             return Code;
@@ -111,15 +118,19 @@ namespace AdcControl
             IsVisible = ContextMenuItem.IsChecked;
         }
 
-        public void AddPoint(double val)
-        {
-            AddPoint(val, DateTime.UtcNow.ToOADate());
-        }
-
         private void OnArrayChanged()
         {
             Plot.xs = CalculatedX;
             Plot.ys = CalculatedY;
+        }
+
+        #endregion
+
+        #region Public Functions
+
+        public void AddPoint(double val)
+        {
+            AddPoint(val, DateTime.UtcNow.ToOADate());
         }
 
         public void AddPoint(double val, double time)
@@ -204,6 +215,8 @@ namespace AdcControl
             });
             await task;
         }
+
+        #endregion
     }
 
     public class AdcChannelContextMenuItem : MenuItem
