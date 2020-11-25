@@ -80,9 +80,9 @@ namespace AdcControl
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
 
-        private void PlotScatter(AdcChannel channel)
+        private void PlotChannel(AdcChannel channel)
         {
-            var res = pltMainPlot.plt.PlotScatter(channel.CalculatedX, channel.CalculatedY);
+            var res = pltMainPlot.plt.PlotSignalXY(channel.CalculatedX, channel.CalculatedY, maxRenderIndex: 0);
             channel.Plot = res; //This will apply predefined label, visibility and color if they exist
         }
 
@@ -194,7 +194,7 @@ namespace AdcControl
                         pltMainPlot.plt.AxisAuto();
                     }
                 }
-                pltMainPlot.Render();
+                pltMainPlot.Render(skipIfCurrentlyRendering: true);
             });
         }
 
@@ -214,7 +214,7 @@ namespace AdcControl
                 {
                     App.AdcChannels[e.Code].Color = Colorset[e.Code];
                 }
-                PlotScatter(App.AdcChannels[e.Code]);
+                PlotChannel(App.AdcChannels[e.Code]);
                 pltMainPlot.plt.Legend();
                 pltMainPlot.Render();
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);

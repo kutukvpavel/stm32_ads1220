@@ -15,6 +15,10 @@ namespace AdcControl
             RawY = new double[capacity];
             RawCount = 0;
             CalculatedX = new double[capacity];
+            for (int i = 0; i < CalculatedX.Length; i++)
+            {
+                CalculatedX[i] = double.MaxValue;
+            }
             CalculatedY = new double[capacity];
             CalculatedCount = 0;
             Averaging = averaging;
@@ -72,8 +76,8 @@ namespace AdcControl
                 if (Plot != null && _Color != null) Plot.color = (System.Drawing.Color)_Color;
             }
         }
-        protected ScottPlot.PlottableScatter _Plot;
-        public ScottPlot.PlottableScatter Plot
+        protected ScottPlot.PlottableSignalXY _Plot;
+        public ScottPlot.PlottableSignalXY Plot
         {
             get { return _Plot; }
             set
@@ -81,6 +85,7 @@ namespace AdcControl
                 _Plot = value;
                 _Plot.label = _Name;
                 _Plot.visible = _IsVisible;
+                _Plot.maxRenderIndex = CalculatedCount - 1;
                 if (_Color != null) _Plot.color = (System.Drawing.Color)_Color;
             }
         }
@@ -120,6 +125,7 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
+            if (Plot == null) return;
             Plot.xs = CalculatedX;
             Plot.ys = CalculatedY;
         }
@@ -158,6 +164,10 @@ namespace AdcControl
                 }
             }
             if (arrayChanged) OnArrayChanged();
+            if (Plot != null)
+            {
+                Plot.maxRenderIndex = CalculatedCount - 1;
+            }
         }
 
         public async Task TrimExcess()
