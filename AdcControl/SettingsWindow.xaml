@@ -69,6 +69,7 @@
             Margin="10,5,10,10"
             x:Name="btnOK"
             Click="btnOK_Click"
+            IsDefault="True"
             IsEnabled="{Binding ElementName=_this, Path=AllFieldsOK, Mode=OneWay}">
         </Button>
         <Button
@@ -77,7 +78,8 @@
             Grid.Column="1" Grid.Row="6" 
             Margin="10,5,10,10"
             x:Name="btnCancel"
-            Click="btnCancel_Click">
+            Click="btnCancel_Click"
+            IsCancel="True">
             
         </Button>
     </Grid>
