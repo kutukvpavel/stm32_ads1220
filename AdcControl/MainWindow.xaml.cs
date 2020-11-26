@@ -80,6 +80,12 @@ namespace AdcControl
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
 
+        private void PlotChannel(AdcChannel channel)
+        {
+            var res = pltMainPlot.plt.PlotSignalXY(channel.CalculatedX, channel.CalculatedY, maxRenderIndex: 0);
+            channel.Plot = res; //This will apply predefined label, visibility and color if they exist
+        }
+
         private void SaveAxisLimits()
         {
             var s = pltMainPlot.plt.GetSettings().axes.y;
@@ -194,35 +200,26 @@ namespace AdcControl
 
         private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
         {
-            if (ChannelEnable.ContainsKey(e.Code))
-            {
-                App.AdcChannels[e.Code].IsVisible = ChannelEnable[e.Code];
-            }
-            if (ChannelNames.ContainsKey(e.Code))
-            {
-                App.AdcChannels[e.Code].Name = ChannelNames[e.Code];
-            }
-            if (Colorset.ContainsKey(e.Code))
-            {
-                App.AdcChannels[e.Code].Color = Colorset[e.Code];
-            }
-            App.AdcChannels[e.Code].ArrayChanged += MainWindow_ArrayChanged;
-            App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
             pltMainPlot.Dispatcher.Invoke(() =>
             {
+                if (ChannelEnable.ContainsKey(e.Code))
+                {
+                    App.AdcChannels[e.Code].IsVisible = ChannelEnable[e.Code];
+                }
+                if (ChannelNames.ContainsKey(e.Code))
+                {
+                    App.AdcChannels[e.Code].Name = ChannelNames[e.Code];
+                }
+                if (Colorset.ContainsKey(e.Code))
+                {
+                    App.AdcChannels[e.Code].Color = Colorset[e.Code];
+                }
+                PlotChannel(App.AdcChannels[e.Code]);
                 pltMainPlot.plt.Legend();
                 pltMainPlot.Render();
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
             });
-        }
-
-        private void MainWindow_ArrayChanged(object sender, EventArgs e)
-        {
-            var channel = (AdcChannel)sender;
-            if (channel.Plot != null) pltMainPlot.plt.Remove(channel.Plot);
-            var res = pltMainPlot.plt.PlotSignalXY(channel.CalculatedX, channel.CalculatedY,
-                maxRenderIndex: channel.CalculatedCount - 1);
-            channel.Plot = res; //This will apply predefined label, visibility and color if they exist
+            App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
         }
 
         private void ContextMenuItem_Click(object sender, RoutedEventArgs e)
@@ -256,9 +253,9 @@ namespace AdcControl
             if (dialog.ShowDialog() ?? false)
             {
                 Settings.Default.ChannelNameMapping = dialog.ParsedInput;
+                //ChannelNames = DictionarySaver.Parse(dialog.ParsedInput, x => x);
                 LoadChannelNames();
                 Settings.Default.Save();
-                pltMainPlot.plt.Legend();
             }
         }
 

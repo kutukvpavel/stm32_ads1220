@@ -11,22 +11,23 @@ namespace AdcControl
     {
         public AdcChannel(int code, int capacity, int averaging, double start)
         {
-            RawX = new double[0];
-            RawY = new double[0];
+            RawX = new double[capacity];
+            RawY = new double[capacity];
             RawCount = 0;
-            CalculatedX = new double[0];
-            CalculatedY = new double[0];
+            CalculatedX = new double[capacity];
+            for (int i = 0; i < CalculatedX.Length; i++)
+            {
+                CalculatedX[i] = double.MaxValue;
+            }
+            CalculatedY = new double[capacity];
             CalculatedCount = 0;
             Averaging = averaging;
             Buffer = new Queue<double>(averaging);
             StartTime = start;
             Code = code;
-            CapacityStep = capacity;
         }
         public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
-
-        public event EventHandler ArrayChanged;
 
         public double[] RawX;
         public double[] RawY;
@@ -38,7 +39,6 @@ namespace AdcControl
 
         #region Properties
 
-        public int CapacityStep { get; set; }
         public int RawCount { get; set; }
         public int CalculatedCount { get; private set; }
         public int Averaging { get; set; }
@@ -125,11 +125,9 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
-            for (int i = CalculatedCount; i < CalculatedX.Length; i++)
-            {
-                CalculatedX[i] = double.MaxValue;
-            }
-            ArrayChanged?.Invoke(this, new EventArgs());
+            if (Plot == null) return;
+            Plot.xs = CalculatedX;
+            Plot.ys = CalculatedY;
         }
 
         #endregion
@@ -148,7 +146,7 @@ namespace AdcControl
             {
                 if (RawCount == RawX.Length)
                 {
-                    int newSize = RawX.Length + CapacityStep;
+                    int newSize = RawX.Length * 2;
                     Array.Resize(ref RawX, newSize);
                     Array.Resize(ref RawY, newSize);
                     Array.Resize(ref CalculatedX, newSize);
