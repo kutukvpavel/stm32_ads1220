@@ -80,7 +80,7 @@ namespace AdcControl
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
 
-        private void PlotScatter(AdcChannel channel)
+        private void PlotScatter(AdcChannel channel) //Consider switching to SignalPlot
         {
             var res = pltMainPlot.plt.PlotScatter(channel.CalculatedX, channel.CalculatedY);
             channel.Plot = res; //This will apply predefined label, visibility and color if they exist
