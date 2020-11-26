@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,9 +26,12 @@ namespace AdcControl
             Buffer = new Queue<double>(averaging);
             StartTime = start;
             Code = code;
+            CapacityStep = capacity;
         }
         public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
+
+        public event EventHandler ArrayChanged;
 
         public double[] RawX;
         public double[] RawY;
@@ -39,6 +43,7 @@ namespace AdcControl
 
         #region Properties
 
+        public int CapacityStep { get; set; }
         public int RawCount { get; set; }
         public int CalculatedCount { get; private set; }
         public int Averaging { get; set; }
@@ -63,7 +68,10 @@ namespace AdcControl
             {
                 _IsVisible = value;
                 if (Plot != null) Plot.visible = _IsVisible;
-                if (ContextMenuItem != null) ContextMenuItem.IsChecked = _IsVisible;
+                if (ContextMenuItem != null)
+                {
+                    ContextMenuItem.Dispatcher.Invoke(() => { ContextMenuItem.IsChecked = _IsVisible; });
+                }
             }
         }
         protected System.Drawing.Color? _Color = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.Black);
@@ -96,9 +104,12 @@ namespace AdcControl
             {
                 if (_ContextMenuItem == null)
                 {
-                    _ContextMenuItem =
-                        new AdcChannelContextMenuItem(ReturnCode, ReturnName) { IsChecked = IsVisible };
-                    _ContextMenuItem.Click += ContextMenuItem_Click;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        _ContextMenuItem =
+                            new AdcChannelContextMenuItem(ReturnCode, ReturnName) { IsChecked = IsVisible };
+                        _ContextMenuItem.Click += ContextMenuItem_Click;
+                    });
                 }
                 return _ContextMenuItem;
             }
@@ -125,9 +136,14 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
-            if (Plot == null) return;
-            Plot.xs = CalculatedX;
-            Plot.ys = CalculatedY;
+            for (int i = CalculatedCount; i < CalculatedX.Length; i++)
+            {
+                CalculatedX[i] = double.MaxValue;
+            }
+            new Thread(() =>
+            {
+                ArrayChanged?.Invoke(this, new EventArgs());
+            }).Start();
         }
 
         #endregion
@@ -146,7 +162,7 @@ namespace AdcControl
             {
                 if (RawCount == RawX.Length)
                 {
-                    int newSize = RawX.Length * 2;
+                    int newSize = RawX.Length + CapacityStep;
                     Array.Resize(ref RawX, newSize);
                     Array.Resize(ref RawY, newSize);
                     Array.Resize(ref CalculatedX, newSize);
