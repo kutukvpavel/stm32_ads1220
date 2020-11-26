@@ -107,10 +107,11 @@ namespace AdcControl
                 }
                 else
                 {
-                    new Thread(() =>
+                    var thread = new Thread(() =>
                     {
                         NewChannelDetected?.Invoke(Stm32Ads1220, new NewChannelDetectedEventArgs(e.Channel));
-                    }).Start();
+                    });
+                    thread.Start();
                 }
             }
             AdcChannels[e.Channel].AddPoint(e.Value);
