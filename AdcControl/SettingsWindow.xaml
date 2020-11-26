@@ -39,7 +39,6 @@
         <Label 
             Content="{x:Static resx:Default.lblAveraging}"
             FontSize="16" Grid.Row="2" Grid.ColumnSpan="2">
-            
         </Label>
         <TextBox
             x:Name="txtAveraging"
@@ -52,7 +51,6 @@
         <Label 
             Content="{x:Static resx:Default.lblAcqDuration}"
             FontSize="16" Grid.Row="4" Grid.ColumnSpan="2">
-
         </Label>
         <TextBox
             x:Name="txtDuration"
@@ -80,7 +78,6 @@
             x:Name="btnCancel"
             Click="btnCancel_Click"
             IsCancel="True">
-            
         </Button>
     </Grid>
 </Window>

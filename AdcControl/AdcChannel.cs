@@ -11,19 +11,22 @@ namespace AdcControl
     {
         public AdcChannel(int code, int capacity, int averaging, double start)
         {
-            RawX = new double[capacity];
-            RawY = new double[capacity];
+            RawX = new double[0];
+            RawY = new double[0];
             RawCount = 0;
-            CalculatedX = new double[capacity];
-            CalculatedY = new double[capacity];
+            CalculatedX = new double[0];
+            CalculatedY = new double[0];
             CalculatedCount = 0;
             Averaging = averaging;
             Buffer = new Queue<double>(averaging);
             StartTime = start;
             Code = code;
+            CapacityStep = capacity;
         }
         public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
+
+        public event EventHandler ArrayChanged;
 
         public double[] RawX;
         public double[] RawY;
@@ -35,6 +38,7 @@ namespace AdcControl
 
         #region Properties
 
+        public int CapacityStep { get; set; }
         public int RawCount { get; set; }
         public int CalculatedCount { get; private set; }
         public int Averaging { get; set; }
@@ -72,8 +76,8 @@ namespace AdcControl
                 if (Plot != null && _Color != null) Plot.color = (System.Drawing.Color)_Color;
             }
         }
-        protected ScottPlot.PlottableScatter _Plot;
-        public ScottPlot.PlottableScatter Plot
+        protected ScottPlot.PlottableSignalXY _Plot;
+        public ScottPlot.PlottableSignalXY Plot
         {
             get { return _Plot; }
             set
@@ -81,6 +85,7 @@ namespace AdcControl
                 _Plot = value;
                 _Plot.label = _Name;
                 _Plot.visible = _IsVisible;
+                _Plot.maxRenderIndex = CalculatedCount - 1;
                 if (_Color != null) _Plot.color = (System.Drawing.Color)_Color;
             }
         }
@@ -120,8 +125,11 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
-            Plot.xs = CalculatedX;
-            Plot.ys = CalculatedY;
+            for (int i = CalculatedCount; i < CalculatedX.Length; i++)
+            {
+                CalculatedX[i] = double.MaxValue;
+            }
+            ArrayChanged?.Invoke(this, new EventArgs());
         }
 
         #endregion
@@ -140,7 +148,7 @@ namespace AdcControl
             {
                 if (RawCount == RawX.Length)
                 {
-                    int newSize = RawX.Length * 2;
+                    int newSize = RawX.Length + CapacityStep;
                     Array.Resize(ref RawX, newSize);
                     Array.Resize(ref RawY, newSize);
                     Array.Resize(ref CalculatedX, newSize);
@@ -158,6 +166,10 @@ namespace AdcControl
                 }
             }
             if (arrayChanged) OnArrayChanged();
+            if (Plot != null)
+            {
+                Plot.maxRenderIndex = CalculatedCount - 1;
+            }
         }
 
         public async Task TrimExcess()
