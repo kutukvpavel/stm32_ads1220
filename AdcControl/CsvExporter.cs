@@ -61,6 +61,7 @@ namespace AdcControl
 
         public static bool AutoSave(IEnumerable<AdcChannel> data)
         {
+            Trace("Autosave invoked");
             try
             {
                 IEnumerable<FileSystemInfo> files = new DirectoryInfo(Path.GetFullPath(
@@ -89,6 +90,16 @@ namespace AdcControl
         //Private
 
         private static readonly string[] ColumnsPerChannel = { "Raw X", "Raw Y", "Calc X", "Calc Y" };
+#if TRACE
+        private static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
+#endif
+
+        private static void Trace(string s)
+        {
+#if TRACE
+            TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
+#endif
+        }
         private static string FormatSingleChannel(string experimentName, AdcChannel channel)
         {
             return string.Format("{0}_{1}", experimentName, channel.Name);

@@ -43,9 +43,18 @@ namespace AdcControl
         protected object LockObject = new object();
         protected BlockingCollectionQueue TerminalQueue;
         protected BlockingCollectionQueue DataQueue;
+#if TRACE
+        protected static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
+#endif
+
+        protected static void Trace(string s)
+        {
+            TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
+        }
 
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            Trace("Data received");
             Buffer.Append(Port.ReadExisting());
             string read = Buffer.ToString();
             int i = read.IndexOf(NewLine);
@@ -64,6 +73,7 @@ namespace AdcControl
         }
         private void ParseLine(string line)
         {
+            Trace("Parser invoked");
             TerminalQueue.Enqueue(() => { TerminalEvent?.Invoke(this, new TerminalEventArgs(line)); });
             if (line.EndsWith(ErrorDesignator))
             {

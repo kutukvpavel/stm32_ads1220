@@ -109,7 +109,7 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
         public int TerminalLimit {
             get {
                 return ((int)(this["TerminalLimit"]));
@@ -121,7 +121,7 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
         public int TerminalRemoveStep {
             get {
                 return ((int)(this["TerminalRemoveStep"]));

@@ -21,6 +21,7 @@ namespace AdcControl
             Buffer = new Queue<double>(averaging);
             StartTime = start;
             Code = code;
+            CapacityStep = capacity;
         }
         public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
         { }
@@ -32,9 +33,12 @@ namespace AdcControl
 
         protected Queue<double> Buffer;
         protected object LockObject = new object();
+#if TRACE
+        protected static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
+#endif
 
         #region Properties
-
+        public int CapacityStep { get; set; }
         public int RawCount { get; set; }
         public int CalculatedCount { get; private set; }
         public int Averaging { get; set; }
@@ -103,6 +107,14 @@ namespace AdcControl
 
         #region Private Functions
 
+        private static void Trace(string s)
+        {
+#if TRACE
+            TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(
+                string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
+#endif
+        }
+
         private int ReturnCode()
         {
             return Code;
@@ -136,11 +148,13 @@ namespace AdcControl
         public void AddPoint(double val, double time)
         {
             bool arrayChanged = false;
+            Trace("AddPoint waiting");
             lock (LockObject)
             {
+                Trace("AddPoint entered");
                 if (RawCount == RawX.Length)
                 {
-                    int newSize = RawX.Length * 2;
+                    int newSize = RawX.Length + CapacityStep;
                     Array.Resize(ref RawX, newSize);
                     Array.Resize(ref RawY, newSize);
                     Array.Resize(ref CalculatedX, newSize);
@@ -204,13 +218,16 @@ namespace AdcControl
         {
             var task = new Task(() =>
             {
-                double[] backupX = c.RawX;
-                double[] backupY = c.RawY;
-                int count = c.RawCount;
-                c.Clear();
-                for (int i = 0; i < count; i++)
+                lock (c.LockObject)
                 {
-                    c.AddPoint(backupY[i], backupX[i]);
+                    double[] backupX = c.RawX;
+                    double[] backupY = c.RawY;
+                    int count = c.RawCount;
+                    c.Clear();
+                    for (int i = 0; i < count; i++)
+                    {
+                        c.AddPoint(backupY[i], backupX[i]);
+                    }
                 }
             });
             await task;

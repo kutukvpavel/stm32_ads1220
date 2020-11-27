@@ -24,10 +24,10 @@
       <Value Profile="(Default)">4</Value>
     </Setting>
     <Setting Name="TerminalLimit" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1000</Value>
+      <Value Profile="(Default)">100</Value>
     </Setting>
     <Setting Name="TerminalRemoveStep" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">50</Value>
+      <Value Profile="(Default)">100</Value>
     </Setting>
     <Setting Name="CsvSavePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">\AdcCsvExports</Value>

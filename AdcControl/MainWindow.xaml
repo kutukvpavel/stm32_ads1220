@@ -114,7 +114,7 @@
                 </Button>
             </ToolBar>
         </ToolBarTray>
-        <WpfPlot Grid.Row="1" x:Name="pltMainPlot" MouseMove="pltMainPlot_MouseMove">
+        <WpfPlot Grid.Row="1" x:Name="pltMainPlot">
             <WpfPlot.ContextMenu>
                 <ContextMenu />
             </WpfPlot.ContextMenu>

@@ -67,6 +67,16 @@ namespace AdcControl
         }
 
         private static Controller _Stm32Ads1220;
+#if TRACE
+        private static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
+#endif
+
+        private static void Trace(string s)
+        {
+#if TRACE
+            TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
+#endif
+        }
 
         private static void AutosaveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -91,6 +101,7 @@ namespace AdcControl
 
         private static void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
         {
+            Trace("App DataReceived");
             if (!AdcChannels.ContainsKey(e.Channel))
             {
                 bool added = AdcChannels.TryAdd(
@@ -107,11 +118,10 @@ namespace AdcControl
                 }
                 else
                 {
-                    var thread = new Thread(() =>
+                    new Thread(() =>
                     {
                         NewChannelDetected?.Invoke(Stm32Ads1220, new NewChannelDetectedEventArgs(e.Channel));
-                    });
-                    thread.Start();
+                    }).Start();
                 }
             }
             AdcChannels[e.Channel].AddPoint(e.Value);

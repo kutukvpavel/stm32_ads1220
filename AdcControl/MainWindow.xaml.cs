@@ -10,6 +10,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace AdcControl
 {
@@ -72,8 +73,30 @@ namespace AdcControl
         private string _CurrentStatus = "";
         private ConcurrentDictionary<int, string> ChannelNames;
         private ConcurrentDictionary<int, bool> ChannelEnable;
+        private DispatcherTimer MouseTimer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, 0, 0, 20), IsEnabled = false };
+#if TRACE
+        private static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
+#endif
+
+        private void MouseTimer_Elapsed(object sender, EventArgs e)
+        {
+            if (!pltMainPlot.IsMouseOver) return;
+            (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
+            txtCoordinates.Text = string.Format(
+                "{0:F6} V @ {1:HH:mm:ss.ff}",
+                mouseY,
+                DateTime.FromOADate(mouseX)
+                );
+        }
 
         #region Functions
+
+        private static void Trace(string s)
+        {
+#if TRACE
+            TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
+#endif
+        }
 
         private void OnPropertyChanged()
         {
@@ -82,6 +105,7 @@ namespace AdcControl
 
         private void PlotScatter(AdcChannel channel)
         {
+            Trace("Replotting");
             var res = pltMainPlot.plt.PlotScatter(channel.CalculatedX, channel.CalculatedY);
             channel.Plot = res; //This will apply predefined label, visibility and color if they exist
         }
@@ -132,6 +156,8 @@ namespace AdcControl
             RestoreAxisLimits();
             pltMainPlot.Render();
             App.ConfigureCsvExporter();
+            MouseTimer.Tick += MouseTimer_Elapsed;
+            MouseTimer.Start();
             App.Logger.Info(Default.msgLoadedMainWindow);
         }
 
@@ -143,6 +169,8 @@ namespace AdcControl
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            MouseTimer.Stop();
+            MouseTimer.Tick -= MouseTimer_Elapsed;
             if (App.Stm32Ads1220.IsConnected)
             {
                 App.Stm32Ads1220.Disconnect();
@@ -181,8 +209,9 @@ namespace AdcControl
 
         private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
         {
-            pltMainPlot.Dispatcher.Invoke(() =>
+            pltMainPlot.Dispatcher.BeginInvoke(() => //BeginInvoke to untie display logic from data logic
             {
+                Trace("MainWindow DataReceived invoked");
                 if (Settings.Default.EnableAutoscaling)
                 {
                     if (Settings.Default.LockVerticalScale)
@@ -194,7 +223,7 @@ namespace AdcControl
                         pltMainPlot.plt.AxisAuto();
                     }
                 }
-                pltMainPlot.Render();
+                pltMainPlot.Render(skipIfCurrentlyRendering: true);
             });
         }
 
@@ -216,7 +245,7 @@ namespace AdcControl
                 }
                 PlotScatter(App.AdcChannels[e.Code]);
                 pltMainPlot.plt.Legend();
-                pltMainPlot.Render();
+                pltMainPlot.Render(skipIfCurrentlyRendering: true);
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
             });
             App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
@@ -235,9 +264,9 @@ namespace AdcControl
                 if (++TerminalLines > Settings.Default.TerminalLimit)
                 {
                     txtTerminal.Text = txtTerminal.Text.Remove(0, Settings.Default.TerminalRemoveStep);
-                    TerminalLines -= Settings.Default.TerminalRemoveStep;
+                    TerminalLines = txtTerminal.LineCount;
                 }
-                txtTerminal.ScrollToEnd();
+                if (ctlExpander.IsExpanded) txtTerminal.ScrollToEnd();
             });
         }
 
@@ -266,16 +295,6 @@ namespace AdcControl
             {
                 SaveAxisLimits();
             }
-        }
-
-        private void pltMainPlot_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
-            txtCoordinates.Text = string.Format(
-                "{0:F6} V @ {1}",
-                mouseY,
-                DateTime.FromOADate(mouseX).ToString("HH:mm:ss.ff")
-                );
         }
 
         private void btnEnableAutoAxis_Click(object sender, RoutedEventArgs e)
@@ -441,5 +460,6 @@ namespace AdcControl
         }
 
         #endregion
+
     }
 }
