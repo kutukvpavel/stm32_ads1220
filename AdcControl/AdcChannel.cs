@@ -9,7 +9,7 @@ namespace AdcControl
 {
     public class AdcChannel
     {
-        public AdcChannel(int code, int capacity, int averaging, double start)
+        public AdcChannel(int code, int capacity, int averaging, double sampleRate, double start)
         {
             RawX = new double[capacity];
             RawY = new double[capacity];
@@ -17,13 +17,15 @@ namespace AdcControl
             CalculatedX = new double[capacity];
             CalculatedY = new double[capacity];
             CalculatedCount = 0;
-            Averaging = averaging;
+            MovingAveraging = averaging;
             Buffer = new Queue<double>(averaging);
             StartTime = start;
             Code = code;
             CapacityStep = capacity;
+            SampleRate = sampleRate;
         }
-        public AdcChannel(int code, int rawCapacity, int averaging) : this(code, rawCapacity, averaging, DateTime.UtcNow.ToOADate())
+        public AdcChannel(int code, int rawCapacity, int averaging, double sampleRate) 
+            : this(code, rawCapacity, averaging, sampleRate, DateTime.UtcNow.ToOADate())
         { }
 
         public double[] RawX;
@@ -41,10 +43,25 @@ namespace AdcControl
         public int CapacityStep { get; set; }
         public int RawCount { get; set; }
         public int CalculatedCount { get; private set; }
-        public int Averaging { get; set; }
+        public int MovingAveraging { get; set; }
         public double StartTime { get; set; }
         public int Code { get; }
+        public int DropPoints { get; set; }
 
+        protected double _SampleRate = 4;
+        public double SampleRate
+        {
+            get { return _SampleRate; }
+            set
+            {
+                _SampleRate = value;
+                if (Plot != null)
+                {
+                    Plot.sampleRate = _SampleRate;
+                    Plot.samplePeriod = 1 / _SampleRate;
+                }
+            }
+        }
         protected string _Name;
         public string Name
         {
@@ -76,8 +93,8 @@ namespace AdcControl
                 if (Plot != null && _Color != null) Plot.color = (System.Drawing.Color)_Color;
             }
         }
-        protected ScottPlot.PlottableScatter _Plot;
-        public ScottPlot.PlottableScatter Plot
+        protected ScottPlot.PlottableSignal _Plot;
+        public ScottPlot.PlottableSignal Plot
         {
             get { return _Plot; }
             set
@@ -85,7 +102,10 @@ namespace AdcControl
                 _Plot = value;
                 _Plot.label = _Name;
                 _Plot.visible = _IsVisible;
+                _Plot.sampleRate = _SampleRate;
+                _Plot.samplePeriod = 1 / _SampleRate;
                 if (_Color != null) _Plot.color = (System.Drawing.Color)_Color;
+                _Plot.maxRenderIndex = CalculatedCount;
             }
         }
         protected AdcChannelContextMenuItem _ContextMenuItem;
@@ -132,8 +152,8 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
-            Plot.xs = CalculatedX;
-            Plot.ys = CalculatedY;
+            if (Plot == null) return;
+            Plot.updateData(CalculatedY);
         }
 
         #endregion
@@ -162,11 +182,17 @@ namespace AdcControl
                     arrayChanged = true;
                 }
                 RawX[RawCount] = time;
-                RawY[RawCount++] = val;
+                RawY[RawCount] = val;
+                RawCount++;
                 Buffer.Enqueue(val);
-                CalculatedX[CalculatedCount] = time - StartTime;
-                CalculatedY[CalculatedCount++] = Buffer.Average();
-                while (Buffer.Count >= Averaging) //Lag-less buffering and dynamic window size support
+                if (DropPoints <= 1 || ((RawCount % DropPoints) != 0))
+                {
+                    CalculatedX[CalculatedCount] = time - StartTime;
+                    CalculatedY[CalculatedCount] = Buffer.Average();
+                    if (Plot != null) Plot.maxRenderIndex = CalculatedCount;
+                    CalculatedCount++;
+                }
+                while (Buffer.Count >= MovingAveraging) //Lag-less buffering and dynamic window size support
                 {
                     Buffer.Dequeue();
                 }
@@ -199,16 +225,17 @@ namespace AdcControl
             await task;
         }
 
-        public void Clear()
+        public void Clear(int capacity = -1)
         {
+            if (capacity < 0) capacity = CapacityStep;
             lock (LockObject)
             {
                 RawCount = 0;
-                RawX = new double[RawX.Length];
-                RawY = new double[RawY.Length];
+                RawX = new double[capacity];
+                RawY = new double[capacity];
                 CalculatedCount = 0;
-                CalculatedX = new double[CalculatedX.Length];
-                CalculatedY = new double[CalculatedY.Length];
+                CalculatedX = new double[capacity];
+                CalculatedY = new double[capacity];
                 Buffer.Clear();
             }
             OnArrayChanged();
@@ -223,7 +250,7 @@ namespace AdcControl
                     double[] backupX = c.RawX;
                     double[] backupY = c.RawY;
                     int count = c.RawCount;
-                    c.Clear();
+                    c.Clear(count);
                     for (int i = 0; i < count; i++)
                     {
                         c.AddPoint(backupY[i], backupX[i]);

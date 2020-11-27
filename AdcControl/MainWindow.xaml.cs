@@ -69,7 +69,6 @@ namespace AdcControl
 
         //Private
 
-        private int TerminalLines = 0;
         private string _CurrentStatus = "";
         private ConcurrentDictionary<int, string> ChannelNames;
         private ConcurrentDictionary<int, bool> ChannelEnable;
@@ -82,11 +81,7 @@ namespace AdcControl
         {
             if (!pltMainPlot.IsMouseOver) return;
             (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
-            txtCoordinates.Text = string.Format(
-                "{0:F6} V @ {1:HH:mm:ss.ff}",
-                mouseY,
-                DateTime.FromOADate(mouseX)
-                );
+            txtCoordinates.Text = string.Format("{0:F6} V @ {1:F2}", mouseY, mouseX);
         }
 
         #region Functions
@@ -106,8 +101,7 @@ namespace AdcControl
         private void PlotScatter(AdcChannel channel)
         {
             Trace("Replotting");
-            var res = pltMainPlot.plt.PlotScatter(channel.CalculatedX, channel.CalculatedY);
-            channel.Plot = res; //This will apply predefined label, visibility and color if they exist
+            channel.Plot = pltMainPlot.plt.PlotSignal(channel.CalculatedY); //This will apply predefined propeties
         }
 
         private void SaveAxisLimits()
@@ -152,7 +146,7 @@ namespace AdcControl
             App.Stm32Ads1220.AcquisitionFinished += Stm32Ads1220_AcquisitionFinished;
             App.Stm32Ads1220.CommandCompleted += Stm32Ads1220_CommandCompleted;
             App.NewChannelDetected += App_NewChannelDetected;
-            pltMainPlot.plt.Ticks(dateTimeX: true, dateTimeFormatStringX: "HH:mm:ss", numericFormatStringY: "F5");
+            pltMainPlot.plt.Ticks(numericFormatStringY: "F5");
             RestoreAxisLimits();
             pltMainPlot.Render();
             App.ConfigureCsvExporter();
@@ -204,7 +198,11 @@ namespace AdcControl
 
         private void Stm32Ads1220_AcquisitionFinished(object sender, EventArgs e)
         {
-            txtStatus.Dispatcher.Invoke(() => { CurrentStatus = Default.stsAcqCompleted; });
+            txtStatus.Dispatcher.Invoke(() => 
+            { 
+                CurrentStatus = Default.stsAcqCompleted;
+                pltMainPlot.Render();
+            });
         }
 
         private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
@@ -223,7 +221,7 @@ namespace AdcControl
                         pltMainPlot.plt.AxisAuto();
                     }
                 }
-                pltMainPlot.Render(skipIfCurrentlyRendering: true);
+                pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
             });
         }
 
@@ -245,7 +243,7 @@ namespace AdcControl
                 }
                 PlotScatter(App.AdcChannels[e.Code]);
                 pltMainPlot.plt.Legend();
-                pltMainPlot.Render(skipIfCurrentlyRendering: true);
+                pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
             });
             App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
@@ -261,10 +259,9 @@ namespace AdcControl
             txtTerminal.Dispatcher.Invoke(() =>
             {
                 txtTerminal.AppendText(e.Line + Environment.NewLine);
-                if (++TerminalLines > Settings.Default.TerminalLimit)
+                if (txtTerminal.Text.Length > Settings.Default.TerminalLimit)
                 {
                     txtTerminal.Text = txtTerminal.Text.Remove(0, Settings.Default.TerminalRemoveStep);
-                    TerminalLines = txtTerminal.LineCount;
                 }
                 if (ctlExpander.IsExpanded) txtTerminal.ScrollToEnd();
             });
@@ -347,6 +344,7 @@ namespace AdcControl
 
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
+            txtTerminal.Clear();
             pltMainPlot.plt.Clear();
             pltMainPlot.ContextMenu.Items.Clear();
             foreach (var item in App.AdcChannels.Values)
@@ -421,12 +419,14 @@ namespace AdcControl
                 }
                 foreach (var item in App.AdcChannels)
                 {
-                    item.Value.Averaging = Settings.Default.Average;
+                    item.Value.MovingAveraging = Settings.Default.Average;
                 }
                 if (!App.Stm32Ads1220.AcquisitionInProgress)
                 {
                     foreach (var item in App.AdcChannels)
                     {
+                        item.Value.CapacityStep = (int)
+                            Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed);
                         await AdcChannel.Recalculate(item.Value);
                     }
                 }
@@ -459,7 +459,14 @@ namespace AdcControl
             pltMainPlot.Render();
         }
 
-        #endregion
+        private void txtSendCustom_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                btnSendCustom_Click(this, new RoutedEventArgs());
+            }
+        }
 
+        #endregion
     }
 }

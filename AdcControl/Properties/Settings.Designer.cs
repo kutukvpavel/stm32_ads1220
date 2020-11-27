@@ -109,7 +109,7 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1500")]
         public int TerminalLimit {
             get {
                 return ((int)(this["TerminalLimit"]));
@@ -264,6 +264,18 @@ namespace AdcControl.Properties {
             }
             set {
                 this["YMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int SampleRate {
+            get {
+                return ((int)(this["SampleRate"]));
+            }
+            set {
+                this["SampleRate"] = value;
             }
         }
     }

@@ -108,7 +108,7 @@ namespace AdcControl
                     e.Channel,
                     new AdcChannel(e.Channel,
                         (int)Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed),
-                        Settings.Default.Average
+                        Settings.Default.Average, Settings.Default.SampleRate
                         )
                     );
                 if (!added)
