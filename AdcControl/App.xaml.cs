@@ -37,7 +37,7 @@ namespace AdcControl
 
         public static List<ConcurrentDictionary<int, AdcChannel>> ArchivedChannels { get; set; }
         public static ConcurrentDictionary<int, AdcChannel> AdcChannels { get; set; }
-
+        
         public static void InitGlobals()
         {
             AdcChannels = new ConcurrentDictionary<int, AdcChannel>();
@@ -150,7 +150,7 @@ namespace AdcControl
             }
         }
     }
-
+    
     public class NewChannelDetectedEventArgs : EventArgs
     {
         public int Code { get; }

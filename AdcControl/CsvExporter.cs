@@ -21,6 +21,9 @@ namespace AdcControl
         //Public
 
         public static CsvConfiguration Configuration { get; set; }
+        public static string[] ColumnsPerChannel { get; } = { "Raw X", "Raw Y", "Calc X", "Calc Y" };
+        public static string ChannelInfoFormat = @"Channel {0} = {1}, acquisition started: {2},
+    moving average window width: {3}, drop every N'th point: {4}.";
 
         public static bool CheckIfAlreadyExists(string experimentName)
         {
@@ -42,6 +45,7 @@ namespace AdcControl
                 return ExportEngine(
                     Settings.Default.CsvSavePath,
                     experimentName,
+                    true,
                     data.Where(x => x.IsVisible).ToArray()
                     );
             });
@@ -54,6 +58,7 @@ namespace AdcControl
                 return ExportEngine(
                     Settings.Default.CsvSavePath,
                     FormatSingleChannel(experimentName, data),
+                    true,
                     data
                     );
             });
@@ -83,13 +88,13 @@ namespace AdcControl
             return ExportEngine(
                 Settings.Default.CsvAutosavePath,
                 "Autosave_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"),
+                false,
                 data.ToArray()
                 );
         }
 
         //Private
 
-        private static readonly string[] ColumnsPerChannel = { "Raw X", "Raw Y", "Calc X", "Calc Y" };
 #if TRACE
         private static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
@@ -104,13 +109,13 @@ namespace AdcControl
         {
             return string.Format("{0}_{1}", experimentName, channel.Name);
         }
-        private static string ComputePath(string relativePath, string experimentName, bool autoDir = true)
+        private static string ComputePath(string relativePath, string experimentName, bool autoDir = true, string extension = ".csv")
         {
             try
             {
                 string path = Path.Combine(
                     Path.GetFullPath(Environment.CurrentDirectory + relativePath),
-                    experimentName + ".csv"
+                    experimentName + extension
                     );
                 string dir = Path.GetDirectoryName(path);
                 if (autoDir && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
@@ -123,7 +128,7 @@ namespace AdcControl
                 return null;
             }
         }
-        private static bool ExportEngine(string relativePath, string experimentName, params AdcChannel[] data)
+        private static bool ExportEngine(string relativePath, string experimentName, bool exportInfo, params AdcChannel[] data)
         {
             //Get access to the file
             string path = ComputePath(relativePath, experimentName);
@@ -159,7 +164,7 @@ namespace AdcControl
                         {
                             if (data[j].RawCount > i)
                             {
-                                csvWriter.WriteField(data[j].RawX[i]);
+                                csvWriter.WriteField(OADateToSeconds(data[j].RawX[i]));
                                 csvWriter.WriteField(data[j].RawY[i]);
                             }
                             else
@@ -169,7 +174,7 @@ namespace AdcControl
                             }
                             if (data[j].CalculatedCount > i)
                             {
-                                csvWriter.WriteField(data[j].CalculatedX[i]);
+                                csvWriter.WriteField(OADateToSeconds(data[j].CalculatedX[i]));
                                 csvWriter.WriteField(data[j].CalculatedY[i]);
                             }
                             else
@@ -190,7 +195,36 @@ namespace AdcControl
             }
             App.Logger.Info(Default.msgSuccessfullyExportedToFile);
             App.Logger.Info(path);
+            if (exportInfo)
+            {
+                try
+                {
+                    path = ComputePath(relativePath, experimentName, false, ".txt");
+                    if (path == null) return false;
+                    using (TextWriter writer = new StreamWriter(path))
+                    {
+                        foreach (var item in data)
+                        {
+                            writer.WriteLine(string.Format(ChannelInfoFormat,
+                                item.Code, item.Name,
+                                DateTime.FromOADate(item.StartTime),
+                                item.MovingAveraging, item.DropPoints));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.Error(Default.msgFailedToSaveInfo);
+                    App.Logger.Info(ex.ToString());
+                    return false;
+                }
+            }
             return true;
+        }
+
+        private static double OADateToSeconds(double oa)
+        {
+            return DateTime.FromOADate(oa).TimeOfDay.TotalSeconds;
         }
     }
 }

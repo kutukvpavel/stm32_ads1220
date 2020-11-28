@@ -12,7 +12,8 @@
         Closing="Window_Closing"
         x:Name="_this"
         Icon="/Resources/chart.png"
-        FontSize="16">
+        FontSize="16"
+        d:DesignWidth="877.058" d:DesignHeight="257.871">
     <Window.Resources>
         <Style TargetType="Image">
             <Style.Triggers>
@@ -32,17 +33,35 @@
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
-        <ToolBarTray Grid.Row="0">
+        <Expander x:Name="expTable" 
+                  Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
+                  ExpandDirection="Right"
+                  Width="auto">
+            <Expander.Header>
+                <TextBlock Text="{Binding Source={x:Static resx:Default.strExpanderTable}}">
+                    <TextBlock.LayoutTransform>
+                        <RotateTransform Angle="-90"></RotateTransform>
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+            </Expander.Header>
+            <DataGrid x:Name="dgdRealTimeData"
+                      CanUserAddRows="False"
+                      AutoGenerateColumns="False">
+                
+            </DataGrid>
+        </Expander>
+        <ToolBarTray Grid.Row="0" Grid.Column="1">
             <ToolBar Grid.Row="0" Height="auto">
                 <Button x:Name="btnStartAcquisition" 
                         ToolTip="{x:Static resx:Default.strStartButton}" 
                         Click="btnStartAcquisition_Click"
                         IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForAcquisition, Mode=OneWay}">
                     <Image Source="/AdcControl;component/Resources/start.png" Height="32">
-                        
+
                     </Image>
                 </Button>
                 <Button x:Name="btnStopAcquisition" 
@@ -59,6 +78,12 @@
                         ToolTip="{x:Static resx:Default.strLockVerticalAxis}"
                         Margin="5,0,3,0">
                     <Image Source="/AdcControl;component/Resources/lock_vertical.png" Height="38"></Image>
+                </ToggleButton>
+                <ToggleButton x:Name="btnLockHorizontalAxis"
+                        Click="btnLockHorizontalAxis_Click"
+                        ToolTip="{x:Static resx:Default.strLockHorizontalAxis}"
+                        Margin="5,0,3,0">
+                    <Image Source="/AdcControl;component/Resources/lock_horizontal.png" Height="38"></Image>
                 </ToggleButton>
                 <ToggleButton x:Name="btnEnableAutoAxis"
                         Click="btnEnableAutoAxis_Click"
@@ -114,12 +139,12 @@
                 </Button>
             </ToolBar>
         </ToolBarTray>
-        <WpfPlot Grid.Row="1" x:Name="pltMainPlot">
+        <WpfPlot Grid.Row="1" x:Name="pltMainPlot" Grid.Column="1">
             <WpfPlot.ContextMenu>
                 <ContextMenu />
             </WpfPlot.ContextMenu>
         </WpfPlot>
-        <StatusBar FontSize="16" Grid.Row="2" x:Name="stbMainStatusBar">
+        <StatusBar FontSize="16" Grid.Row="2" x:Name="stbMainStatusBar" Grid.Column="1">
             <StatusBarItem>
                 <TextBlock x:Name="txtStatus" Text="Status"></TextBlock>
             </StatusBarItem>
@@ -127,7 +152,15 @@
                 <TextBlock x:Name="txtCoordinates" Text="Coordinates"></TextBlock>
             </StatusBarItem>
         </StatusBar>
-        <Expander x:Name="ctlExpander" Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" ExpandDirection="Left">
+        <Expander x:Name="expTerminal" Grid.Row="0" Grid.RowSpan="3"
+                  ExpandDirection="Left" Grid.Column="2">
+            <Expander.Header>
+                <TextBlock Text="{Binding Source={x:Static resx:Default.strTerminalHeader}}">
+                    <TextBlock.LayoutTransform>
+                        <RotateTransform Angle="-90"></RotateTransform>
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+            </Expander.Header>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"></RowDefinition>

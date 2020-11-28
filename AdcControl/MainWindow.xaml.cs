@@ -98,10 +98,12 @@ namespace AdcControl
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
 
-        private void PlotScatter(AdcChannel channel)
+        private void PlotChannel(AdcChannel channel)
         {
             Trace("Replotting");
-            channel.Plot = pltMainPlot.plt.PlotSignal(channel.CalculatedY); //This will apply predefined propeties
+            channel.Plot = pltMainPlot.plt.PlotSignal( //This will automatically apply all properties defined in AdcChannel
+                channel.CalculatedY,
+                lineWidth: Settings.Default.LineWidth);
         }
 
         private void SaveAxisLimits()
@@ -152,6 +154,7 @@ namespace AdcControl
             App.ConfigureCsvExporter();
             MouseTimer.Tick += MouseTimer_Elapsed;
             MouseTimer.Start();
+            dgdRealTimeData.ItemsSource = App.AdcChannels;
             App.Logger.Info(Default.msgLoadedMainWindow);
         }
 
@@ -207,7 +210,7 @@ namespace AdcControl
 
         private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
         {
-            pltMainPlot.Dispatcher.BeginInvoke(() => //BeginInvoke to untie display logic from data logic
+            Dispatcher.BeginInvoke(() => //BeginInvoke to untie display logic from data logic
             {
                 Trace("MainWindow DataReceived invoked");
                 if (Settings.Default.EnableAutoscaling)
@@ -222,12 +225,16 @@ namespace AdcControl
                     }
                 }
                 pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
+                dgdRealTimeData.ItemsSource = null;
+                dgdRealTimeData.ItemsSource = App.AdcChannels;
             });
         }
 
         private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
         {
-            pltMainPlot.Dispatcher.Invoke(() =>
+            App.AdcChannels[e.Code].ArrayChanged += AdcChannel_ArrayChanged;
+            App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
+            Dispatcher.Invoke(() =>
             {
                 if (ChannelEnable.ContainsKey(e.Code))
                 {
@@ -241,12 +248,26 @@ namespace AdcControl
                 {
                     App.AdcChannels[e.Code].Color = Colorset[e.Code];
                 }
-                PlotScatter(App.AdcChannels[e.Code]);
+                PlotChannel(App.AdcChannels[e.Code]);
                 pltMainPlot.plt.Legend();
                 pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
+                dgdRealTimeData.Columns.Add(App.AdcChannels[e.Code].DataGridColumn);
             });
-            App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
+        }
+
+        private void AdcChannel_ArrayChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                var channel = (AdcChannel)sender;
+                PlotChannel(channel);
+            }
+            catch (Exception ex)
+            {
+                App.Logger.Error(Default.msgChannelArrayUpdateError);
+                App.Logger.Info(ex.ToString());
+            }
         }
 
         private void ContextMenuItem_Click(object sender, RoutedEventArgs e)
@@ -263,7 +284,7 @@ namespace AdcControl
                 {
                     txtTerminal.Text = txtTerminal.Text.Remove(0, Settings.Default.TerminalRemoveStep);
                 }
-                if (ctlExpander.IsExpanded) txtTerminal.ScrollToEnd();
+                if (expTerminal.IsExpanded) txtTerminal.ScrollToEnd();
             });
         }
 
@@ -465,6 +486,11 @@ namespace AdcControl
             {
                 btnSendCustom_Click(this, new RoutedEventArgs());
             }
+        }
+
+        private void btnLockHorizontalAxis_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         #endregion

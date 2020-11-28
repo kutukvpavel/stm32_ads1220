@@ -205,9 +205,6 @@
   <data name="strForceRender" xml:space="preserve">
     <value>Force plot update</value>
   </data>
-  <data name="msgUpdateChannelPlotFailed" xml:space="preserve">
-    <value>Can't update channel data array, used by the plot.</value>
-  </data>
   <data name="msgCantCheckPortExistence" xml:space="preserve">
     <value>Can't check if selected serial port exists.</value>
   </data>
@@ -258,5 +255,20 @@
   </data>
   <data name="strConfigChannels" xml:space="preserve">
     <value>Channel configuration</value>
+  </data>
+  <data name="msgChannelArrayUpdateError" xml:space="preserve">
+    <value>Failed to update ADC channel array.</value>
+  </data>
+  <data name="strTerminalHeader" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="strExpanderTable" xml:space="preserve">
+    <value>Real-time table</value>
+  </data>
+  <data name="strLockHorizontalAxis" xml:space="preserve">
+    <value>Lock horizontal axis</value>
+  </data>
+  <data name="msgFailedToSaveInfo" xml:space="preserve">
+    <value>Failed to save experiment info.</value>
   </data>
 </root>

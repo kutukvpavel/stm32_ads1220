@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace AdcControl
 {
@@ -11,11 +13,11 @@ namespace AdcControl
     {
         public AdcChannel(int code, int capacity, int averaging, double sampleRate, double start)
         {
-            RawX = new double[capacity];
-            RawY = new double[capacity];
+            _RawX = new double[capacity];
+            _RawY = new double[capacity];
             RawCount = 0;
-            CalculatedX = new double[capacity];
-            CalculatedY = new double[capacity];
+            _CalculatedX = new double[capacity];
+            _CalculatedY = new double[capacity];
             CalculatedCount = 0;
             MovingAveraging = averaging;
             Buffer = new Queue<double>(averaging);
@@ -28,10 +30,7 @@ namespace AdcControl
             : this(code, rawCapacity, averaging, sampleRate, DateTime.UtcNow.ToOADate())
         { }
 
-        public double[] RawX;
-        public double[] RawY;
-        public double[] CalculatedX;
-        public double[] CalculatedY;
+        public event EventHandler ArrayChanged;
 
         protected Queue<double> Buffer;
         protected object LockObject = new object();
@@ -40,8 +39,17 @@ namespace AdcControl
 #endif
 
         #region Properties
+        private double[] _RawX;
+        private double[] _RawY;
+        private double[] _CalculatedX;
+        private double[] _CalculatedY;
+        public double[] RawX { get => _RawX; }
+        public double[] RawY { get => _RawY; }
+        public double[] CalculatedX { get => _CalculatedX; }
+        public double[] CalculatedY { get => _CalculatedY; }
+
         public int CapacityStep { get; set; }
-        public int RawCount { get; set; }
+        public int RawCount { get; private set; }
         public int CalculatedCount { get; private set; }
         public int MovingAveraging { get; set; }
         public double StartTime { get; set; }
@@ -55,10 +63,10 @@ namespace AdcControl
             set
             {
                 _SampleRate = value;
-                if (Plot != null)
+                if (_Plot != null)
                 {
-                    Plot.sampleRate = _SampleRate;
-                    Plot.samplePeriod = 1 / _SampleRate;
+                    _Plot.sampleRate = _SampleRate;
+                    _Plot.samplePeriod = 1 / _SampleRate;
                 }
             }
         }
@@ -69,7 +77,8 @@ namespace AdcControl
             set
             {
                 _Name = value;
-                if (Plot != null) Plot.label = _Name;
+                if (_Plot != null) _Plot.label = _Name;
+                if (_DataGridColumn != null) _DataGridColumn.Header = _Name;
             }
         }
         protected bool _IsVisible = true;
@@ -79,8 +88,9 @@ namespace AdcControl
             set
             {
                 _IsVisible = value;
-                if (Plot != null) Plot.visible = _IsVisible;
-                if (ContextMenuItem != null) ContextMenuItem.IsChecked = _IsVisible;
+                if (_Plot != null) _Plot.visible = _IsVisible;
+                if (_ContextMenuItem != null) _ContextMenuItem.IsChecked = _IsVisible;
+                if (_DataGridColumn != null) _DataGridColumn.Visibility = _IsVisible ? Visibility.Visible : Visibility.Hidden;
             }
         }
         protected System.Drawing.Color? _Color = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.Black);
@@ -90,7 +100,7 @@ namespace AdcControl
             set
             {
                 _Color = value;
-                if (Plot != null && _Color != null) Plot.color = (System.Drawing.Color)_Color;
+                if (_Plot != null && _Color != null) Plot.color = (System.Drawing.Color)_Color;
             }
         }
         protected ScottPlot.PlottableSignal _Plot;
@@ -120,6 +130,23 @@ namespace AdcControl
                     _ContextMenuItem.Click += ContextMenuItem_Click;
                 }
                 return _ContextMenuItem;
+            }
+        }
+        protected DataGridTextColumn _DataGridColumn;
+        public DataGridTextColumn DataGridColumn
+        {
+            get
+            {
+                if (_DataGridColumn == null)
+                {
+                    _DataGridColumn = new DataGridTextColumn()
+                    {
+                        Header = Name,
+                        Visibility = _IsVisible ? Visibility.Visible : Visibility.Hidden,
+                        Binding = new Binding(string.Format("[{0}].CalculatedY", Code))
+                    };
+                }
+                return _DataGridColumn;
             }
         }
 
@@ -152,8 +179,10 @@ namespace AdcControl
 
         private void OnArrayChanged()
         {
-            if (Plot == null) return;
-            Plot.updateData(CalculatedY);
+            new Thread(() =>
+            {
+                ArrayChanged?.Invoke(this, new EventArgs());
+            }).Start();
         }
 
         #endregion
@@ -175,10 +204,10 @@ namespace AdcControl
                 if (RawCount == RawX.Length)
                 {
                     int newSize = RawX.Length + CapacityStep;
-                    Array.Resize(ref RawX, newSize);
-                    Array.Resize(ref RawY, newSize);
-                    Array.Resize(ref CalculatedX, newSize);
-                    Array.Resize(ref CalculatedY, newSize);
+                    Array.Resize(ref _RawX, newSize);
+                    Array.Resize(ref _RawY, newSize);
+                    Array.Resize(ref _CalculatedX, newSize);
+                    Array.Resize(ref _CalculatedY, newSize);
                     arrayChanged = true;
                 }
                 RawX[RawCount] = time;
@@ -187,8 +216,8 @@ namespace AdcControl
                 Buffer.Enqueue(val);
                 if (DropPoints <= 1 || ((RawCount % DropPoints) != 0))
                 {
-                    CalculatedX[CalculatedCount] = time - StartTime;
-                    CalculatedY[CalculatedCount] = Buffer.Average();
+                    _CalculatedX[CalculatedCount] = time - StartTime;
+                    _CalculatedY[CalculatedCount] = Buffer.Average();
                     if (Plot != null) Plot.maxRenderIndex = CalculatedCount;
                     CalculatedCount++;
                 }
@@ -209,14 +238,14 @@ namespace AdcControl
                 {
                     if (RawCount != RawX.Length)
                     {
-                        Array.Resize(ref RawX, RawCount);
-                        Array.Resize(ref RawY, RawCount);
+                        Array.Resize(ref _RawX, RawCount);
+                        Array.Resize(ref _RawY, RawCount);
                         c = true;
                     }
                     if (CalculatedCount != CalculatedX.Length)
                     {
-                        Array.Resize(ref CalculatedX, CalculatedCount);
-                        Array.Resize(ref CalculatedY, CalculatedCount);
+                        Array.Resize(ref _CalculatedX, CalculatedCount);
+                        Array.Resize(ref _CalculatedY, CalculatedCount);
                         c = true;
                     }
                 }
@@ -231,11 +260,11 @@ namespace AdcControl
             lock (LockObject)
             {
                 RawCount = 0;
-                RawX = new double[capacity];
-                RawY = new double[capacity];
+                _RawX = new double[capacity];
+                _RawY = new double[capacity];
                 CalculatedCount = 0;
-                CalculatedX = new double[capacity];
-                CalculatedY = new double[capacity];
+                _CalculatedX = new double[capacity];
+                _CalculatedY = new double[capacity];
                 Buffer.Clear();
             }
             OnArrayChanged();

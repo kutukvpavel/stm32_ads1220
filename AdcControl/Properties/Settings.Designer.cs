@@ -278,5 +278,17 @@ namespace AdcControl.Properties {
                 this["SampleRate"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double LineWidth {
+            get {
+                return ((double)(this["LineWidth"]));
+            }
+            set {
+                this["LineWidth"] = value;
+            }
+        }
     }
 }

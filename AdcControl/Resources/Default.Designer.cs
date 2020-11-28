@@ -142,6 +142,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to update ADC channel array..
+        /// </summary>
+        public static string msgChannelArrayUpdateError {
+            get {
+                return ResourceManager.GetString("msgChannelArrayUpdateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Timed out while waiting in command queue..
         /// </summary>
         public static string msgControllerTimeout {
@@ -183,6 +192,15 @@ namespace AdcControl.Resources {
         public static string msgExceptionOverride {
             get {
                 return ResourceManager.GetString("msgExceptionOverride", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to save experiment info..
+        /// </summary>
+        public static string msgFailedToSaveInfo {
+            get {
+                return ResourceManager.GetString("msgFailedToSaveInfo", resourceCulture);
             }
         }
         
@@ -277,15 +295,6 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Can&apos;t update channel data array, used by the plot..
-        /// </summary>
-        public static string msgUpdateChannelPlotFailed {
-            get {
-                return ResourceManager.GetString("msgUpdateChannelPlotFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Cancel.
         /// </summary>
         public static string strCancelButton {
@@ -358,6 +367,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Real-time table.
+        /// </summary>
+        public static string strExpanderTable {
+            get {
+                return ResourceManager.GetString("strExpanderTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Export data as CSV.
         /// </summary>
         public static string strExportButton {
@@ -372,6 +390,15 @@ namespace AdcControl.Resources {
         public static string strForceRender {
             get {
                 return ResourceManager.GetString("strForceRender", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Lock horizontal axis.
+        /// </summary>
+        public static string strLockHorizontalAxis {
+            get {
+                return ResourceManager.GetString("strLockHorizontalAxis", resourceCulture);
             }
         }
         
@@ -426,6 +453,15 @@ namespace AdcControl.Resources {
         public static string strStopButton {
             get {
                 return ResourceManager.GetString("strStopButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Terminal.
+        /// </summary>
+        public static string strTerminalHeader {
+            get {
+                return ResourceManager.GetString("strTerminalHeader", resourceCulture);
             }
         }
         
