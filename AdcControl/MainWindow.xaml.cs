@@ -240,6 +240,7 @@ namespace AdcControl
                 RefreshTimer.Stop();
                 CurrentStatus = Default.stsAcqCompleted;
                 pltMainPlot.Render();
+                NativeMethods.AllowSleep();
             });
         }
 
@@ -371,6 +372,7 @@ namespace AdcControl
             if (await App.Stm32Ads1220.StartAcquisition(Settings.Default.AcquisitionDuration))
             {
                 RefreshTimer.Start();
+                NativeMethods.PreventSleep();
                 CurrentStatus = Default.stsAcqInProgress;
             }
             else

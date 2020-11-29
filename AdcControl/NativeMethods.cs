@@ -1,0 +1,39 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace AdcControl
+{
+    public static class NativeMethods
+    {
+        //Private
+
+        [FlagsAttribute()]
+        private enum EXECUTION_STATE : uint //Determine Monitor State
+        {
+            ES_AWAYMODE_REQUIRED = 0x40,
+            ES_CONTINUOUS = 0x80000000u,
+            ES_DISPLAY_REQUIRED = 0x2,
+            ES_SYSTEM_REQUIRED = 0x1
+            // Legacy flag, should not be used.
+            // ES_USER_PRESENT = 0x00000004
+        }
+
+        //Enables an application to inform the system that it is in use, thereby preventing the system from entering sleep or turning off the display while the application is running.
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
+
+        //Public
+
+        public static void PreventSleep()
+        {
+            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
+        }
+
+        public static void AllowSleep()
+        {
+            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+        }
+    }
+}
