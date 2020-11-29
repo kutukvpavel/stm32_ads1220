@@ -44,7 +44,7 @@ namespace AdcControl
             ArchivedChannels = new List<ConcurrentDictionary<int, AdcChannel>>();
             _Stm32Ads1220 = new Controller(new RJCP.IO.Ports.SerialPortStream());
             _Stm32Ads1220.Port.PortName = Settings.Default.PortName;
-            _Stm32Ads1220.LogEvent += (sender, e) => { Logger.Error(e.Message); Logger.Info(e.Exception); };
+            _Stm32Ads1220.LogEvent += (sender, e) => { Logger.Error(e.Message); if (e.Exception != null) Logger.Info(e.Exception); };
             _Stm32Ads1220.TerminalEvent += (sender, e) => { Logger.Debug(e.Line); };
             _Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             _Stm32Ads1220.DeviceError += Stm32Ads1220_DeviceError;
@@ -111,17 +111,18 @@ namespace AdcControl
                         Settings.Default.Average, Settings.Default.SampleRate
                         )
                     );
-                if (!added)
+                if (added)
                 {
-                    Logger.Error(Default.msgAdcChannelConcurrency);
-                    return;
-                }
-                else
-                {
+                    AdcChannels[e.Channel].DropPoints = Settings.Default.AcqDropPoints;
                     new Thread(() =>
                     {
                         NewChannelDetected?.Invoke(Stm32Ads1220, new NewChannelDetectedEventArgs(e.Channel));
                     }).Start();
+                }
+                else
+                {
+                    Logger.Error(Default.msgAdcChannelConcurrency);
+                    return;
                 }
             }
             AdcChannels[e.Channel].AddPoint(e.Value);
@@ -137,7 +138,7 @@ namespace AdcControl
             catch (Exception) { }
             finally
             {
-                if (MessageBox.Show(e.ToString(), Default.msgFatalContinue, MessageBoxButton.YesNo) == MessageBoxResult.No)
+                if (MessageBox.Show(e.Exception.ToString(), Default.msgFatalContinue, MessageBoxButton.YesNo) == MessageBoxResult.No)
                 {
                     Environment.Exit(-1);
                 }

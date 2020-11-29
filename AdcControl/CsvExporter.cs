@@ -93,6 +93,11 @@ namespace AdcControl
                 );
         }
 
+        public static double OADateToSeconds(double oa)
+        {
+            return DateTime.FromOADate(oa).TimeOfDay.TotalSeconds;
+        }
+
         //Private
 
 #if TRACE
@@ -220,11 +225,6 @@ namespace AdcControl
                 }
             }
             return true;
-        }
-
-        private static double OADateToSeconds(double oa)
-        {
-            return DateTime.FromOADate(oa).TimeOfDay.TotalSeconds;
         }
     }
 }

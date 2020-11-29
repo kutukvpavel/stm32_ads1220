@@ -295,6 +295,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Toggle autoscroll.
+        /// </summary>
+        public static string strAutoscroll {
+            get {
+                return ResourceManager.GetString("strAutoscroll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Cancel.
         /// </summary>
         public static string strCancelButton {

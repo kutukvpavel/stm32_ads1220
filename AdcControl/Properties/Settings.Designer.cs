@@ -245,7 +245,7 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
         public double YMax {
             get {
                 return ((double)(this["YMax"]));
@@ -257,7 +257,7 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("-2")]
         public double YMin {
             get {
                 return ((double)(this["YMin"]));
@@ -288,6 +288,126 @@ namespace AdcControl.Properties {
             }
             set {
                 this["LineWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LockHorizontalAxis {
+            get {
+                return ((bool)(this["LockHorizontalAxis"]));
+            }
+            set {
+                this["LockHorizontalAxis"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Time, s")]
+        public string XAxisLabel {
+            get {
+                return ((string)(this["XAxisLabel"]));
+            }
+            set {
+                this["XAxisLabel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Channel Signal, V")]
+        public string YAxisLabel {
+            get {
+                return ((string)(this["YAxisLabel"]));
+            }
+            set {
+                this["YAxisLabel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double XMax {
+            get {
+                return ((double)(this["XMax"]));
+            }
+            set {
+                this["XMax"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public double XMin {
+            get {
+                return ((double)(this["XMin"]));
+            }
+            set {
+                this["XMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutoscrollTable {
+            get {
+                return ((bool)(this["AutoscrollTable"]));
+            }
+            set {
+                this["AutoscrollTable"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1200")]
+        public int TableLimit {
+            get {
+                return ((int)(this["TableLimit"]));
+            }
+            set {
+                this["TableLimit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public int RefreshPeriod {
+            get {
+                return ((int)(this["RefreshPeriod"]));
+            }
+            set {
+                this["RefreshPeriod"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int TableDropPoints {
+            get {
+                return ((int)(this["TableDropPoints"]));
+            }
+            set {
+                this["TableDropPoints"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AcqDropPoints {
+            get {
+                return ((int)(this["AcqDropPoints"]));
+            }
+            set {
+                this["AcqDropPoints"] = value;
             }
         }
     }

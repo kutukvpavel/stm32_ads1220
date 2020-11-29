@@ -271,4 +271,7 @@
   <data name="msgFailedToSaveInfo" xml:space="preserve">
     <value>Failed to save experiment info.</value>
   </data>
+  <data name="strAutoscroll" xml:space="preserve">
+    <value>Toggle autoscroll</value>
+  </data>
 </root>

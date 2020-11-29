@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Drawing;
 
 namespace AdcControl
 {
@@ -39,6 +43,8 @@ namespace AdcControl
 #endif
 
         #region Properties
+
+        //Data for plotting
         private double[] _RawX;
         private double[] _RawY;
         private double[] _CalculatedX;
@@ -48,6 +54,9 @@ namespace AdcControl
         public double[] CalculatedX { get => _CalculatedX; }
         public double[] CalculatedY { get => _CalculatedY; }
 
+        //Other
+        public string ColumnXSuffix { get; set; } = " X";
+        public string ColumnYSuffix { get; set; } = " Y";
         public int CapacityStep { get; set; }
         public int RawCount { get; private set; }
         public int CalculatedCount { get; private set; }
@@ -78,7 +87,9 @@ namespace AdcControl
             {
                 _Name = value;
                 if (_Plot != null) _Plot.label = _Name;
-                if (_DataGridColumn != null) _DataGridColumn.Header = _Name;
+                if (_ContextMenuItem != null) _ContextMenuItem.ChannelName = _Name;
+                if (_ColumnX != null) _ColumnX.Header = _Name + ColumnXSuffix;
+                if (_ColumnY != null) _ColumnY.Header = _Name + ColumnYSuffix;
             }
         }
         protected bool _IsVisible = true;
@@ -90,17 +101,20 @@ namespace AdcControl
                 _IsVisible = value;
                 if (_Plot != null) _Plot.visible = _IsVisible;
                 if (_ContextMenuItem != null) _ContextMenuItem.IsChecked = _IsVisible;
-                if (_DataGridColumn != null) _DataGridColumn.Visibility = _IsVisible ? Visibility.Visible : Visibility.Hidden;
             }
         }
-        protected System.Drawing.Color? _Color = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.Black);
-        public System.Drawing.Color? Color
+        protected Color? _Color = System.Drawing.Color.FromKnownColor(KnownColor.Black);
+        public Color? Color
         {
             get { return _Color; }
             set
             {
                 _Color = value;
-                if (_Plot != null && _Color != null) Plot.color = (System.Drawing.Color)_Color;
+                if (_Plot != null && _Color != null)
+                {
+                    _Plot.color = (Color)_Color;
+                    _Plot.brush = new SolidBrush((Color)_Color);
+                }
             }
         }
         protected ScottPlot.PlottableSignal _Plot;
@@ -114,7 +128,11 @@ namespace AdcControl
                 _Plot.visible = _IsVisible;
                 _Plot.sampleRate = _SampleRate;
                 _Plot.samplePeriod = 1 / _SampleRate;
-                if (_Color != null) _Plot.color = (System.Drawing.Color)_Color;
+                if (_Color != null)
+                {
+                    _Plot.color = (Color)_Color;
+                    _Plot.brush = new SolidBrush((Color)_Color);
+                }
                 _Plot.maxRenderIndex = CalculatedCount;
             }
         }
@@ -126,27 +144,34 @@ namespace AdcControl
                 if (_ContextMenuItem == null)
                 {
                     _ContextMenuItem =
-                        new AdcChannelContextMenuItem(ReturnCode, ReturnName) { IsChecked = IsVisible };
+                        new AdcChannelContextMenuItem(Code, Name) { IsChecked = IsVisible };
                     _ContextMenuItem.Click += ContextMenuItem_Click;
                 }
                 return _ContextMenuItem;
             }
         }
-        protected DataGridTextColumn _DataGridColumn;
-        public DataGridTextColumn DataGridColumn
+        protected ColumnItemsControl _ColumnX;
+        public ColumnItemsControl CalculatedXColumn
         {
             get
             {
-                if (_DataGridColumn == null)
+                if (_ColumnX == null)
                 {
-                    _DataGridColumn = new DataGridTextColumn()
-                    {
-                        Header = Name,
-                        Visibility = _IsVisible ? Visibility.Visible : Visibility.Hidden,
-                        Binding = new Binding(string.Format("[{0}].CalculatedY", Code))
-                    };
+                    _ColumnX = new ColumnItemsControl() { ItemStringFormat = "F2", Header = _Name + ColumnXSuffix };
                 }
-                return _DataGridColumn;
+                return _ColumnX;
+            }
+        }
+        protected ColumnItemsControl _ColumnY;
+        public ColumnItemsControl CalculatedYColumn
+        {
+            get
+            {
+                if (_ColumnY == null)
+                {
+                    _ColumnY = new ColumnItemsControl() { ItemStringFormat = "F5", Header = _Name + ColumnYSuffix };
+                }
+                return _ColumnY;
             }
         }
 
@@ -160,16 +185,6 @@ namespace AdcControl
             TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(
                 string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
 #endif
-        }
-
-        private int ReturnCode()
-        {
-            return Code;
-        }
-
-        private string ReturnName()
-        {
-            return Name;
         }
 
         private void ContextMenuItem_Click(object sender, RoutedEventArgs e)
@@ -216,9 +231,25 @@ namespace AdcControl
                 Buffer.Enqueue(val);
                 if (DropPoints <= 1 || ((RawCount % DropPoints) != 0))
                 {
-                    _CalculatedX[CalculatedCount] = time - StartTime;
-                    _CalculatedY[CalculatedCount] = Buffer.Average();
-                    if (Plot != null) Plot.maxRenderIndex = CalculatedCount;
+                    var x = time - StartTime;
+                    var y = Buffer.Average();
+                    _CalculatedX[CalculatedCount] = x;
+                    _CalculatedY[CalculatedCount] = y;
+                    if (_Plot != null && !arrayChanged) _Plot.maxRenderIndex = CalculatedCount;
+                    if (_ColumnX != null)
+                    {
+                        _ColumnX.Dispatcher.BeginInvoke(() =>
+                        {
+                            _ColumnX.AddItem(CsvExporter.OADateToSeconds(x));
+                        });
+                    }
+                    if (_ColumnY != null)
+                    {
+                        _ColumnY.Dispatcher.BeginInvoke(() =>
+                        {
+                            _ColumnY.AddItem(y);
+                        });
+                    }
                     CalculatedCount++;
                 }
                 while (Buffer.Count >= MovingAveraging) //Lag-less buffering and dynamic window size support
@@ -294,7 +325,7 @@ namespace AdcControl
 
     public class AdcChannelContextMenuItem : MenuItem
     {
-        public AdcChannelContextMenuItem(Func<int> code, Func<string> name)
+        public AdcChannelContextMenuItem(int code, string name)
         {
             ChannelCode = code;
             ChannelName = name;
@@ -313,24 +344,14 @@ namespace AdcControl
             Click?.Invoke(this, e);
         }
 
-        private Func<int> ChannelCode { get; }
-        private Func<string> ChannelName { get; }
+        public int ChannelCode { get; set; }
+        public string ChannelName { get; set; }
 
         public new event RoutedEventHandler Click;
 
         public override string ToString()
         {
-            return DictionarySaver.WriteMapping(ChannelCode(), ChannelName());
-        }
-
-        public int GetChannelCode()
-        {
-            return ChannelCode();
-        }
-
-        public string GetChannelName()
-        {
-            return ChannelName();
+            return ChannelName;
         }
     }
 }

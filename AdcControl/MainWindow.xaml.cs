@@ -73,19 +73,12 @@ namespace AdcControl
         private ConcurrentDictionary<int, string> ChannelNames;
         private ConcurrentDictionary<int, bool> ChannelEnable;
         private DispatcherTimer MouseTimer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, 0, 0, 20), IsEnabled = false };
+        private DispatcherTimer RefreshTimer = new DispatcherTimer() { IsEnabled = false };
 #if TRACE
         private static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
 
-        private void MouseTimer_Elapsed(object sender, EventArgs e)
-        {
-            if (!pltMainPlot.IsMouseOver) return;
-            (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
-            txtCoordinates.Text = string.Format("{0:F6} V @ {1:F2}", mouseY, mouseX);
-        }
-
         #region Functions
-
         private static void Trace(string s)
         {
 #if TRACE
@@ -101,16 +94,27 @@ namespace AdcControl
         private void PlotChannel(AdcChannel channel)
         {
             Trace("Replotting");
+            pltMainPlot.plt.Remove(channel.Plot);
             channel.Plot = pltMainPlot.plt.PlotSignal( //This will automatically apply all properties defined in AdcChannel
                 channel.CalculatedY,
-                lineWidth: Settings.Default.LineWidth);
+                lineWidth: Settings.Default.LineWidth,
+                color: channel.Color); //Somehow signalPlot doesn't support color change (only markers change color after the field was modified)
         }
 
         private void SaveAxisLimits()
         {
-            var s = pltMainPlot.plt.GetSettings().axes.y;
-            Settings.Default.YMax = s.max;
-            Settings.Default.YMin = s.min;
+            var s = pltMainPlot.plt.GetSettings();
+            Settings.Default.YMax = s.axes.y.max;
+            Settings.Default.YMin = s.axes.y.min;
+            double xMin = s.axes.x.min;
+            double xMax = s.axes.x.max;
+            if (Settings.Default.LockHorizontalAxis)
+            {
+                xMax -= xMin;
+                xMin = 0;
+            }
+            Settings.Default.XMax = xMax;
+            Settings.Default.XMin = xMin;
         }
 
         private void RestoreAxisLimits()
@@ -143,19 +147,49 @@ namespace AdcControl
             ChannelEnable = DictionarySaver.Parse(Settings.Default.ChannelEnableMapping, x => bool.Parse(x));
             btnEnableAutoAxis.IsChecked = Settings.Default.EnableAutoscaling;
             btnLockVerticalAxis.IsChecked = Settings.Default.LockVerticalScale;
+            btnLockHorizontalAxis.IsChecked = Settings.Default.LockHorizontalAxis;
+            btnAutoscrollRealTimeTable.IsChecked = Settings.Default.AutoscrollTable;
             App.Stm32Ads1220.TerminalEvent += Stm32Ads1220_TerminalEvent;
-            App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             App.Stm32Ads1220.AcquisitionFinished += Stm32Ads1220_AcquisitionFinished;
             App.Stm32Ads1220.CommandCompleted += Stm32Ads1220_CommandCompleted;
             App.NewChannelDetected += App_NewChannelDetected;
             pltMainPlot.plt.Ticks(numericFormatStringY: "F5");
+            pltMainPlot.plt.YLabel(Settings.Default.YAxisLabel);
+            pltMainPlot.plt.XLabel(Settings.Default.XAxisLabel);
             RestoreAxisLimits();
             pltMainPlot.Render();
             App.ConfigureCsvExporter();
+            RefreshTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Default.RefreshPeriod);
+            RefreshTimer.Tick += RefreshTimer_Tick;
             MouseTimer.Tick += MouseTimer_Elapsed;
             MouseTimer.Start();
-            dgdRealTimeData.ItemsSource = App.AdcChannels;
             App.Logger.Info(Default.msgLoadedMainWindow);
+        }
+
+        private void RefreshTimer_Tick(object sender, EventArgs e)
+        {
+            if (Settings.Default.EnableAutoscaling)
+            {
+                pltMainPlot.plt.AxisAutoX();
+                if (Settings.Default.LockHorizontalAxis)
+                {
+                    var d = pltMainPlot.plt.GetSettings().axes.x.max - Settings.Default.XMax;
+                    pltMainPlot.plt.Axis(Settings.Default.XMin + (d > 0 ? d : 0));
+                }
+                if (!Settings.Default.LockVerticalScale)
+                {
+                    pltMainPlot.plt.AxisAutoY();
+                }
+            }
+            pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
+            if (Settings.Default.AutoscrollTable) scwRealTimeData.ScrollToBottom();
+        }
+
+        private void MouseTimer_Elapsed(object sender, EventArgs e)
+        {
+            if (!pltMainPlot.IsMouseOver) return;
+            (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
+            txtCoordinates.Text = string.Format("{0:F6} V @ {1:F2} s", mouseY, mouseX);
         }
 
         private void MainWindow_DebugLogEvent(object sender, LogEventArgs e)
@@ -201,39 +235,17 @@ namespace AdcControl
 
         private void Stm32Ads1220_AcquisitionFinished(object sender, EventArgs e)
         {
-            txtStatus.Dispatcher.Invoke(() => 
-            { 
+            txtStatus.Dispatcher.BeginInvoke(() => 
+            {
+                RefreshTimer.Stop();
                 CurrentStatus = Default.stsAcqCompleted;
                 pltMainPlot.Render();
-            });
-        }
-
-        private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
-        {
-            Dispatcher.BeginInvoke(() => //BeginInvoke to untie display logic from data logic
-            {
-                Trace("MainWindow DataReceived invoked");
-                if (Settings.Default.EnableAutoscaling)
-                {
-                    if (Settings.Default.LockVerticalScale)
-                    {
-                        pltMainPlot.plt.AxisAutoX();
-                    }
-                    else
-                    {
-                        pltMainPlot.plt.AxisAuto();
-                    }
-                }
-                pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
-                dgdRealTimeData.ItemsSource = null;
-                dgdRealTimeData.ItemsSource = App.AdcChannels;
             });
         }
 
         private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
         {
             App.AdcChannels[e.Code].ArrayChanged += AdcChannel_ArrayChanged;
-            App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
             Dispatcher.Invoke(() =>
             {
                 if (ChannelEnable.ContainsKey(e.Code))
@@ -249,10 +261,16 @@ namespace AdcControl
                     App.AdcChannels[e.Code].Color = Colorset[e.Code];
                 }
                 PlotChannel(App.AdcChannels[e.Code]);
+                App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
+                App.AdcChannels[e.Code].CalculatedXColumn.ItemsLimit = Settings.Default.TableLimit;
+                App.AdcChannels[e.Code].CalculatedXColumn.DropItems = Settings.Default.TableDropPoints;
+                App.AdcChannels[e.Code].CalculatedYColumn.ItemsLimit = Settings.Default.TableLimit;
+                App.AdcChannels[e.Code].CalculatedYColumn.DropItems = Settings.Default.TableDropPoints;
+                pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
                 pltMainPlot.plt.Legend();
                 pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
-                pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
-                dgdRealTimeData.Columns.Add(App.AdcChannels[e.Code].DataGridColumn);
+                pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedXColumn);
+                pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedYColumn);
             });
         }
 
@@ -261,7 +279,10 @@ namespace AdcControl
             try
             {
                 var channel = (AdcChannel)sender;
-                PlotChannel(channel);
+                pltMainPlot.Dispatcher.Invoke(() =>
+                {
+                    PlotChannel(channel);
+                });
             }
             catch (Exception ex)
             {
@@ -272,7 +293,7 @@ namespace AdcControl
 
         private void ContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            pltMainPlot.Dispatcher.Invoke(() => { pltMainPlot.Render(); });
+            pltMainPlot.Dispatcher.BeginInvoke(() => { pltMainPlot.Render(); });
         }
 
         private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
@@ -291,6 +312,13 @@ namespace AdcControl
         #endregion
 
         #region UI Events
+
+        private void btnAutoscrollRealTimeTable_Click(object sender, RoutedEventArgs e)
+        {
+            Settings.Default.AutoscrollTable = btnAutoscrollRealTimeTable.IsChecked ?? false;
+            if (Settings.Default.AutoscrollTable && !App.Stm32Ads1220.AcquisitionInProgress)
+                scwRealTimeData.ScrollToBottom();
+        }
 
         private void btnConfigChannels_Click(object sender, RoutedEventArgs e)
         {
@@ -342,6 +370,7 @@ namespace AdcControl
             CurrentStatus = Default.stsStartingAcq;
             if (await App.Stm32Ads1220.StartAcquisition(Settings.Default.AcquisitionDuration))
             {
+                RefreshTimer.Start();
                 CurrentStatus = Default.stsAcqInProgress;
             }
             else
@@ -366,6 +395,7 @@ namespace AdcControl
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
             txtTerminal.Clear();
+            pnlRealTimeData.Children.Clear();
             pltMainPlot.plt.Clear();
             pltMainPlot.ContextMenu.Items.Clear();
             foreach (var item in App.AdcChannels.Values)
@@ -490,7 +520,11 @@ namespace AdcControl
 
         private void btnLockHorizontalAxis_Click(object sender, RoutedEventArgs e)
         {
-
+            Settings.Default.LockHorizontalAxis = btnLockHorizontalAxis.IsChecked ?? false;
+            if (Settings.Default.LockHorizontalAxis)
+            {
+                SaveAxisLimits();
+            }
         }
 
         #endregion

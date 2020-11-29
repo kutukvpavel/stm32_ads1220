@@ -65,16 +65,46 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="YMax" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="YMin" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">-1</Value>
+      <Value Profile="(Default)">-2</Value>
     </Setting>
     <Setting Name="SampleRate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">4</Value>
     </Setting>
     <Setting Name="LineWidth" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="LockHorizontalAxis" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="XAxisLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Time, s</Value>
+    </Setting>
+    <Setting Name="YAxisLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Channel Signal, V</Value>
+    </Setting>
+    <Setting Name="XMax" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="XMin" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="AutoscrollTable" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="TableLimit" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1200</Value>
+    </Setting>
+    <Setting Name="RefreshPeriod" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="TableDropPoints" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
+    <Setting Name="AcqDropPoints" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
     </Setting>
   </Settings>
 </SettingsFile>
