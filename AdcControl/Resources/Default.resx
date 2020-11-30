@@ -113,7 +113,7 @@
     <value>Disconnect</value>
   </data>
   <data name="strConfigButton" xml:space="preserve">
-    <value>Connection configuration</value>
+    <value>Connection and controller configuration</value>
   </data>
   <data name="strExportButton" xml:space="preserve">
     <value>Export data as CSV</value>
@@ -248,7 +248,7 @@
     <value>Exported data to CSV file.</value>
   </data>
   <data name="strLockVerticalAxis" xml:space="preserve">
-    <value>Prevent Y axis autoscaling</value>
+    <value>Prevent Y Axis Autoscaling</value>
   </data>
   <data name="lblCollectionSettingPrompt" xml:space="preserve">
     <value>Enter one element per line, format: XX=XXXX:</value>
@@ -266,12 +266,178 @@
     <value>Real-time table</value>
   </data>
   <data name="strLockHorizontalAxis" xml:space="preserve">
-    <value>Lock horizontal axis</value>
+    <value>Prevent X Axis Autoscaling</value>
   </data>
   <data name="msgFailedToSaveInfo" xml:space="preserve">
     <value>Failed to save experiment info.</value>
   </data>
   <data name="strAutoscroll" xml:space="preserve">
     <value>Toggle autoscroll</value>
+  </data>
+  <data name="strViewConfig" xml:space="preserve">
+    <value>View configuration</value>
+  </data>
+  <data name="catMainWindow" xml:space="preserve">
+    <value>Main Window</value>
+  </data>
+  <data name="catAxes" xml:space="preserve">
+    <value>Axes</value>
+  </data>
+  <data name="catTerminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="namWindowMaximized" xml:space="preserve">
+    <value>Maximized</value>
+  </data>
+  <data name="namWindowCoords" xml:space="preserve">
+    <value>Window Location</value>
+  </data>
+  <data name="namWindowSize" xml:space="preserve">
+    <value>Window Size</value>
+  </data>
+  <data name="namLimit" xml:space="preserve">
+    <value>Limit</value>
+  </data>
+  <data name="namTerminalRemoveStep" xml:space="preserve">
+    <value>Terminal Erase Step</value>
+  </data>
+  <data name="desTerminalRemoveStep" xml:space="preserve">
+    <value>Number of characters to remove once the Terminal Limit is reached.</value>
+  </data>
+  <data name="desTerminalLimit" xml:space="preserve">
+    <value>Terminal buffer size limit (characters).</value>
+  </data>
+  <data name="desWindowCoords" xml:space="preserve">
+    <value>Screen coordinates of the top left corner of the window.</value>
+  </data>
+  <data name="catPlot" xml:space="preserve">
+    <value>Plot</value>
+  </data>
+  <data name="catRealTimeTable" xml:space="preserve">
+    <value>Real-time Table</value>
+  </data>
+  <data name="namEnableAutoscaling" xml:space="preserve">
+    <value>Enable Autoscaling</value>
+  </data>
+  <data name="namYMax" xml:space="preserve">
+    <value>Y Axis Max Value</value>
+  </data>
+  <data name="namYMin" xml:space="preserve">
+    <value>Y Axis Min Value</value>
+  </data>
+  <data name="namXMax" xml:space="preserve">
+    <value>X Axis Max Value</value>
+  </data>
+  <data name="namXMin" xml:space="preserve">
+    <value>X Axis Min Value</value>
+  </data>
+  <data name="namLineWidth" xml:space="preserve">
+    <value>Line Wifth</value>
+  </data>
+  <data name="namYAxisLabel" xml:space="preserve">
+    <value>Y Axis Label</value>
+  </data>
+  <data name="namXAxisLabel" xml:space="preserve">
+    <value>X Axis Label</value>
+  </data>
+  <data name="namEnableAutoscroll" xml:space="preserve">
+    <value>Enable Autoscroll</value>
+  </data>
+  <data name="namPlotRefreshPeriod" xml:space="preserve">
+    <value>Data Refresh Period</value>
+  </data>
+  <data name="namMouseRefreshPeriod" xml:space="preserve">
+    <value>Mouse Refresh Period</value>
+  </data>
+  <data name="desMouseRefreshPeriod" xml:space="preserve">
+    <value>Mouse coordinates update period (shown in the status bar), milliseconds.</value>
+  </data>
+  <data name="desPlotRefreshPeriod" xml:space="preserve">
+    <value>Plot data and layout refresh period, milliseconds.</value>
+  </data>
+  <data name="desRealTimeTableLimit" xml:space="preserve">
+    <value>Row limit.</value>
+  </data>
+  <data name="desWindowState" xml:space="preserve">
+    <value>Window state as recorded on last application exit.</value>
+  </data>
+  <data name="desDropPoints" xml:space="preserve">
+    <value>Drop N-1 points out of N.</value>
+  </data>
+  <data name="namDropPoints" xml:space="preserve">
+    <value>Drop Points</value>
+  </data>
+  <data name="strDefaultXAxisLabel" xml:space="preserve">
+    <value>Time, s</value>
+  </data>
+  <data name="strDefaultYAxisLabel" xml:space="preserve">
+    <value>Channel Voltage, V</value>
+  </data>
+  <data name="catGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="catAutosave" xml:space="preserve">
+    <value>Autosave</value>
+  </data>
+  <data name="desAutosavePeriod" xml:space="preserve">
+    <value>In seconds.</value>
+  </data>
+  <data name="namPeriod" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="desAutosaveLimit" xml:space="preserve">
+    <value>Number of last autosaved files to keep.</value>
+  </data>
+  <data name="desRelativePath" xml:space="preserve">
+    <value>Relative path only (starts with a left slash)!</value>
+  </data>
+  <data name="desRussianCompatibility" xml:space="preserve">
+    <value>Use semicolons (;) as CSV separators and use commas (,) as decimal separators.</value>
+  </data>
+  <data name="namPath" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="namRussianCompatibility" xml:space="preserve">
+    <value>Russian Compatibility</value>
+  </data>
+  <data name="stsUnexpectedDisconnect" xml:space="preserve">
+    <value>Unexpected disconnect! Check the connection!</value>
+  </data>
+  <data name="strExportConfig" xml:space="preserve">
+    <value>Export configuration</value>
+  </data>
+  <data name="namExportRawX" xml:space="preserve">
+    <value>Raw X Column Name</value>
+  </data>
+  <data name="namExportRawY" xml:space="preserve">
+    <value>Raw Y Column Name</value>
+  </data>
+  <data name="namExportCalculatedX" xml:space="preserve">
+    <value>Calculated X Column Name</value>
+  </data>
+  <data name="namExportCalculatedY" xml:space="preserve">
+    <value>Calculated Y Column Name</value>
+  </data>
+  <data name="strDefaultRawX" xml:space="preserve">
+    <value>Raw X</value>
+  </data>
+  <data name="strDefaultRawY" xml:space="preserve">
+    <value>Raw Y</value>
+  </data>
+  <data name="strDefaultCalcX" xml:space="preserve">
+    <value>Calc X</value>
+  </data>
+  <data name="strDefaultCalcY" xml:space="preserve">
+    <value>Calc Y</value>
+  </data>
+  <data name="namChannelInfoFormat" xml:space="preserve">
+    <value>Channel Info Format</value>
+  </data>
+  <data name="desChannelInfoFormat" xml:space="preserve">
+    <value>See String.Fromat() documentation. Arguments provided: {0} = code, {1} = name, {2} = start time (UTC), {3} = moving average window width, {4} = drop every N'th point.</value>
+  </data>
+  <data name="strDefaultChannelInfoFormat" xml:space="preserve">
+    <value>Channel {0} = {1}, acquisition started: {2},
+    moving average window width: {3}, drop every N'th point: {4}.</value>
   </data>
 </root>

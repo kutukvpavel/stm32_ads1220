@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdcControl", "AdcControl\AdcControl.csproj", "{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdcControl", "AdcControl\AdcControl.csproj", "{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugHelper", "DebugHelper\DebugHelper.csproj", "{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Release|x86.ActiveCfg = Release|Any CPU
 		{8B94C57E-76DD-4852-A6EB-29D39AE61E6E}.Release|x86.Build.0 = Release|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Debug|x86.Build.0 = Debug|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Release|x86.ActiveCfg = Release|Any CPU
+		{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

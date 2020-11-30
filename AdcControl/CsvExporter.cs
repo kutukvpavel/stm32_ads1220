@@ -21,18 +21,15 @@ namespace AdcControl
         //Public
 
         public static CsvConfiguration Configuration { get; set; }
-        public static string[] ColumnsPerChannel { get; } = { "Raw X", "Raw Y", "Calc X", "Calc Y" };
-        public static string ChannelInfoFormat = @"Channel {0} = {1}, acquisition started: {2},
-    moving average window width: {3}, drop every N'th point: {4}.";
 
         public static bool CheckIfAlreadyExists(string experimentName)
         {
-            return File.Exists(ComputePath(Settings.Default.CsvSavePath, experimentName, false));
+            return File.Exists(ComputePath(Settings.ExportSettings.CsvSavePath, experimentName, false));
         }
         public static bool CheckIfAlreadyExists(string experimentName, AdcChannel channel)
         {
             return File.Exists(ComputePath(
-                Settings.Default.CsvSavePath, 
+                Settings.ExportSettings.CsvSavePath, 
                 FormatSingleChannel(experimentName, channel), 
                 false
                 ));
@@ -43,7 +40,7 @@ namespace AdcControl
             return await Task.Run(() => 
             {
                 return ExportEngine(
-                    Settings.Default.CsvSavePath,
+                    Settings.ExportSettings.CsvSavePath,
                     experimentName,
                     true,
                     data.Where(x => x.IsVisible).ToArray()
@@ -56,7 +53,7 @@ namespace AdcControl
             return await Task.Run(() =>
             {
                 return ExportEngine(
-                    Settings.Default.CsvSavePath,
+                    Settings.ExportSettings.CsvSavePath,
                     FormatSingleChannel(experimentName, data),
                     true,
                     data
@@ -70,9 +67,9 @@ namespace AdcControl
             try
             {
                 IEnumerable<FileSystemInfo> files = new DirectoryInfo(Path.GetFullPath(
-                        Environment.CurrentDirectory + Settings.Default.CsvAutosavePath)
+                        Environment.CurrentDirectory + Settings.ExportSettings.CsvAutosavePath)
                     ).GetFileSystemInfos().OrderByDescending(x => x.CreationTime)
-                    .Skip(Settings.Default.AutosaveFileLimit);
+                    .Skip(Settings.ExportSettings.AutosaveFileLimit);
                 foreach (var item in files)
                 {
                     File.Delete(item.FullName);
@@ -86,7 +83,7 @@ namespace AdcControl
                 App.Logger.Info(ex.ToString());
             }
             return ExportEngine(
-                Settings.Default.CsvAutosavePath,
+                Settings.ExportSettings.CsvAutosavePath,
                 "Autosave_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"),
                 false,
                 data.ToArray()
@@ -99,9 +96,8 @@ namespace AdcControl
         }
 
         //Private
-
 #if TRACE
-        private static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
+        private static readonly BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
 
         private static void Trace(string s)
@@ -139,57 +135,62 @@ namespace AdcControl
             string path = ComputePath(relativePath, experimentName);
             if (path == null) return false;
             //Build required structures
-            string[] topHeaders = new string[data.Length * ColumnsPerChannel.Length];
+            string[] columnsPerChannel = new string[]
+            {
+                Settings.ExportSettings.RawXName,
+                Settings.ExportSettings.RawYName,
+                Settings.ExportSettings.CalculatedXName,
+                Settings.ExportSettings.CalculatedYName
+            };
+            string[] topHeaders = new string[data.Length * columnsPerChannel.Length];
             for (int i = 0; i < topHeaders.Length; i++)
             {
-                topHeaders[i] = i % ColumnsPerChannel.Length == 0 ? data[i / ColumnsPerChannel.Length].Name : null;
+                topHeaders[i] = i % columnsPerChannel.Length == 0 ? data[i / columnsPerChannel.Length].Name : null;
             }
             int maxCount = Math.Max(data.Max(x => x.CalculatedCount), data.Max(x => x.RawCount));
             //Write to the file
             try
             {
-                using (var writer = new StreamWriter(path, false))
-                using (var csvWriter = new CsvWriter(writer, Configuration))
+                using var writer = new StreamWriter(path, false);
+                using var csvWriter = new CsvWriter(writer, Configuration);
+                //Write headers
+                for (int i = 0; i < topHeaders.Length; i++)
                 {
-                    //Write headers
-                    for (int i = 0; i < topHeaders.Length; i++)
+                    csvWriter.WriteField(topHeaders[i]);
+                }
+                csvWriter.NextRecord();
+                for (int i = 0; i < topHeaders.Length; i++)
+                {
+                    csvWriter.WriteField(columnsPerChannel[i % columnsPerChannel.Length]);
+                }
+                csvWriter.NextRecord();
+                //Write data
+                for (int i = 0; i < maxCount; i++)
+                {
+                    for (int j = 0; j < data.Length; j++)
                     {
-                        csvWriter.WriteField(topHeaders[i]);
-                    }
-                    csvWriter.NextRecord();
-                    for (int i = 0; i < topHeaders.Length; i++)
-                    {
-                        csvWriter.WriteField(ColumnsPerChannel[i % ColumnsPerChannel.Length]);
-                    }
-                    csvWriter.NextRecord();
-                    //Write data
-                    for (int i = 0; i < maxCount; i++)
-                    {
-                        for (int j = 0; j < data.Length; j++)
+                        if (data[j].RawCount > i)
                         {
-                            if (data[j].RawCount > i)
-                            {
-                                csvWriter.WriteField(OADateToSeconds(data[j].RawX[i]));
-                                csvWriter.WriteField(data[j].RawY[i]);
-                            }
-                            else
-                            {
-                                csvWriter.WriteField(null);
-                                csvWriter.WriteField(null);
-                            }
-                            if (data[j].CalculatedCount > i)
-                            {
-                                csvWriter.WriteField(OADateToSeconds(data[j].CalculatedX[i]));
-                                csvWriter.WriteField(data[j].CalculatedY[i]);
-                            }
-                            else
-                            {
-                                csvWriter.WriteField(null);
-                                csvWriter.WriteField(null);
-                            }
+                            csvWriter.WriteField(OADateToSeconds(data[j].RawX[i]));
+                            csvWriter.WriteField(data[j].RawY[i]);
                         }
-                        csvWriter.NextRecord();
+                        else
+                        {
+                            csvWriter.WriteField(null);
+                            csvWriter.WriteField(null);
+                        }
+                        if (data[j].CalculatedCount > i)
+                        {
+                            csvWriter.WriteField(OADateToSeconds(data[j].CalculatedX[i]));
+                            csvWriter.WriteField(data[j].CalculatedY[i]);
+                        }
+                        else
+                        {
+                            csvWriter.WriteField(null);
+                            csvWriter.WriteField(null);
+                        }
                     }
+                    csvWriter.NextRecord();
                 }
             }
             catch (Exception ex)
@@ -206,15 +207,13 @@ namespace AdcControl
                 {
                     path = ComputePath(relativePath, experimentName, false, ".txt");
                     if (path == null) return false;
-                    using (TextWriter writer = new StreamWriter(path))
+                    using TextWriter writer = new StreamWriter(path);
+                    foreach (var item in data)
                     {
-                        foreach (var item in data)
-                        {
-                            writer.WriteLine(string.Format(ChannelInfoFormat,
-                                item.Code, item.Name,
-                                DateTime.FromOADate(item.StartTime),
-                                item.MovingAveraging, item.DropPoints));
-                        }
+                        writer.WriteLine(string.Format(Settings.ExportSettings.ChannelInfoFormat,
+                            item.Code, item.Name,
+                            DateTime.FromOADate(item.StartTime),
+                            item.MovingAveraging, item.DropPoints));
                     }
                 }
                 catch (Exception ex)

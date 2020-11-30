@@ -49,42 +49,6 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("800, 450")]
-        public global::System.Drawing.Size MainWindowSize {
-            get {
-                return ((global::System.Drawing.Size)(this["MainWindowSize"]));
-            }
-            set {
-                this["MainWindowSize"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool Maximized {
-            get {
-                return ((bool)(this["Maximized"]));
-            }
-            set {
-                this["Maximized"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100, 100")]
-        public global::System.Drawing.Point MainWindowLocation {
-            get {
-                return ((global::System.Drawing.Point)(this["MainWindowLocation"]));
-            }
-            set {
-                this["MainWindowLocation"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int AcquisitionDuration {
             get {
@@ -104,54 +68,6 @@ namespace AdcControl.Properties {
             }
             set {
                 this["AcquisitionSpeed"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1500")]
-        public int TerminalLimit {
-            get {
-                return ((int)(this["TerminalLimit"]));
-            }
-            set {
-                this["TerminalLimit"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int TerminalRemoveStep {
-            get {
-                return ((int)(this["TerminalRemoveStep"]));
-            }
-            set {
-                this["TerminalRemoveStep"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\AdcCsvExports")]
-        public string CsvSavePath {
-            get {
-                return ((string)(this["CsvSavePath"]));
-            }
-            set {
-                this["CsvSavePath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool RussianExcelCompatible {
-            get {
-                return ((bool)(this["RussianExcelCompatible"]));
-            }
-            set {
-                this["RussianExcelCompatible"] = value;
             }
         }
         
@@ -185,222 +101,6 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\AdcCsvAutosaves")]
-        public string CsvAutosavePath {
-            get {
-                return ((string)(this["CsvAutosavePath"]));
-            }
-            set {
-                this["CsvAutosavePath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool EnableAutoscaling {
-            get {
-                return ((bool)(this["EnableAutoscaling"]));
-            }
-            set {
-                this["EnableAutoscaling"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("60")]
-        public int AutosaveInterval {
-            get {
-                return ((int)(this["AutosaveInterval"]));
-            }
-            set {
-                this["AutosaveInterval"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
-        public int AutosaveFileLimit {
-            get {
-                return ((int)(this["AutosaveFileLimit"]));
-            }
-            set {
-                this["AutosaveFileLimit"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool LockVerticalScale {
-            get {
-                return ((bool)(this["LockVerticalScale"]));
-            }
-            set {
-                this["LockVerticalScale"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
-        public double YMax {
-            get {
-                return ((double)(this["YMax"]));
-            }
-            set {
-                this["YMax"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-2")]
-        public double YMin {
-            get {
-                return ((double)(this["YMin"]));
-            }
-            set {
-                this["YMin"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
-        public int SampleRate {
-            get {
-                return ((int)(this["SampleRate"]));
-            }
-            set {
-                this["SampleRate"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public double LineWidth {
-            get {
-                return ((double)(this["LineWidth"]));
-            }
-            set {
-                this["LineWidth"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool LockHorizontalAxis {
-            get {
-                return ((bool)(this["LockHorizontalAxis"]));
-            }
-            set {
-                this["LockHorizontalAxis"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Time, s")]
-        public string XAxisLabel {
-            get {
-                return ((string)(this["XAxisLabel"]));
-            }
-            set {
-                this["XAxisLabel"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Channel Signal, V")]
-        public string YAxisLabel {
-            get {
-                return ((string)(this["YAxisLabel"]));
-            }
-            set {
-                this["YAxisLabel"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double XMax {
-            get {
-                return ((double)(this["XMax"]));
-            }
-            set {
-                this["XMax"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public double XMin {
-            get {
-                return ((double)(this["XMin"]));
-            }
-            set {
-                this["XMin"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool AutoscrollTable {
-            get {
-                return ((bool)(this["AutoscrollTable"]));
-            }
-            set {
-                this["AutoscrollTable"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1200")]
-        public int TableLimit {
-            get {
-                return ((int)(this["TableLimit"]));
-            }
-            set {
-                this["TableLimit"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("500")]
-        public int RefreshPeriod {
-            get {
-                return ((int)(this["RefreshPeriod"]));
-            }
-            set {
-                this["RefreshPeriod"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
-        public int TableDropPoints {
-            get {
-                return ((int)(this["TableDropPoints"]));
-            }
-            set {
-                this["TableDropPoints"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-1")]
         public int AcqDropPoints {
             get {
@@ -408,6 +108,42 @@ namespace AdcControl.Properties {
             }
             set {
                 this["AcqDropPoints"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::AdcControl.Properties.ViewSettings ViewSettingsBuffer {
+            get {
+                return ((global::AdcControl.Properties.ViewSettings)(this["ViewSettingsBuffer"]));
+            }
+            set {
+                this["ViewSettingsBuffer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::AdcControl.Properties.ExportSettings ExportSettingsBuffer {
+            get {
+                return ((global::AdcControl.Properties.ExportSettings)(this["ExportSettingsBuffer"]));
+            }
+            set {
+                this["ExportSettingsBuffer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>0=-47872</string>\r\n  <string>50=-16777011</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection Colorset {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Colorset"]));
+            }
+            set {
+                this["Colorset"] = value;
             }
         }
     }

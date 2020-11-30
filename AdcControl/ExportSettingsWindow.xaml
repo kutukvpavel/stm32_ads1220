@@ -1,0 +1,20 @@
+﻿<Window x:Class="AdcControl.ExportSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AdcControl"
+        xmlns:resx="clr-namespace:AdcControl.Resources"
+        xmlns:settings="clr-namespace:AdcControl.Properties"
+        xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="{x:Static resx:Default.strExportConfig}"
+        Height="auto" Width="auto"
+        MinHeight="300" MinWidth="400"
+        MaxHeight="500" MaxWidth="500" 
+        ResizeMode="CanResizeWithGrip"
+        FontSize="14">
+    <toolkit:PropertyGrid SelectedObject="{Binding Source={x:Static settings:Settings.ExportSettings}}"
+                          NameColumnWidth="200" ShowTitle="False">
+    </toolkit:PropertyGrid>
+</Window>

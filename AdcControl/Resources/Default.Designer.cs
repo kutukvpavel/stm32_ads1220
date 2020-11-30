@@ -61,6 +61,186 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Autosave.
+        /// </summary>
+        public static string catAutosave {
+            get {
+                return ResourceManager.GetString("catAutosave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Axes.
+        /// </summary>
+        public static string catAxes {
+            get {
+                return ResourceManager.GetString("catAxes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на General.
+        /// </summary>
+        public static string catGeneral {
+            get {
+                return ResourceManager.GetString("catGeneral", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Main Window.
+        /// </summary>
+        public static string catMainWindow {
+            get {
+                return ResourceManager.GetString("catMainWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Plot.
+        /// </summary>
+        public static string catPlot {
+            get {
+                return ResourceManager.GetString("catPlot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Real-time Table.
+        /// </summary>
+        public static string catRealTimeTable {
+            get {
+                return ResourceManager.GetString("catRealTimeTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Terminal.
+        /// </summary>
+        public static string catTerminal {
+            get {
+                return ResourceManager.GetString("catTerminal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Number of last autosaved files to keep..
+        /// </summary>
+        public static string desAutosaveLimit {
+            get {
+                return ResourceManager.GetString("desAutosaveLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на In seconds..
+        /// </summary>
+        public static string desAutosavePeriod {
+            get {
+                return ResourceManager.GetString("desAutosavePeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на See String.Fromat() documentation. Arguments provided: {0} = code, {1} = name, {2} = start time (UTC), {3} = moving average window width, {4} = drop every N&apos;th point..
+        /// </summary>
+        public static string desChannelInfoFormat {
+            get {
+                return ResourceManager.GetString("desChannelInfoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Drop N-1 points out of N..
+        /// </summary>
+        public static string desDropPoints {
+            get {
+                return ResourceManager.GetString("desDropPoints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Mouse coordinates update period (shown in the status bar), milliseconds..
+        /// </summary>
+        public static string desMouseRefreshPeriod {
+            get {
+                return ResourceManager.GetString("desMouseRefreshPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Plot data and layout refresh period, milliseconds..
+        /// </summary>
+        public static string desPlotRefreshPeriod {
+            get {
+                return ResourceManager.GetString("desPlotRefreshPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Row limit..
+        /// </summary>
+        public static string desRealTimeTableLimit {
+            get {
+                return ResourceManager.GetString("desRealTimeTableLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Relative path only (starts with a left slash)!.
+        /// </summary>
+        public static string desRelativePath {
+            get {
+                return ResourceManager.GetString("desRelativePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Use semicolons (;) as CSV separators and use commas (,) as decimal separators..
+        /// </summary>
+        public static string desRussianCompatibility {
+            get {
+                return ResourceManager.GetString("desRussianCompatibility", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Terminal buffer size limit (characters)..
+        /// </summary>
+        public static string desTerminalLimit {
+            get {
+                return ResourceManager.GetString("desTerminalLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Number of characters to remove once the Terminal Limit is reached..
+        /// </summary>
+        public static string desTerminalRemoveStep {
+            get {
+                return ResourceManager.GetString("desTerminalRemoveStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Screen coordinates of the top left corner of the window..
+        /// </summary>
+        public static string desWindowCoords {
+            get {
+                return ResourceManager.GetString("desWindowCoords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Window state as recorded on last application exit..
+        /// </summary>
+        public static string desWindowState {
+            get {
+                return ResourceManager.GetString("desWindowState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Acquisition duration (s):.
         /// </summary>
         public static string lblAcqDuration {
@@ -295,6 +475,231 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Channel Info Format.
+        /// </summary>
+        public static string namChannelInfoFormat {
+            get {
+                return ResourceManager.GetString("namChannelInfoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Drop Points.
+        /// </summary>
+        public static string namDropPoints {
+            get {
+                return ResourceManager.GetString("namDropPoints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Enable Autoscaling.
+        /// </summary>
+        public static string namEnableAutoscaling {
+            get {
+                return ResourceManager.GetString("namEnableAutoscaling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Enable Autoscroll.
+        /// </summary>
+        public static string namEnableAutoscroll {
+            get {
+                return ResourceManager.GetString("namEnableAutoscroll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Calculated X Column Name.
+        /// </summary>
+        public static string namExportCalculatedX {
+            get {
+                return ResourceManager.GetString("namExportCalculatedX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Calculated Y Column Name.
+        /// </summary>
+        public static string namExportCalculatedY {
+            get {
+                return ResourceManager.GetString("namExportCalculatedY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Raw X Column Name.
+        /// </summary>
+        public static string namExportRawX {
+            get {
+                return ResourceManager.GetString("namExportRawX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Raw Y Column Name.
+        /// </summary>
+        public static string namExportRawY {
+            get {
+                return ResourceManager.GetString("namExportRawY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Limit.
+        /// </summary>
+        public static string namLimit {
+            get {
+                return ResourceManager.GetString("namLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Line Wifth.
+        /// </summary>
+        public static string namLineWidth {
+            get {
+                return ResourceManager.GetString("namLineWidth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Mouse Refresh Period.
+        /// </summary>
+        public static string namMouseRefreshPeriod {
+            get {
+                return ResourceManager.GetString("namMouseRefreshPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Path.
+        /// </summary>
+        public static string namPath {
+            get {
+                return ResourceManager.GetString("namPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Period.
+        /// </summary>
+        public static string namPeriod {
+            get {
+                return ResourceManager.GetString("namPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Data Refresh Period.
+        /// </summary>
+        public static string namPlotRefreshPeriod {
+            get {
+                return ResourceManager.GetString("namPlotRefreshPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Russian Compatibility.
+        /// </summary>
+        public static string namRussianCompatibility {
+            get {
+                return ResourceManager.GetString("namRussianCompatibility", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Terminal Erase Step.
+        /// </summary>
+        public static string namTerminalRemoveStep {
+            get {
+                return ResourceManager.GetString("namTerminalRemoveStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Window Location.
+        /// </summary>
+        public static string namWindowCoords {
+            get {
+                return ResourceManager.GetString("namWindowCoords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Maximized.
+        /// </summary>
+        public static string namWindowMaximized {
+            get {
+                return ResourceManager.GetString("namWindowMaximized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Window Size.
+        /// </summary>
+        public static string namWindowSize {
+            get {
+                return ResourceManager.GetString("namWindowSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на X Axis Label.
+        /// </summary>
+        public static string namXAxisLabel {
+            get {
+                return ResourceManager.GetString("namXAxisLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на X Axis Max Value.
+        /// </summary>
+        public static string namXMax {
+            get {
+                return ResourceManager.GetString("namXMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на X Axis Min Value.
+        /// </summary>
+        public static string namXMin {
+            get {
+                return ResourceManager.GetString("namXMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Y Axis Label.
+        /// </summary>
+        public static string namYAxisLabel {
+            get {
+                return ResourceManager.GetString("namYAxisLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Y Axis Max Value.
+        /// </summary>
+        public static string namYMax {
+            get {
+                return ResourceManager.GetString("namYMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Y Axis Min Value.
+        /// </summary>
+        public static string namYMin {
+            get {
+                return ResourceManager.GetString("namYMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Toggle autoscroll.
         /// </summary>
         public static string strAutoscroll {
@@ -322,7 +727,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Connection configuration.
+        ///   Ищет локализованную строку, похожую на Connection and controller configuration.
         /// </summary>
         public static string strConfigButton {
             get {
@@ -345,6 +750,70 @@ namespace AdcControl.Resources {
         public static string strConnectButton {
             get {
                 return ResourceManager.GetString("strConnectButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Calc X.
+        /// </summary>
+        public static string strDefaultCalcX {
+            get {
+                return ResourceManager.GetString("strDefaultCalcX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Calc Y.
+        /// </summary>
+        public static string strDefaultCalcY {
+            get {
+                return ResourceManager.GetString("strDefaultCalcY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Channel {0} = {1}, acquisition started: {2},
+        ///    moving average window width: {3}, drop every N&apos;th point: {4}..
+        /// </summary>
+        public static string strDefaultChannelInfoFormat {
+            get {
+                return ResourceManager.GetString("strDefaultChannelInfoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Raw X.
+        /// </summary>
+        public static string strDefaultRawX {
+            get {
+                return ResourceManager.GetString("strDefaultRawX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Raw Y.
+        /// </summary>
+        public static string strDefaultRawY {
+            get {
+                return ResourceManager.GetString("strDefaultRawY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Time, s.
+        /// </summary>
+        public static string strDefaultXAxisLabel {
+            get {
+                return ResourceManager.GetString("strDefaultXAxisLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Channel Voltage, V.
+        /// </summary>
+        public static string strDefaultYAxisLabel {
+            get {
+                return ResourceManager.GetString("strDefaultYAxisLabel", resourceCulture);
             }
         }
         
@@ -394,6 +863,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Export configuration.
+        /// </summary>
+        public static string strExportConfig {
+            get {
+                return ResourceManager.GetString("strExportConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Force plot update.
         /// </summary>
         public static string strForceRender {
@@ -403,7 +881,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Lock horizontal axis.
+        ///   Ищет локализованную строку, похожую на Prevent X Axis Autoscaling.
         /// </summary>
         public static string strLockHorizontalAxis {
             get {
@@ -412,7 +890,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Prevent Y axis autoscaling.
+        ///   Ищет локализованную строку, похожую на Prevent Y Axis Autoscaling.
         /// </summary>
         public static string strLockVerticalAxis {
             get {
@@ -471,6 +949,15 @@ namespace AdcControl.Resources {
         public static string strTerminalHeader {
             get {
                 return ResourceManager.GetString("strTerminalHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на View configuration.
+        /// </summary>
+        public static string strViewConfig {
+            get {
+                return ResourceManager.GetString("strViewConfig", resourceCulture);
             }
         }
         
@@ -588,6 +1075,15 @@ namespace AdcControl.Resources {
         public static string stsStoppingAcq {
             get {
                 return ResourceManager.GetString("stsStoppingAcq", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Unexpected disconnect! Check the connection!.
+        /// </summary>
+        public static string stsUnexpectedDisconnect {
+            get {
+                return ResourceManager.GetString("stsUnexpectedDisconnect", resourceCulture);
             }
         }
     }

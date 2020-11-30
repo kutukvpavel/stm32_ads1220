@@ -8,32 +8,11 @@
     <Setting Name="Average" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="MainWindowSize" Type="System.Drawing.Size" Scope="User">
-      <Value Profile="(Default)">800, 450</Value>
-    </Setting>
-    <Setting Name="Maximized" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="MainWindowLocation" Type="System.Drawing.Point" Scope="User">
-      <Value Profile="(Default)">100, 100</Value>
-    </Setting>
     <Setting Name="AcquisitionDuration" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="AcquisitionSpeed" Type="System.Single" Scope="User">
       <Value Profile="(Default)">4</Value>
-    </Setting>
-    <Setting Name="TerminalLimit" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1500</Value>
-    </Setting>
-    <Setting Name="TerminalRemoveStep" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">100</Value>
-    </Setting>
-    <Setting Name="CsvSavePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\AdcCsvExports</Value>
-    </Setting>
-    <Setting Name="RussianExcelCompatible" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ChannelNameMapping" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
@@ -49,62 +28,21 @@
   &lt;string&gt;50=True&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
-    <Setting Name="CsvAutosavePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\AdcCsvAutosaves</Value>
-    </Setting>
-    <Setting Name="EnableAutoscaling" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="AutosaveInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">60</Value>
-    </Setting>
-    <Setting Name="AutosaveFileLimit" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3</Value>
-    </Setting>
-    <Setting Name="LockVerticalScale" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="YMax" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">2</Value>
-    </Setting>
-    <Setting Name="YMin" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">-2</Value>
-    </Setting>
-    <Setting Name="SampleRate" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">4</Value>
-    </Setting>
-    <Setting Name="LineWidth" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">1</Value>
-    </Setting>
-    <Setting Name="LockHorizontalAxis" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="XAxisLabel" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Time, s</Value>
-    </Setting>
-    <Setting Name="YAxisLabel" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Channel Signal, V</Value>
-    </Setting>
-    <Setting Name="XMax" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="XMin" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">5</Value>
-    </Setting>
-    <Setting Name="AutoscrollTable" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="TableLimit" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1200</Value>
-    </Setting>
-    <Setting Name="RefreshPeriod" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">500</Value>
-    </Setting>
-    <Setting Name="TableDropPoints" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2</Value>
-    </Setting>
     <Setting Name="AcqDropPoints" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="ViewSettingsBuffer" Type="AdcControl.Properties.ViewSettings" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ExportSettingsBuffer" Type="AdcControl.Properties.ExportSettings" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Colorset" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;0=-47872&lt;/string&gt;
+  &lt;string&gt;50=-16777011&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

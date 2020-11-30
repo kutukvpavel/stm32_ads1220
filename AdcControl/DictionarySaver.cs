@@ -42,7 +42,7 @@ namespace AdcControl
 
         public static string WriteMapping<T>(int key, T value)
         {
-            return string.Format(DictionaryMappingFormat, key, value.ToString());
+            return string.Format(DictionaryMappingFormat, key, value != null ? value.ToString() : "");
         }
     }
 }

@@ -13,6 +13,8 @@ namespace AdcControl
 {
     public class Controller : INotifyPropertyChanged
     {
+        #region Private
+
         /* Private */
 
         protected const char NewLine = '\n';
@@ -52,6 +54,8 @@ namespace AdcControl
             TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
         }
 
+        #region Parser
+
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             Trace("Data received");
@@ -82,6 +86,14 @@ namespace AdcControl
             }
             if (IsConnected)
             {
+                if (line.Length == ConnectionSignature.Length)
+                {
+                    if (line.SequenceEqual(ConnectionSignature))
+                    {
+                        OnUnexpectedDisconnect();
+                        return;
+                    }
+                }
                 if (!CommandExecutionCompleted)
                 {
                     if (line.Length == CompletionSignature.Length)
@@ -142,6 +154,9 @@ namespace AdcControl
                 }
             }
         }
+
+        #endregion
+
         private void Log(Exception e, string m)
         {
             new Thread(() => { LogEvent?.Invoke(this, new LogEventArgs(e, m)); }).Start();
@@ -166,6 +181,16 @@ namespace AdcControl
         {
             new Thread(() => { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null)); }).Start();
         }
+        private void OnUnexpectedDisconnect()
+        {
+            _IsConnected = false;
+            _AcquisitionInProgress = false;
+            _Completed = true;
+            OnPropertyChanged();
+            new Thread(() => { UnexpectedDisconnect?.Invoke(this, new EventArgs()); }).Start();
+        }
+
+        #endregion
 
         /* Public */
 
@@ -200,6 +225,9 @@ namespace AdcControl
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler AcquisitionFinished;
         public event EventHandler CommandCompleted;
+        public event EventHandler UnexpectedDisconnect;
+
+        #region Properties
 
         public SerialPortStream Port { get; }
         public int ConnectionTimeout { get; set; } = 5000; //mS
@@ -219,9 +247,10 @@ namespace AdcControl
             get { return _Completed; }
             set
             {
+                var b = _Completed;
                 _Completed = value;
                 OnPropertyChanged();
-                if (_Completed)
+                if (_Completed && !b)
                     new Thread(() => { CommandCompleted?.Invoke(this, new EventArgs()); }).Start();
             }
         }
@@ -230,9 +259,10 @@ namespace AdcControl
             get { return _AcquisitionInProgress; }
             private set
             {
+                var b = _AcquisitionInProgress;
                 _AcquisitionInProgress = value;
                 OnPropertyChanged();
-                if (!_AcquisitionInProgress)
+                if (!_AcquisitionInProgress && b)
                     new Thread(() => { AcquisitionFinished?.Invoke(this, new EventArgs()); }).Start();
             }
         }
@@ -244,6 +274,10 @@ namespace AdcControl
         {
             get { return !_IsConnected; }
         }
+
+        #endregion
+
+        #region Methods
 
         public async Task<bool> SendCommand(Commands cmd, params object[] args)
         {
@@ -324,7 +358,11 @@ namespace AdcControl
             }
             return !Port.IsOpen;
         }
+
+        #endregion
     }
+
+    #region EventArgs
 
     public class AcquisitionEventArgs : EventArgs
     {
@@ -368,4 +406,6 @@ namespace AdcControl
             Line = line;
         }
     }
+
+    #endregion
 }
