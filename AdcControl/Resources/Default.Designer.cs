@@ -845,6 +845,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Enter math expression below. Available arguments: y = voltage (V), x = time (s)..
+        /// </summary>
+        public static string strEnterMathExpression {
+            get {
+                return ResourceManager.GetString("strEnterMathExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Real-time table.
         /// </summary>
         public static string strExpanderTable {

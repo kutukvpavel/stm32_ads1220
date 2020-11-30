@@ -146,5 +146,17 @@ namespace AdcControl.Properties {
                 this["Colorset"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("y")]
+        public string MathEquationY {
+            get {
+                return ((string)(this["MathEquationY"]));
+            }
+            set {
+                this["MathEquationY"] = value;
+            }
+        }
     }
 }
