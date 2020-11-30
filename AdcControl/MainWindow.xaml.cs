@@ -28,6 +28,8 @@ namespace AdcControl
             App.Stm32Ads1220.AcquisitionFinished += Stm32Ads1220_AcquisitionFinished;
             App.Stm32Ads1220.CommandCompleted += Stm32Ads1220_CommandCompleted;
             App.Stm32Ads1220.UnexpectedDisconnect += Stm32Ads1220_UnexpectedDisconnect;
+            App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
+            App.Stm32Ads1220.PropertyChanged += Stm32Ads1220_PropertyChanged;
             App.NewChannelDetected += App_NewChannelDetected;
             //Settings
             if (Settings.ViewSettings.Maximized) WindowState = WindowState.Maximized;
@@ -74,10 +76,28 @@ namespace AdcControl
             } 
         }
 
+        public bool ReadyToExportData
+        {
+            get => _ReadyToExportData;
+            set
+            {
+                _ReadyToExportData = value;
+                OnPropertyChanged("ReadyToExportData");
+            }
+        }
+
+        public bool CanDisconnect
+        {
+            get => App.Stm32Ads1220.IsConnected && 
+                !App.Stm32Ads1220.AcquisitionInProgress && 
+                App.Stm32Ads1220.CommandExecutionCompleted;
+        }
+
         #endregion
 
         //Private
 
+        private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
         private ConcurrentDictionary<int, string> ChannelNames;
         private ConcurrentDictionary<int, bool> ChannelEnable;
@@ -186,7 +206,7 @@ namespace AdcControl
                 }
             }
             pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
-            if (Settings.ViewSettings.AutoscrollTable) scwRealTimeData.ScrollToBottom();
+            if (Settings.ViewSettings.AutoscrollTable && expTable.IsExpanded) scwRealTimeData.ScrollToBottom();
         }
 
         private void MouseTimer_Elapsed(object sender, EventArgs e)
@@ -221,6 +241,16 @@ namespace AdcControl
         #endregion
 
         #region UI-related Application Events
+
+        private void Stm32Ads1220_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged();
+        }
+
+        private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
+        {
+            if (!ReadyToExportData) ReadyToExportData = true;
+        }
 
         private void Stm32Ads1220_CommandCompleted(object sender, EventArgs e)
         {
@@ -341,14 +371,20 @@ namespace AdcControl
                 Settings.Default.ChannelNameMapping = dialog.ParsedInput;
                 LoadChannelNames();
                 Settings.Default.Save();
+                foreach (var item in App.AdcChannels.Values)
+                {
+                    if (ChannelNames.ContainsKey(item.Code)) item.Name = ChannelNames[item.Code];
+                }
             }
         }
 
         private void btnOpenExportFolder_Click(object sender, RoutedEventArgs e)
         {
+            string p = null;
             try
             {
-                var s = new ProcessStartInfo(Path.GetFullPath(Environment.CurrentDirectory + Settings.ExportSettings.CsvSavePath))
+                p ='"' + Path.GetFullPath(Environment.CurrentDirectory + Settings.ExportSettings.CsvSavePath) + '"';
+                var s = new ProcessStartInfo(p)
                 {
                     UseShellExecute = true
                 };
@@ -357,6 +393,7 @@ namespace AdcControl
             catch (Exception ex)
             {
                 App.Logger.Error(Default.msgCantOpenExportFolder);
+                App.Logger.Info(p ?? "N/A");
                 App.Logger.Info(ex.ToString());
             }
         }
@@ -391,6 +428,7 @@ namespace AdcControl
 
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
+            ReadyToExportData = false;
             txtTerminal.Clear();
             pnlRealTimeData.Children.Clear();
             pltMainPlot.plt.Clear();

@@ -18,7 +18,7 @@
         Width="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=MainWindowSize.Width}"
         Top="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=MainWindowLocation.X}"
         Left="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=MainWindowLocation.Y}"
-        d:DesignWidth="877.058" d:DesignHeight="257.871">
+        d:DesignWidth="950" d:DesignHeight="257.871">
     <Window.Resources>
         <Style TargetType="Image">
             <Style.Triggers>
@@ -135,7 +135,8 @@
                 </Button>
                 <Button x:Name="btnExport" 
                         ToolTip="{x:Static resx:Default.strExportButton}"
-                        Click="btnExport_Click">
+                        Click="btnExport_Click"
+                        IsEnabled="{Binding ElementName=_this, Path=ReadyToExportData}">
                     <Image Source="/AdcControl;component/Resources/csv_small.png" Height="36"></Image>
                 </Button>
                 <Button x:Name="btnOpenExportFolder"
@@ -169,7 +170,7 @@
                 <Button x:Name="btnDisconnect" 
                         ToolTip="{x:Static resx:Default.strDisconnectButton}"
                         Click="btnDisconnect_Click"
-                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=IsConnected, Mode=OneWay}">
+                        IsEnabled="{Binding ElementName=_this, Path=CanDisconnect, Mode=OneWay}">
                     <Image Source="/AdcControl;component/Resources/disconnect.png" Height="36"></Image>
                 </Button>
             </ToolBar>

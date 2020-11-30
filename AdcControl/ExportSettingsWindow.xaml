@@ -11,7 +11,7 @@
         Title="{x:Static resx:Default.strExportConfig}"
         Height="auto" Width="auto"
         MinHeight="300" MinWidth="400"
-        MaxHeight="500" MaxWidth="500" 
+        MaxHeight="600" MaxWidth="500" 
         ResizeMode="CanResizeWithGrip"
         FontSize="14">
     <toolkit:PropertyGrid SelectedObject="{Binding Source={x:Static settings:Settings.ExportSettings}}"

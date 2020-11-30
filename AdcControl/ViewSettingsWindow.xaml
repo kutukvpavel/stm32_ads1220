@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         Title="{x:Static resx:Default.strViewConfig}"
         Height="auto" Width="auto"
-        MaxHeight="500" MaxWidth="600"
+        MaxHeight="600" MaxWidth="500"
         MinWidth="400" MinHeight="300"
         FontSize="14"
         ResizeMode="CanResizeWithGrip">

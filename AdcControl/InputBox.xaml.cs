@@ -81,13 +81,14 @@ namespace AdcControl
 
         private async void txtInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
+            var t = txtInput.Text;
             PassedValidation = await Task.Run(() =>
             {
                 bool res = true;
                 if (InvalidCharacters != null)
-                    res = txtInput.Text.IndexOfAny(InvalidCharacters) < 0;
+                    res = t.IndexOfAny(InvalidCharacters) < 0;
                 if (res && (ValidationFunction != null))
-                    res = ValidationFunction(txtInput.Text);
+                    res = ValidationFunction(t);
                 return res;
             });
             txtInput.Background = PassedValidation ? ValidationPassedBrush : ValidationFailedBrush;
