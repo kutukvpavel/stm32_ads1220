@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>", Scope = "member", Target = "~M:AdcControl.MainWindow.btnClearScreen_Click(System.Object,System.Windows.RoutedEventArgs)")]
+[assembly: SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>", Scope = "namespaceanddescendants", Target = "AdcControl")]

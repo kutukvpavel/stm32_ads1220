@@ -16,7 +16,7 @@ namespace AdcControl
     public class AdcChannel
     {
         public AdcChannel(int code, int capacity, int averaging, double sampleRate, double start)
-        {
+        {.
             _RawX = new double[capacity];
             _RawY = new double[capacity];
             RawCount = 0;
