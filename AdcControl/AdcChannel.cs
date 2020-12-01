@@ -10,13 +10,15 @@ using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Drawing;
+using AdcControl.Resources;
+using Expression = org.mariuszgromada.math.mxparser.Expression;
 
 namespace AdcControl
 {
     public class AdcChannel
     {
         public AdcChannel(int code, int capacity, int averaging, double sampleRate, double start)
-        {.
+        {
             _RawX = new double[capacity];
             _RawY = new double[capacity];
             RawCount = 0;
@@ -35,15 +37,16 @@ namespace AdcControl
         { }
 
         public event EventHandler ArrayChanged;
+        public event EventHandler<LogEventArgs> LogEvent;
 
         protected Queue<double> Buffer;
-        protected object LockObject = new object();
 #if TRACE
         protected static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
 
         #region Properties
 
+        public object LockObject { get; } = new object();
         //Data for plotting
         private double[] _RawX;
         private double[] _RawY;
@@ -55,6 +58,20 @@ namespace AdcControl
         public double[] CalculatedY { get => _CalculatedY; }
 
         //Other
+        protected Expression _MathExpressionY;
+        public Expression MathExpressionY
+        {
+            get => _MathExpressionY;
+            set
+            {
+                var t = value;
+                if (!t.checkSyntax()) return;
+                _MathExpressionY = t;
+                _MathExpressionY.setArgumentValue("x", 1);
+                _MathExpressionY.setArgumentValue("y", 1);
+                _MathExpressionY.calculate(); //First calculation is very time-consuming
+            }
+        }
         public string ColumnXSuffix { get; set; } = " X";
         public string ColumnYSuffix { get; set; } = " Y";
         public int CapacityStep { get; set; }
@@ -133,7 +150,7 @@ namespace AdcControl
                     _Plot.color = (Color)_Color;
                     _Plot.brush = new SolidBrush((Color)_Color);
                 }
-                _Plot.maxRenderIndex = CalculatedCount;
+                _Plot.maxRenderIndex = CalculatedCount - 1;
             }
         }
         protected AdcChannelContextMenuItem _ContextMenuItem;
@@ -178,6 +195,14 @@ namespace AdcControl
         #endregion
 
         #region Private Functions
+
+        private void Log(string s, Exception e = null)
+        {
+            new Thread(() =>
+            {
+                LogEvent?.Invoke(this, new LogEventArgs(e, s));
+            });
+        }
 
         private static void Trace(string s)
         {
@@ -233,23 +258,25 @@ namespace AdcControl
                 {
                     var x = time - StartTime;
                     var y = Buffer.Average();
+                    if (MathExpressionY != null)
+                    {
+                        MathExpressionY.setArgumentValue("x", x);
+                        MathExpressionY.setArgumentValue("y", y);
+                        try
+                        {
+                            y = MathExpressionY.calculate();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log(Default.msgMathError, ex);
+                            y = 0;
+                        }
+                    }
                     _CalculatedX[CalculatedCount] = x;
                     _CalculatedY[CalculatedCount] = y;
                     if (_Plot != null && !arrayChanged) _Plot.maxRenderIndex = CalculatedCount;
-                    if (_ColumnX != null)
-                    {
-                        _ColumnX.Dispatcher.BeginInvoke(() =>
-                        {
-                            _ColumnX.AddItem(CsvExporter.OADateToSeconds(x));
-                        });
-                    }
-                    if (_ColumnY != null)
-                    {
-                        _ColumnY.Dispatcher.BeginInvoke(() =>
-                        {
-                            _ColumnY.AddItem(y);
-                        });
-                    }
+                    if (_ColumnX != null) _ColumnX.AddItem(CsvExporter.OADateToSeconds(x));
+                    if (_ColumnY != null) _ColumnY.AddItem(y);
                     CalculatedCount++;
                 }
                 while (Buffer.Count >= MovingAveraging) //Lag-less buffering and dynamic window size support
@@ -297,16 +324,21 @@ namespace AdcControl
                 _CalculatedX = new double[capacity];
                 _CalculatedY = new double[capacity];
                 Buffer.Clear();
+                if (_Plot != null) _Plot.maxRenderIndex = 0;
+                if (_ColumnX != null) _ColumnX.Clear();
+                if (_ColumnY != null) _ColumnY.Clear();
             }
             OnArrayChanged();
         }
 
         public static async Task Recalculate(AdcChannel c)
         {
-            var task = new Task(() =>
+            var task = Task.Run(() =>
             {
                 lock (c.LockObject)
                 {
+                    if (c._ColumnX != null) c._ColumnX.DelayRendering = true;
+                    if (c._ColumnY != null) c._ColumnY.DelayRendering = true;
                     double[] backupX = c.RawX;
                     double[] backupY = c.RawY;
                     int count = c.RawCount;
@@ -315,6 +347,8 @@ namespace AdcControl
                     {
                         c.AddPoint(backupY[i], backupX[i]);
                     }
+                    if (c._ColumnX != null) c._ColumnX.DelayRendering = false;
+                    if (c._ColumnY != null) c._ColumnY.DelayRendering = false;
                 }
             });
             await task;

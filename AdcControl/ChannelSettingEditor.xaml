@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:AdcControl"
         xmlns:resx="clr-namespace:AdcControl.Resources"
         mc:Ignorable="d"
-        Title="CollectionSettingEditor" Height="250" Width="400"
-        MinHeight="100" MinWidth="350"
+        Title="CollectionSettingEditor"
+        Height="auto" Width="400"
+        MinHeight="100" MinWidth="350" MaxHeight="600"
         FontSize="16"
         x:Name="_this">
     <Grid Margin="5,5,5,5">
@@ -17,30 +18,47 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*" MinHeight="150"/>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Label x:Name="lblPrompt" 
                Content="{Binding Source={x:Static resx:Default.lblCollectionSettingPrompt}}"
                Grid.Row="0" Grid.ColumnSpan="2"></Label>
+        <TextBlock x:Name="lblHelp"
+               Text="{Binding ElementName=_this, Path=HelpText}"
+               Grid.Row="1" Grid.ColumnSpan="2"
+               TextWrapping="WrapWithOverflow">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=_this, Path=IsHelpTextPresent}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
         <TextBox x:Name="txtInput" 
                  TextChanged="txtInput_TextChanged"
-                 Grid.Row="1" Grid.ColumnSpan="2"
+                 Grid.ColumnSpan="2" Grid.Row="2"
                  HorizontalScrollBarVisibility="Auto"
                  VerticalScrollBarVisibility="Auto"
                  AcceptsReturn="True"
-                 PreviewKeyDown="txtInput_PreviewKeyDown"></TextBox>
+                 PreviewKeyDown="txtInput_PreviewKeyDown"
+                 Margin="0,5,0,0"/>
         <Button x:Name="btnOK"
                 Click="btnOK_Click"
                 Content="{Binding Source={x:Static resx:Default.strOKButton}}"
-                Grid.Row="2"
+                Grid.Row="3"
                 Margin="0,5,3,0"
                 IsEnabled="{Binding ElementName=_this, Path=PassedValidation}"></Button>
         <Button x:Name="btnCancel"
                 Click="btnCancel_Click"
                 IsCancel="True"
                 Content="{Binding Source={x:Static resx:Default.strCancelButton}}"
-                Grid.Row="2" Grid.Column="1"
+                Grid.Row="3" Grid.Column="1"
                 Margin="3,5,0,0"></Button>
     </Grid>
 </Window>

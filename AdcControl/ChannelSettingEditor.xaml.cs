@@ -28,6 +28,23 @@ namespace AdcControl
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private string _HelpText = null;
+        public string HelpText
+        {
+            get => _HelpText;
+            set
+            {
+                _HelpText = value;
+                OnPropertyChanged("HelpText");
+                OnPropertyChanged("IsHelpTextPresent");
+            }
+        }
+
+        public bool IsHelpTextPresent
+        {
+            get => _HelpText != null;
+        }
+
         public Func<string, bool> ValueValidator { get; set; } = (x) => { return true; };
 
         public StringCollection ParsedInput { get; private set; }
@@ -39,7 +56,7 @@ namespace AdcControl
             private set
             {
                 _PassedValidation = value;
-                OnPropertyChanged();
+                OnPropertyChanged("PassedValidation");
             }
         }
 
@@ -56,9 +73,9 @@ namespace AdcControl
         private static readonly Brush ValidationFailedBrush = new SolidColorBrush(Color.FromArgb(64, 128, 0, 0));
         private static readonly Brush ValidationPassedBrush = new SolidColorBrush(Color.FromArgb(64, 0, 128, 0));
 
-        private void OnPropertyChanged()
+        private void OnPropertyChanged(string name = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private void ReturnOK()
@@ -75,7 +92,7 @@ namespace AdcControl
                 try
                 {
                     c.AddRange(data.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries));
-                    var res = DictionarySaver.Parse(c, ValueValidator);
+                    var res = DictionarySerializer.Parse(c, ValueValidator);
                     ParsedInput = c;
                     return res.Values.All(x => x);
                 }

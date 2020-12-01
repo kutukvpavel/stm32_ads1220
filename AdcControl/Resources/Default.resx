@@ -226,8 +226,8 @@
   <data name="msgCsvAlreadyExistsReplace" xml:space="preserve">
     <value>File already exists. Overwrite?</value>
   </data>
-  <data name="strMessageBoxCaption" xml:space="preserve">
-    <value>AdcControl</value>
+  <data name="strApplicationNameCaption" xml:space="preserve">
+    <value>ADC Control Application</value>
   </data>
   <data name="msgUnknownExportError" xml:space="preserve">
     <value>Unrecognized export error.</value>
@@ -251,7 +251,7 @@
     <value>Prevent Y Axis Autoscaling</value>
   </data>
   <data name="lblCollectionSettingPrompt" xml:space="preserve">
-    <value>Enter one element per line, format: XX=XXXX:</value>
+    <value>Enter one element per line, format: XX=XXXX.</value>
   </data>
   <data name="strConfigChannels" xml:space="preserve">
     <value>Channel configuration</value>
@@ -442,5 +442,29 @@
   </data>
   <data name="strEnterMathExpression" xml:space="preserve">
     <value>Enter math expression below. Available arguments: y = voltage (V), x = time (s).</value>
+  </data>
+  <data name="strIdealGasConstant" xml:space="preserve">
+    <value>Ideal Gas Constant</value>
+  </data>
+  <data name="strFaradaysConstant" xml:space="preserve">
+    <value>Faraday's Constant</value>
+  </data>
+  <data name="strMathConfig" xml:space="preserve">
+    <value>Math configuration</value>
+  </data>
+  <data name="strMathEditingHelp" xml:space="preserve">
+    <value>Available constants: {0}; arguments: {1}.</value>
+  </data>
+  <data name="strStopAcquisitionBeforeExiting" xml:space="preserve">
+    <value>Stop data acquisition before exiting!</value>
+  </data>
+  <data name="stsRecalculating" xml:space="preserve">
+    <value>Recalculating data...</value>
+  </data>
+  <data name="stsRecalculated" xml:space="preserve">
+    <value>Recalculated all channels.</value>
+  </data>
+  <data name="msgMathError" xml:space="preserve">
+    <value>Failed to compute math expression for point.</value>
   </data>
 </root>

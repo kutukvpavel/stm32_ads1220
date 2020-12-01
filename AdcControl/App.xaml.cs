@@ -8,6 +8,10 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using org.mariuszgromada.math.mxparser;
+using Expression = org.mariuszgromada.math.mxparser.Expression;
+using System.Linq;
+using System.Drawing;
 
 namespace AdcControl
 {
@@ -32,8 +36,81 @@ namespace AdcControl
         public static System.Timers.Timer AutosaveTimer { get; private set; }
         public static List<ConcurrentDictionary<int, AdcChannel>> ArchivedChannels { get; private set; }
         public static ConcurrentDictionary<int, AdcChannel> AdcChannels { get; private set; }
+        public static Constant[] MathConstants { get; } = new Constant[]
+        {
+            new Constant("F", 96485.3, Default.strFaradaysConstant),
+            new Constant("R", 8.31446, Default.strIdealGasConstant)
+        };
+        public static Argument[] MathArguments { get; } = new Argument[]
+        {
+            new Argument("x"),
+            new Argument("y")
+        };
+        public static PrimitiveElement[] MathElements
+        {
+            get
+            {
+                return MathConstants.Cast<PrimitiveElement>().Concat(MathArguments.Cast<PrimitiveElement>()).ToArray();
+            }
+        }
+        public static ConcurrentDictionary<int, string> ChannelNames { get; private set; }
+        public static ConcurrentDictionary<int, bool> ChannelEnable { get; private set; }
+        public static ConcurrentDictionary<int, Expression> ChannelMathY { get; private set; }
+        public static ConcurrentDictionary<int, Color?> ColorSet { get; private set; }
 
         #region Public Methods
+
+        public static void LoadChannelNames()
+        {
+            ChannelNames = DictionarySerializer.Parse(Settings.Default.ChannelNameMapping, x => x);
+        }
+
+        public static void SaveChannelNames()
+        {
+            DictionarySerializer.Save(Settings.Default.ChannelNameMapping, ChannelNames, x => x);
+        }
+
+        public static void LoadMathSettings()
+        {
+            ChannelMathY = DictionarySerializer.Parse(Settings.Default.ChannelMathYMapping, (x) =>
+            {
+                return new Expression(x ?? "y", App.MathElements);
+            }, false);
+        }
+
+        public static void SaveMathSettings()
+        {
+            DictionarySerializer.Save(Settings.Default.ChannelMathYMapping, ChannelMathY, (x) =>
+            {
+                return x != null ? x.getExpressionString() : "";
+            });
+        }
+
+        public static void LoadColorSet()
+        {
+            ColorSet = DictionarySerializer.Parse(Settings.Default.Colorset, (x) =>
+            {
+                return x != null ? (Color?)Color.FromArgb(int.Parse(x)) : null;
+            }, false);
+        }
+
+        public static void SaveColorSet()
+        {
+            DictionarySerializer.Save(Settings.Default.Colorset, ColorSet, (x) =>
+            {
+                return x.HasValue ? x.Value.ToArgb().ToString() : "";
+            });
+        }
+
+        public static void LoadChannelEnableMapping()
+        {
+            ChannelEnable = DictionarySerializer.Parse(Settings.Default.ChannelEnableMapping, x => bool.Parse(x), false);
+        }
+
+        public static void SaveChannelEnableMapping()
+        {
+            DictionarySerializer.Save(Settings.Default.ChannelEnableMapping, ChannelEnable, x => x.ToString());
+        }
 
         public static void InitGlobals()
         {
@@ -83,7 +160,7 @@ namespace AdcControl
 
         private static void AutosaveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            AutosaveTimer.Interval = Settings.ExportSettings.AutosaveInterval;
+            AutosaveTimer.Interval = Settings.ExportSettings.AutosaveInterval * 1000;
             if (!Stm32Ads1220.AcquisitionInProgress) AutosaveTimer.Stop();
             if (AdcChannels.Values.Count > 0)
             {
@@ -122,6 +199,22 @@ namespace AdcControl
                 if (added)
                 {
                     AdcChannels[e.Channel].DropPoints = Settings.Default.AcqDropPoints;
+                    if (ChannelEnable.ContainsKey(e.Channel))
+                    {
+                        AdcChannels[e.Channel].IsVisible = ChannelEnable[e.Channel];
+                    }
+                    if (ChannelNames.ContainsKey(e.Channel))
+                    {
+                        AdcChannels[e.Channel].Name = ChannelNames[e.Channel];
+                    }
+                    if (ColorSet.ContainsKey(e.Channel))
+                    {
+                        AdcChannels[e.Channel].Color = ColorSet[e.Channel];
+                    }
+                    if (ChannelMathY.ContainsKey(e.Channel))
+                    {
+                        AdcChannels[e.Channel].MathExpressionY = ChannelMathY[e.Channel];
+                    }
                     new Thread(() =>
                     {
                         NewChannelDetected?.Invoke(Stm32Ads1220, new NewChannelDetectedEventArgs(e.Channel));

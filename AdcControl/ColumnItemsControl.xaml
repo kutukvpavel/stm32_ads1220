@@ -10,8 +10,8 @@
              Background="Transparent" d:Background="White" d:FontSize="16"
              x:Name="_this">
     <StackPanel>
-        <Border BorderBrush="Black" BorderThickness="1.5" SnapsToDevicePixels="True"
-                Padding="3,3,3,3">
+        <Border BorderBrush="SlateGray" BorderThickness="1" SnapsToDevicePixels="True"
+                UseLayoutRounding="True" Padding="3,3,3,3">
             <TextBlock x:Name="lblHeader" 
                        Text="{Binding ElementName=_this, Path=Header}" 
                        d:Text="Header"
@@ -22,7 +22,7 @@
         <ItemsControl x:Name="ctlItems" Width="auto" Height="auto">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="Black" 
+                    <Border BorderBrush="SlateGray" 
                         BorderThickness="1,0,1,0" 
                         SnapsToDevicePixels="True" 
                         UseLayoutRounding="True">

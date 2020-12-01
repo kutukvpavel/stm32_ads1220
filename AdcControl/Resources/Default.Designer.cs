@@ -259,7 +259,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Enter one element per line, format: XX=XXXX:.
+        ///   Ищет локализованную строку, похожую на Enter one element per line, format: XX=XXXX..
         /// </summary>
         public static string lblCollectionSettingPrompt {
             get {
@@ -408,6 +408,15 @@ namespace AdcControl.Resources {
         public static string msgLoadedMainWindow {
             get {
                 return ResourceManager.GetString("msgLoadedMainWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to compute math expression for point..
+        /// </summary>
+        public static string msgMathError {
+            get {
+                return ResourceManager.GetString("msgMathError", resourceCulture);
             }
         }
         
@@ -700,6 +709,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на ADC Control Application.
+        /// </summary>
+        public static string strApplicationNameCaption {
+            get {
+                return ResourceManager.GetString("strApplicationNameCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Toggle autoscroll.
         /// </summary>
         public static string strAutoscroll {
@@ -881,11 +899,29 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Faraday&apos;s Constant.
+        /// </summary>
+        public static string strFaradaysConstant {
+            get {
+                return ResourceManager.GetString("strFaradaysConstant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Force plot update.
         /// </summary>
         public static string strForceRender {
             get {
                 return ResourceManager.GetString("strForceRender", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ideal Gas Constant.
+        /// </summary>
+        public static string strIdealGasConstant {
+            get {
+                return ResourceManager.GetString("strIdealGasConstant", resourceCulture);
             }
         }
         
@@ -908,11 +944,20 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на AdcControl.
+        ///   Ищет локализованную строку, похожую на Math configuration.
         /// </summary>
-        public static string strMessageBoxCaption {
+        public static string strMathConfig {
             get {
-                return ResourceManager.GetString("strMessageBoxCaption", resourceCulture);
+                return ResourceManager.GetString("strMathConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Available constants: {0}; arguments: {1}..
+        /// </summary>
+        public static string strMathEditingHelp {
+            get {
+                return ResourceManager.GetString("strMathEditingHelp", resourceCulture);
             }
         }
         
@@ -940,6 +985,15 @@ namespace AdcControl.Resources {
         public static string strStartButton {
             get {
                 return ResourceManager.GetString("strStartButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Stop data acquisition before exiting!.
+        /// </summary>
+        public static string strStopAcquisitionBeforeExiting {
+            get {
+                return ResourceManager.GetString("strStopAcquisitionBeforeExiting", resourceCulture);
             }
         }
         
@@ -1066,6 +1120,24 @@ namespace AdcControl.Resources {
         public static string stsReady {
             get {
                 return ResourceManager.GetString("stsReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Recalculated all channels..
+        /// </summary>
+        public static string stsRecalculated {
+            get {
+                return ResourceManager.GetString("stsRecalculated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Recalculating data....
+        /// </summary>
+        public static string stsRecalculating {
+            get {
+                return ResourceManager.GetString("stsRecalculating", resourceCulture);
             }
         }
         

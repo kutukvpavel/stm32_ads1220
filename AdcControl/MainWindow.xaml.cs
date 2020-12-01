@@ -2,14 +2,15 @@
 using AdcControl.Resources;
 using RJCP.IO.Ports;
 using System;
-using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using org.mariuszgromada.math.mxparser;
+using Expression = org.mariuszgromada.math.mxparser.Expression;
 
 namespace AdcControl
 {
@@ -33,12 +34,14 @@ namespace AdcControl
             App.NewChannelDetected += App_NewChannelDetected;
             //Settings
             if (Settings.ViewSettings.Maximized) WindowState = WindowState.Maximized;
-            LoadChannelNames();
-            ChannelEnable = DictionarySaver.Parse(Settings.Default.ChannelEnableMapping, x => bool.Parse(x));
-            ColorSet = DictionarySaver.Parse(Settings.Default.Colorset, (x) =>
-            {
-                return x.Length > 0 ? (Color?)Color.FromArgb(int.Parse(x)) : null;
-            });
+            Top = Settings.ViewSettings.MainWindowLocation.Y;
+            Left = Settings.ViewSettings.MainWindowLocation.X;
+            Height = Settings.ViewSettings.MainWindowSize.Height;
+            Width = Settings.ViewSettings.MainWindowSize.Width;
+            App.LoadChannelNames();
+            App.LoadMathSettings();
+            App.LoadColorSet();
+            App.LoadChannelEnableMapping();
         }
 
         //Public
@@ -99,9 +102,6 @@ namespace AdcControl
 
         private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
-        private ConcurrentDictionary<int, string> ChannelNames;
-        private ConcurrentDictionary<int, bool> ChannelEnable;
-        private readonly ConcurrentDictionary<int, Color?> ColorSet;
         private readonly DispatcherTimer MouseTimer = new DispatcherTimer() { IsEnabled = false };
         private readonly DispatcherTimer RefreshTimer = new DispatcherTimer() { IsEnabled = false };
 #if TRACE
@@ -109,6 +109,16 @@ namespace AdcControl
 #endif
 
         #region Functions
+
+        private async Task RecalculateChannels()
+        {
+            CurrentStatus = Default.stsRecalculating;
+            foreach (var item in App.AdcChannels.Values)
+            {
+                await AdcChannel.Recalculate(item);
+            }
+            CurrentStatus = Default.stsRecalculated;
+        }
 
         private static void Trace(string s)
         {
@@ -153,16 +163,6 @@ namespace AdcControl
             pltMainPlot.plt.Axis(y1: Settings.ViewSettings.YMin, y2: Settings.ViewSettings.YMax);
         }
 
-        private void LoadChannelNames()
-        {
-            ChannelNames = DictionarySaver.Parse(Settings.Default.ChannelNameMapping, x => x);
-        }
-
-        private void SaveChannelNames()
-        {
-            DictionarySaver.Save(Settings.Default.ChannelNameMapping, ChannelNames);
-        }
-
         private void LoadPlotSettings()
         {
             pltMainPlot.plt.YLabel(Settings.ViewSettings.YAxisLabel);
@@ -194,7 +194,7 @@ namespace AdcControl
         {
             if (Settings.ViewSettings.EnableAutoscaling)
             {
-                pltMainPlot.plt.AxisAutoX();
+                pltMainPlot.plt.AxisAutoX(0);
                 if (Settings.ViewSettings.LockHorizontalAxis)
                 {
                     var d = pltMainPlot.plt.GetSettings().axes.x.max - Settings.ViewSettings.XMax;
@@ -213,7 +213,7 @@ namespace AdcControl
         {
             if (!pltMainPlot.IsMouseOver) return;
             (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
-            txtCoordinates.Text = string.Format("{0:F6} V @ {1:F2} s", mouseY, mouseX);
+            txtCoordinates.Text = string.Format("{0:F6} @ {1:F2}", mouseY, mouseX);
         }
 
         private void MainWindow_DebugLogEvent(object sender, LogEventArgs e)
@@ -224,17 +224,32 @@ namespace AdcControl
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            if (App.Stm32Ads1220.AcquisitionInProgress)
+            {
+                e.Cancel = true;
+                MessageBox.Show(
+                    Default.strStopAcquisitionBeforeExiting,
+                    Default.strApplicationNameCaption,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Exclamation
+                    );
+                return;
+            }
             MouseTimer.Stop();
             MouseTimer.Tick -= MouseTimer_Elapsed;
             if (App.Stm32Ads1220.IsConnected)
             {
                 App.Stm32Ads1220.Disconnect();
             }
+            OnPropertyChanged();
             Settings.ViewSettings.Maximized = WindowState == WindowState.Maximized;
+            Settings.ViewSettings.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
+            Settings.ViewSettings.MainWindowSize = new System.Drawing.Size((int)ActualWidth, (int)ActualHeight);
             SaveAxisLimits();
-            SaveChannelNames();
-            DictionarySaver.Save(Settings.Default.ChannelEnableMapping, ChannelEnable);
-            DictionarySaver.Save(Settings.Default.Colorset, ColorSet);
+            App.SaveChannelNames();
+            App.SaveChannelEnableMapping();
+            App.SaveColorSet();
+            App.SaveMathSettings();
             Settings.Default.Save();
         }
 
@@ -282,18 +297,6 @@ namespace AdcControl
             App.AdcChannels[e.Code].ArrayChanged += AdcChannel_ArrayChanged;
             Dispatcher.Invoke(() =>
             {
-                if (ChannelEnable.ContainsKey(e.Code))
-                {
-                    App.AdcChannels[e.Code].IsVisible = ChannelEnable[e.Code];
-                }
-                if (ChannelNames.ContainsKey(e.Code))
-                {
-                    App.AdcChannels[e.Code].Name = ChannelNames[e.Code];
-                }
-                if (ColorSet.ContainsKey(e.Code))
-                {
-                    App.AdcChannels[e.Code].Color = ColorSet[e.Code];
-                }
                 PlotChannel(App.AdcChannels[e.Code]);
                 App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
                 App.AdcChannels[e.Code].CalculatedXColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
@@ -301,7 +304,7 @@ namespace AdcControl
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
                 App.AdcChannels[e.Code].CalculatedYColumn.DropItems = Settings.ViewSettings.TableDropPoints;
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
-                pltMainPlot.plt.Legend();
+                pltMainPlot.plt.Legend(location: ScottPlot.legendLocation.upperLeft);
                 pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedXColumn);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedYColumn);
@@ -359,22 +362,24 @@ namespace AdcControl
             dialog.ShowDialog();
             LoadPlotSettings();
             LoadTimerSettings();
+            pltMainPlot.Render();
         }
 
         private void btnConfigChannels_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new ChannelSettingEditor();
-            SaveChannelNames();
+            App.SaveChannelNames();
             dialog.SetDefaultInputValue(Settings.Default.ChannelNameMapping);
             if (dialog.ShowDialog() ?? false)
             {
                 Settings.Default.ChannelNameMapping = dialog.ParsedInput;
-                LoadChannelNames();
+                App.LoadChannelNames();
                 Settings.Default.Save();
                 foreach (var item in App.AdcChannels.Values)
                 {
-                    if (ChannelNames.ContainsKey(item.Code)) item.Name = ChannelNames[item.Code];
+                    if (App.ChannelNames.ContainsKey(item.Code)) item.Name = App.ChannelNames[item.Code];
                 }
+                pltMainPlot.Render();
             }
         }
 
@@ -460,7 +465,7 @@ namespace AdcControl
                 {
                     if (MessageBox.Show(
                         Default.msgCsvAlreadyExistsReplace,
-                        Default.strMessageBoxCaption,
+                        Default.strApplicationNameCaption,
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question) == MessageBoxResult.No) continue;
                 }
@@ -506,19 +511,16 @@ namespace AdcControl
                 foreach (var item in App.AdcChannels)
                 {
                     item.Value.MovingAveraging = Settings.Default.Average;
+                    item.Value.CapacityStep = (int)
+                        Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed);
                 }
                 if (!App.Stm32Ads1220.AcquisitionInProgress)
                 {
-                    foreach (var item in App.AdcChannels)
-                    {
-                        item.Value.CapacityStep = (int)
-                            Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed);
-                        await AdcChannel.Recalculate(item.Value);
-                    }
+                    await RecalculateChannels();
                 }
+                OnPropertyChanged();
+                pltMainPlot.Render();
             }
-            OnPropertyChanged();
-            pltMainPlot.Render();
         }
 
         private void btnDisconnect_Click(object sender, RoutedEventArgs e)
@@ -567,6 +569,42 @@ namespace AdcControl
         private void btnLockVerticalAxis_Checked(object sender, RoutedEventArgs e)
         {
             if (IsLoaded) SaveAxisLimits();
+        }
+
+        private async void btnMathConfig_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ChannelSettingEditor()
+            {
+                ValueValidator = (x) =>
+                {
+                    if (x == null) return false;
+                    return new Expression(x, App.MathElements).checkSyntax();
+                },
+                HelpText = string.Format(Default.strMathEditingHelp,
+                    string.Join(
+                        ", ", App.MathConstants.Select(x =>
+                        string.Format("{0} - {1}", x.getConstantName(), x.getDescription()))
+                        ),
+                    string.Join(
+                        ", ", App.MathArguments.Select(x => x.getArgumentName())
+                        )
+                    )
+            };
+            dialog.SetDefaultInputValue(Settings.Default.ChannelMathYMapping);
+            if (dialog.ShowDialog() ?? false)
+            {
+                Settings.Default.ChannelMathYMapping = dialog.ParsedInput;
+                App.LoadMathSettings();
+                foreach (var item in App.AdcChannels.Values)
+                {
+                    item.MathExpressionY = App.ChannelMathY[item.Code];
+                }
+                if (!App.Stm32Ads1220.AcquisitionInProgress)
+                {
+                    await RecalculateChannels();
+                    pltMainPlot.Render();
+                }
+            }
         }
 
         #endregion

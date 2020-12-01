@@ -8,16 +8,13 @@
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:settings="clr-namespace:AdcControl.Properties"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="200" MinWidth="750"
+        Title="{x:Static resx:Default.strApplicationNameCaption}"
+        MinHeight="200" MinWidth="750"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
         x:Name="_this"
         Icon="/Resources/chart.png"
         FontSize="16"
-        Height="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=MainWindowSize.Height, Mode=TwoWay}"
-        Width="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=MainWindowSize.Width, Mode=TwoWay}"
-        Top="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=MainWindowLocation.X, Mode=TwoWay}"
-        Left="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=MainWindowLocation.Y, Mode=TwoWay}"
         d:DesignWidth="950" d:DesignHeight="257.871">
     <Window.Resources>
         <Style TargetType="Image">
@@ -45,7 +42,8 @@
         <Expander x:Name="expTable" 
                   Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
                   ExpandDirection="Right"
-                  Width="auto" Padding="0,5,0,0">
+                  Width="auto" Padding="0,5,0,0"
+                  BorderBrush="SlateGray">
             <Expander.Header>
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="{Binding Source={x:Static resx:Default.strExpanderTable}}"
@@ -126,6 +124,11 @@
                         ToolTip="{x:Static resx:Default.strViewConfig}">
                     <Image Source="/AdcControl;component/Resources/config_orange.png" Height="36"></Image>
                 </Button>
+                <Button x:Name="btnMathConfig"
+                        Click="btnMathConfig_Click"
+                        ToolTip="{x:Static resx:Default.strMathConfig}">
+                    <Image Source="/AdcControl;component/Resources/math.png" Height="36"></Image>
+                </Button>
             </ToolBar>
             <ToolBar>
                 <Button x:Name="btnClearScreen" 
@@ -189,7 +192,8 @@
             </StatusBarItem>
         </StatusBar>
         <Expander x:Name="expTerminal" Grid.Row="0" Grid.RowSpan="3"
-                  ExpandDirection="Left" Grid.Column="2" Padding="0,5,0,0">
+                  ExpandDirection="Left" Grid.Column="2" Padding="0,5,0,0"
+                  BorderBrush="SlateGray">
             <Expander.Header>
                 <TextBlock Text="{Binding Source={x:Static resx:Default.strTerminalHeader}}"
                            Margin="0,10,0,0">
