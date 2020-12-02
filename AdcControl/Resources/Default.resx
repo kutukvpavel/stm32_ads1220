@@ -476,4 +476,10 @@
   <data name="namCalcYFormat" xml:space="preserve">
     <value>Calculated Y value format</value>
   </data>
+  <data name="msgPowerManagementOK" xml:space="preserve">
+    <value>Sleep prevention was successful.</value>
+  </data>
+  <data name="msgPowerManagementFail" xml:space="preserve">
+    <value>Can't prevent sleep.</value>
+  </data>
 </root>

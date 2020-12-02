@@ -484,6 +484,24 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Can&apos;t prevent sleep..
+        /// </summary>
+        public static string msgPowerManagementFail {
+            get {
+                return ResourceManager.GetString("msgPowerManagementFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Sleep prevention was successful..
+        /// </summary>
+        public static string msgPowerManagementOK {
+            get {
+                return ResourceManager.GetString("msgPowerManagementOK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Exported data to CSV file..
         /// </summary>
         public static string msgSuccessfullyExportedToFile {

@@ -185,7 +185,26 @@
         </WpfPlot>
         <StatusBar FontSize="16" Grid.Row="2" x:Name="stbMainStatusBar" Grid.Column="1">
             <StatusBarItem>
-                <TextBlock x:Name="txtStatus" Text="{Binding ElementName=_this, Path=CurrentStatus}"></TextBlock>
+                <TextBlock x:Name="txtStatus" MinWidth="150" 
+                           Text="{Binding ElementName=_this, Path=CurrentStatus}"
+                           d:Text="Status">
+                </TextBlock>
+            </StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar x:Name="prgAcquisitionProgress"
+                             Width="200" Height="16" Margin="10,0,10,0"
+                             d:Maximum="100" d:Value="50" d:Visibility="Visible">
+                    <ProgressBar.Style>
+                        <Style TargetType="{x:Type ProgressBar}">
+                            <Setter Property="Visibility" Value="Hidden"></Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=AcquisitionInProgress}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ProgressBar.Style>
+                </ProgressBar>
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
                 <TextBlock x:Name="txtCoordinates" Text="Coordinates"></TextBlock>

@@ -214,6 +214,7 @@ namespace AdcControl
             }
             pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
             if (Settings.ViewSettings.AutoscrollTable && expTable.IsExpanded) scwRealTimeData.ScrollToBottom();
+            prgAcquisitionProgress.Value = DateTime.UtcNow.Ticks;
         }
 
         private void MouseTimer_Elapsed(object sender, EventArgs e)
@@ -417,8 +418,10 @@ namespace AdcControl
             CurrentStatus = Default.stsStartingAcq;
             if (await App.Stm32Ads1220.StartAcquisition(Settings.Default.AcquisitionDuration))
             {
+                prgAcquisitionProgress.Minimum = DateTime.UtcNow.Ticks;
+                prgAcquisitionProgress.Maximum = prgAcquisitionProgress.Minimum + Settings.Default.AcquisitionDuration * 10E6;
                 RefreshTimer.Start();
-                NativeMethods.PreventSleep();
+                App.Logger.Info(NativeMethods.PreventSleep() ? Default.msgPowerManagementOK : Default.msgPowerManagementFail);
                 CurrentStatus = Default.stsAcqInProgress;
             }
             else

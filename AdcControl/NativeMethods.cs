@@ -24,14 +24,19 @@ namespace AdcControl
 
         //Public
 
-        public static void PreventSleep()
+        public static bool PreventSleep()
         {
-            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_SYSTEM_REQUIRED);
+            return SetThreadExecutionState(
+                EXECUTION_STATE.ES_CONTINUOUS | 
+                EXECUTION_STATE.ES_DISPLAY_REQUIRED | 
+                EXECUTION_STATE.ES_AWAYMODE_REQUIRED | 
+                EXECUTION_STATE.ES_SYSTEM_REQUIRED
+                ) != 0;
         }
 
-        public static void AllowSleep()
+        public static bool AllowSleep()
         {
-            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+            return SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS) != 0;
         }
     }
 }
