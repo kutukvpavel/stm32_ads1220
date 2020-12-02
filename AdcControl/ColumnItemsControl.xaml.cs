@@ -41,47 +41,45 @@ namespace AdcControl
 
         public int DropItems { get; set; } = 1;
 
-        private bool _DelayRendering = false;
-        public bool DelayRendering
+        private bool _DeferRendering = false;
+        public bool DeferRendering
         {
-            get => _DelayRendering;
+            get => _DeferRendering;
             set
             {
                 var t = value;
-                if (t != _DelayRendering)
+                if (t == _DeferRendering) return;
+                if (!t)
                 {
-                    if (!t)
+                    Dispatcher.BeginInvoke(() =>
                     {
-                        Dispatcher.BeginInvoke(() =>
+                        InnerItemsControl.Visibility = System.Windows.Visibility.Collapsed;
+                        lock (LockObject)
                         {
-                            InnerItemsControl.Visibility = System.Windows.Visibility.Collapsed;
-                            lock (LockObject)
+                            if (DelayedItems.Count == ItemsLimit)
                             {
-                                if (DelayedItems.Count == ItemsLimit)
-                                {
-                                    InnerItemsControl.Items.Clear();
-                                }
-                                else
-                                {
-                                    while (InnerItemsControl.Items.Count + DelayedItems.Count > ItemsLimit)
-                                    {
-                                        InnerItemsControl.Items.RemoveAt(0);
-                                    }
-                                }
-                                foreach (var item in DelayedItems)
-                                {
-                                    InnerItemsControl.Items.Add(item);
-                                }
-                                DelayedItems.Clear();
-                                _DelayRendering = t;
+                                InnerItemsControl.Items.Clear();
                             }
-                            InnerItemsControl.Visibility = System.Windows.Visibility.Visible;
-                        });
-                    }
-                    else
-                    {
-                        _DelayRendering = t;
-                    }
+                            else
+                            {
+                                while (InnerItemsControl.Items.Count + DelayedItems.Count > ItemsLimit)
+                                {
+                                    InnerItemsControl.Items.RemoveAt(0);
+                                }
+                            }
+                            foreach (var item in DelayedItems)
+                            {
+                                InnerItemsControl.Items.Add(item);
+                            }
+                            DelayedItems.Clear();
+                            _DeferRendering = t;
+                        }
+                        InnerItemsControl.Visibility = System.Windows.Visibility.Visible;
+                    });
+                }
+                else
+                {
+                    _DeferRendering = t;
                 }
             }
         }
@@ -126,7 +124,7 @@ namespace AdcControl
         {
             lock (LockObject)
             {
-                if (DelayRendering)
+                if (DeferRendering)
                 {
                     DelayedItems.Add(item);
                     if (DelayedItems.Count > ItemsLimit)

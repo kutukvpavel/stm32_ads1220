@@ -286,15 +286,6 @@
   <data name="catTerminal" xml:space="preserve">
     <value>Terminal</value>
   </data>
-  <data name="namWindowMaximized" xml:space="preserve">
-    <value>Maximized</value>
-  </data>
-  <data name="namWindowCoords" xml:space="preserve">
-    <value>Window Location</value>
-  </data>
-  <data name="namWindowSize" xml:space="preserve">
-    <value>Window Size</value>
-  </data>
   <data name="namLimit" xml:space="preserve">
     <value>Limit</value>
   </data>
@@ -306,9 +297,6 @@
   </data>
   <data name="desTerminalLimit" xml:space="preserve">
     <value>Terminal buffer size limit (characters).</value>
-  </data>
-  <data name="desWindowCoords" xml:space="preserve">
-    <value>Screen coordinates of the top left corner of the window.</value>
   </data>
   <data name="catPlot" xml:space="preserve">
     <value>Plot</value>
@@ -357,9 +345,6 @@
   </data>
   <data name="desRealTimeTableLimit" xml:space="preserve">
     <value>Row limit.</value>
-  </data>
-  <data name="desWindowState" xml:space="preserve">
-    <value>Window state as recorded on last application exit.</value>
   </data>
   <data name="desDropPoints" xml:space="preserve">
     <value>Drop N-1 points out of N.</value>
@@ -434,11 +419,12 @@
     <value>Channel Info Format</value>
   </data>
   <data name="desChannelInfoFormat" xml:space="preserve">
-    <value>See String.Fromat() documentation. Arguments provided: {0} = code, {1} = name, {2} = start time (UTC), {3} = moving average window width, {4} = drop every N'th point.</value>
+    <value>See String.Fromat() documentation. Arguments provided: {0} = code, {1} = name, {2} = start time (UTC), {3} = moving average window width, {4} = drop every N'th point, {5} = math expression Y.</value>
   </data>
   <data name="strDefaultChannelInfoFormat" xml:space="preserve">
-    <value>Channel {0} = {1}, acquisition started: {2},
-    moving average window width: {3}, drop every N'th point: {4}.</value>
+    <value>Channel {0:X} = {1}, acquisition started: {2},
+    moving average window width: {3}, drop every N'th point: {4},
+    math expression Y: {5}.</value>
   </data>
   <data name="strEnterMathExpression" xml:space="preserve">
     <value>Enter math expression below. Available arguments: y = voltage (V), x = time (s).</value>

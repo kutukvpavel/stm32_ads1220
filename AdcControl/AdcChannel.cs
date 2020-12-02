@@ -353,8 +353,17 @@ namespace AdcControl
             {
                 lock (c.LockObject)
                 {
-                    if (c._ColumnX != null) c._ColumnX.DelayRendering = true;
-                    if (c._ColumnY != null) c._ColumnY.DelayRendering = true;
+                    bool xd = false, yd = false;
+                    if (c._ColumnX != null)
+                    {
+                        xd = c._ColumnX.DeferRendering;
+                        c._ColumnX.DeferRendering = true;
+                    }
+                    if (c._ColumnY != null) 
+                    {
+                        yd = c._ColumnY.DeferRendering;
+                        c._ColumnY.DeferRendering = true; 
+                    }
                     double[] backupX = c.RawX;
                     double[] backupY = c.RawY;
                     int count = c.RawCount;
@@ -363,8 +372,8 @@ namespace AdcControl
                     {
                         c.AddPoint(backupY[i], backupX[i]);
                     }
-                    if (c._ColumnX != null) c._ColumnX.DelayRendering = false;
-                    if (c._ColumnY != null) c._ColumnY.DelayRendering = false;
+                    if (c._ColumnX != null) c._ColumnX.DeferRendering = xd;
+                    if (c._ColumnY != null) c._ColumnY.DeferRendering = yd;
                 }
             });
             await task;

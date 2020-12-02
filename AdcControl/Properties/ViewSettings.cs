@@ -15,7 +15,6 @@ namespace AdcControl.Properties
             public static class Categories
             {
                 public const string General = "catGeneral";
-                public const string MainWindow = "catMainWindow";
                 public const string Axes = "catAxes";
                 public const string Terminal = "catTerminal";
                 public const string Plot = "catPlot";
@@ -24,8 +23,6 @@ namespace AdcControl.Properties
             }
             public static class Descriptions
             {
-                public const string WindowState = "desWindowState";
-                public const string WindowLocation = "desWindowCoords";
                 public const string TerminalLimit = "desTerminalLimit";
                 public const string TerminalRemoveStep = "desTerminalRemoveStep";
                 public const string RealtimeTableLimit = "desRealTimeTableLimit";
@@ -38,9 +35,6 @@ namespace AdcControl.Properties
             {
                 public const string TerminalLimit = "namLimit";
                 public const string TerminalRemoveStep = "namTerminalRemoveStep";
-                public const string WindowState = "namWindowMaximized";
-                public const string WindowLocation = "namWindowCoords";
-                public const string WindowSize = "namWindowSize";
                 public const string EnableAutoscaling = "namEnableAutoscaling";
                 public const string LockVerticalAxis = "strLockVerticalAxis";
                 public const string LockHorizontalAxis = "strLockHorizontalAxis";
@@ -62,9 +56,6 @@ namespace AdcControl.Properties
 
         public ViewSettings()
         {
-            MainWindowSize = new System.Drawing.Size(750, 200);
-            Maximized = false;
-            MainWindowLocation = new System.Drawing.Point(10, 10);
             TerminalLimit = 1500;
             TerminalRemoveStep = 100;
             EnableAutoscaling = true;
@@ -85,20 +76,6 @@ namespace AdcControl.Properties
             CalculatedYNumberFormat = "F5";
         }
 
-        [LocalizedCategory(ResourseKeys.Categories.MainWindow)]
-        [LocalizedDisplayName(ResourseKeys.Names.WindowSize)]
-        [ReadOnly(true)]
-        public System.Drawing.Size MainWindowSize { get; set; }
-        [LocalizedCategory(ResourseKeys.Categories.MainWindow)]
-        [LocalizedDescription(ResourseKeys.Descriptions.WindowState)]
-        [LocalizedDisplayName(ResourseKeys.Names.WindowState)]
-        [ReadOnly(true)]
-        public bool Maximized { get; set; }
-        [LocalizedCategory(ResourseKeys.Categories.MainWindow)]
-        [LocalizedDescription(ResourseKeys.Descriptions.WindowLocation)]
-        [LocalizedDisplayName(ResourseKeys.Names.WindowLocation)]
-        [ReadOnly(true)]
-        public System.Drawing.Point MainWindowLocation { get; set; }
         [LocalizedCategory(ResourseKeys.Categories.Terminal)]
         [LocalizedDescription(ResourseKeys.Descriptions.TerminalLimit)]
         [LocalizedDisplayName(ResourseKeys.Names.TerminalLimit)]

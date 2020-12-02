@@ -142,7 +142,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на See String.Fromat() documentation. Arguments provided: {0} = code, {1} = name, {2} = start time (UTC), {3} = moving average window width, {4} = drop every N&apos;th point..
+        ///   Ищет локализованную строку, похожую на See String.Fromat() documentation. Arguments provided: {0} = code, {1} = name, {2} = start time (UTC), {3} = moving average window width, {4} = drop every N&apos;th point, {5} = math expression Y..
         /// </summary>
         public static string desChannelInfoFormat {
             get {
@@ -228,24 +228,6 @@ namespace AdcControl.Resources {
         public static string desTerminalRemoveStep {
             get {
                 return ResourceManager.GetString("desTerminalRemoveStep", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Screen coordinates of the top left corner of the window..
-        /// </summary>
-        public static string desWindowCoords {
-            get {
-                return ResourceManager.GetString("desWindowCoords", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Window state as recorded on last application exit..
-        /// </summary>
-        public static string desWindowState {
-            get {
-                return ResourceManager.GetString("desWindowState", resourceCulture);
             }
         }
         
@@ -673,33 +655,6 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Window Location.
-        /// </summary>
-        public static string namWindowCoords {
-            get {
-                return ResourceManager.GetString("namWindowCoords", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Maximized.
-        /// </summary>
-        public static string namWindowMaximized {
-            get {
-                return ResourceManager.GetString("namWindowMaximized", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Window Size.
-        /// </summary>
-        public static string namWindowSize {
-            get {
-                return ResourceManager.GetString("namWindowSize", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на X Axis Label.
         /// </summary>
         public static string namXAxisLabel {
@@ -835,8 +790,9 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Channel {0} = {1}, acquisition started: {2},
-        ///    moving average window width: {3}, drop every N&apos;th point: {4}..
+        ///   Ищет локализованную строку, похожую на Channel {0:X} = {1}, acquisition started: {2},
+        ///    moving average window width: {3}, drop every N&apos;th point: {4},
+        ///    math expression Y: {5}..
         /// </summary>
         public static string strDefaultChannelInfoFormat {
             get {

@@ -9,14 +9,29 @@
              Width="auto" Height="auto"
              Background="Transparent" d:Background="White" d:FontSize="16"
              x:Name="_this">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type Border}">
+            <Setter Property="SnapsToDevicePixels" Value="True"></Setter>
+            <Setter Property="UseLayoutRounding" Value="True"></Setter>
+            <Setter Property="Padding" Value="3,3,3,3"></Setter>
+        </Style>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style x:Key="HeaderBorderStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource {x:Type Border}}">
+            <Setter Property="BorderBrush" Value="SlateGray"></Setter>
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style x:Key="HeaderTextStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="FontWeight" Value="Bold"></Setter>
+            <Setter Property="Text" Value="{Binding ElementName=_this, Path=Header}" d:Value="Header"></Setter>
+        </Style>
+    </UserControl.Resources>
     <StackPanel>
-        <Border BorderBrush="SlateGray" BorderThickness="1" SnapsToDevicePixels="True"
-                UseLayoutRounding="True" Padding="3,3,3,3">
-            <TextBlock x:Name="lblHeader" 
-                       Text="{Binding ElementName=_this, Path=Header}" 
-                       d:Text="Header"
-                       FontWeight="Bold"  
-                       HorizontalAlignment="Center">
+        <Border Style="{StaticResource HeaderBorderStyle}">
+            <TextBlock x:Name="lblUpperHeader"
+                       Style="{StaticResource HeaderTextStyle}">
             </TextBlock>
         </Border>
         <ItemsControl x:Name="ctlItems" Width="auto" Height="auto">
@@ -28,7 +43,7 @@
                         UseLayoutRounding="True">
                         <Border BorderBrush="LightGray" BorderThickness="0,1,0,1"
                                 Padding="3,3,3,3">
-                            <TextBlock Text="{Binding}" />
+                            <TextBlock Text="{Binding}" Style="{StaticResource {x:Type TextBlock}}" />
                         </Border>
                     </Border>
                 </DataTemplate>
@@ -41,5 +56,10 @@
                 </x:Array>
             </d:ItemsControl.ItemsSource>
         </ItemsControl>
+        <Border Style="{StaticResource HeaderBorderStyle}">
+            <TextBlock x:Name="lblLowerHeader"
+                       Style="{StaticResource HeaderTextStyle}">
+            </TextBlock>
+        </Border>
     </StackPanel>
 </UserControl>

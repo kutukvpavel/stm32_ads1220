@@ -30,12 +30,12 @@ namespace AdcControl
             App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             App.Stm32Ads1220.PropertyChanged += Stm32Ads1220_PropertyChanged;
             App.NewChannelDetected += App_NewChannelDetected;
-            //Window Settings
-            if (Settings.ViewSettings.Maximized) WindowState = WindowState.Maximized;
-            Top = Settings.ViewSettings.MainWindowLocation.Y;
-            Left = Settings.ViewSettings.MainWindowLocation.X;
-            Height = Settings.ViewSettings.MainWindowSize.Height;
-            Width = Settings.ViewSettings.MainWindowSize.Width;
+            //Window Settings (can't make a TwoWay binding or bind to ActualXX, so no point in doing this in XAML at all)
+            if (Settings.Default.MainWindowMaximized) WindowState = WindowState.Maximized;
+            Top = Settings.Default.MainWindowLocation.Y;
+            Left = Settings.Default.MainWindowLocation.X;
+            Height = Settings.Default.MainWindowSize.Height;
+            Width = Settings.Default.MainWindowSize.Width;
         }
 
         //Public
@@ -89,12 +89,24 @@ namespace AdcControl
                 App.Stm32Ads1220.CommandExecutionCompleted;
         }
 
+        public bool IsRecalculating
+        {
+            get => _IsRecalculating;
+            set
+            {
+                _IsRecalculating = value;
+                OnPropertyChanged("IsRecalculating");
+            }
+        }
+
         #endregion
 
         //Private
 
+        private bool _IsRecalculating = false;
         private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
+        private bool TableRenderingDefered = false;
         private readonly DispatcherTimer MouseTimer = new DispatcherTimer() { IsEnabled = false };
         private readonly DispatcherTimer RefreshTimer = new DispatcherTimer() { IsEnabled = false };
 #if TRACE
@@ -105,11 +117,20 @@ namespace AdcControl
 
         private async Task RecalculateChannels()
         {
+            if (App.Stm32Ads1220.AcquisitionInProgress) return;
             CurrentStatus = Default.stsRecalculating;
+            IsRecalculating = true;
+            prgAcquisitionProgress.Minimum = 0;
+            prgAcquisitionProgress.Value = 0;
+            prgAcquisitionProgress.Maximum = App.AdcChannels.Count;
             foreach (var item in App.AdcChannels.Values)
             {
+                prgAcquisitionProgress.Value++;
                 await AdcChannel.Recalculate(item);
             }
+            prgAcquisitionProgress.Value++;
+            pltMainPlot.Render();
+            IsRecalculating = false;
             CurrentStatus = Default.stsRecalculated;
         }
 
@@ -213,7 +234,31 @@ namespace AdcControl
                 }
             }
             pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
-            if (Settings.ViewSettings.AutoscrollTable && expTable.IsExpanded) scwRealTimeData.ScrollToBottom();
+            if (expTable.IsExpanded)
+            {
+                if (Settings.ViewSettings.AutoscrollTable)
+                {
+                    if (TableRenderingDefered)
+                    {
+                        foreach (var item in App.AdcChannels.Values)
+                        {
+                            item.CalculatedXColumn.DeferRendering = false;
+                            item.CalculatedYColumn.DeferRendering = false;
+                        }
+                        TableRenderingDefered = false;
+                    }
+                    scwRealTimeData.ScrollToBottom();
+                }
+                else if (!TableRenderingDefered)
+                {
+                    foreach (var item in App.AdcChannels.Values)
+                    {
+                        item.CalculatedXColumn.DeferRendering = true;
+                        item.CalculatedYColumn.DeferRendering = true;
+                    }
+                    TableRenderingDefered = true;
+                }
+            }
             prgAcquisitionProgress.Value = DateTime.UtcNow.Ticks;
         }
 
@@ -253,9 +298,9 @@ namespace AdcControl
                 App.Stm32Ads1220.Disconnect();
             }
             OnPropertyChanged();
-            Settings.ViewSettings.Maximized = WindowState == WindowState.Maximized;
-            Settings.ViewSettings.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
-            Settings.ViewSettings.MainWindowSize = new System.Drawing.Size((int)ActualWidth, (int)ActualHeight);
+            Settings.Default.MainWindowMaximized = WindowState == WindowState.Maximized;
+            Settings.Default.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
+            Settings.Default.MainWindowSize = new System.Drawing.Size((int)ActualWidth, (int)ActualHeight);
             SaveAxisLimits();
         }
 
@@ -526,12 +571,8 @@ namespace AdcControl
                     item.Value.CapacityStep = (int)
                         Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed);
                 }
-                if (!App.Stm32Ads1220.AcquisitionInProgress)
-                {
-                    await RecalculateChannels();
-                }
+                await RecalculateChannels();
                 OnPropertyChanged();
-                pltMainPlot.Render();
             }
         }
 
@@ -611,11 +652,7 @@ namespace AdcControl
                 {
                     item.MathExpressionY = App.ChannelMathY[item.Code];
                 }
-                if (!App.Stm32Ads1220.AcquisitionInProgress)
-                {
-                    await RecalculateChannels();
-                    pltMainPlot.Render();
-                }
+                await RecalculateChannels();
             }
         }
 
