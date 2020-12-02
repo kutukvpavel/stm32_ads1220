@@ -51,10 +51,12 @@ namespace AdcControl
 
         protected static void Trace(string s)
         {
+#if TRACE
             TraceQueue.Enqueue(() => { System.Diagnostics.Trace.WriteLine(string.Format("{0:mm.ss.ff} {1}", DateTime.UtcNow, s)); });
+#endif
         }
 
-        #region Parser
+#region Parser
 
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
@@ -155,7 +157,7 @@ namespace AdcControl
             }
         }
 
-        #endregion
+#endregion
 
         private void Log(Exception e, string m)
         {
@@ -190,7 +192,7 @@ namespace AdcControl
             new Thread(() => { UnexpectedDisconnect?.Invoke(this, new EventArgs()); }).Start();
         }
 
-        #endregion
+#endregion
 
         /* Public */
 
@@ -227,7 +229,7 @@ namespace AdcControl
         public event EventHandler CommandCompleted;
         public event EventHandler UnexpectedDisconnect;
 
-        #region Properties
+#region Properties
 
         public SerialPortStream Port { get; }
         public int ConnectionTimeout { get; set; } = 5000; //mS
@@ -275,9 +277,9 @@ namespace AdcControl
             get { return !_IsConnected; }
         }
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
         public async Task<bool> SendCommand(Commands cmd, params object[] args)
         {
@@ -359,10 +361,10 @@ namespace AdcControl
             return !Port.IsOpen;
         }
 
-        #endregion
+#endregion
     }
 
-    #region EventArgs
+#region EventArgs
 
     public class AcquisitionEventArgs : EventArgs
     {
@@ -407,5 +409,5 @@ namespace AdcControl
         }
     }
 
-    #endregion
+#endregion
 }

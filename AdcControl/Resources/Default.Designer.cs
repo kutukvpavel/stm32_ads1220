@@ -151,6 +151,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Concatenation line label format as per C# format specifiers documentation. Arguments provided: {0} - time offset in seconds since last acquisition ended..
+        /// </summary>
+        public static string desConcatLabelFormat {
+            get {
+                return ResourceManager.GetString("desConcatLabelFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Drop N-1 points out of N..
         /// </summary>
         public static string desDropPoints {
@@ -277,6 +286,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Exiting....
+        /// </summary>
+        public static string msgApplicationExit {
+            get {
+                return ResourceManager.GetString("msgApplicationExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Can&apos;t check if selected serial port exists..
         /// </summary>
         public static string msgCantCheckPortExistence {
@@ -309,6 +327,15 @@ namespace AdcControl.Resources {
         public static string msgCantOpenExportFolder {
             get {
                 return ResourceManager.GetString("msgCantOpenExportFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to plot concatenation line..
+        /// </summary>
+        public static string msgCantPlotConcatLine {
+            get {
+                return ResourceManager.GetString("msgCantPlotConcatLine", resourceCulture);
             }
         }
         
@@ -367,6 +394,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to recalculate one or more channels..
+        /// </summary>
+        public static string msgFailedRecalaulation {
+            get {
+                return ResourceManager.GetString("msgFailedRecalaulation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Failed to save experiment info..
         /// </summary>
         public static string msgFailedToSaveInfo {
@@ -390,6 +426,24 @@ namespace AdcControl.Resources {
         public static string msgFatalContinue {
             get {
                 return ResourceManager.GetString("msgFatalContinue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Can&apos;t check whether experiment file already exists or not..
+        /// </summary>
+        public static string msgFileExistenceCheckFailed {
+            get {
+                return ResourceManager.GetString("msgFileExistenceCheckFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Caught an exception during InputBox validation..
+        /// </summary>
+        public static string msgInputBoxValidationError {
+            get {
+                return ResourceManager.GetString("msgInputBoxValidationError", resourceCulture);
             }
         }
         
@@ -516,6 +570,24 @@ namespace AdcControl.Resources {
         public static string namChannelInfoFormat {
             get {
                 return ResourceManager.GetString("namChannelInfoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Concatenation label format.
+        /// </summary>
+        public static string namConcatLabelFormat {
+            get {
+                return ResourceManager.GetString("namConcatLabelFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Concatenation line width.
+        /// </summary>
+        public static string namConcatLineWidth {
+            get {
+                return ResourceManager.GetString("namConcatLineWidth", resourceCulture);
             }
         }
         

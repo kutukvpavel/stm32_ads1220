@@ -1,147 +1,192 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <StartupObject>AdcControl.App</StartupObject>
-    <ApplicationIcon>chart.ico</ApplicationIcon>
+	<OutputType>WinExe</OutputType>
+	<TargetFramework>netcoreapp3.1</TargetFramework>
+	<UseWPF>true</UseWPF>
+	<StartupObject>AdcControl.App</StartupObject>
+	<ApplicationIcon>chart.ico</ApplicationIcon>
+	  <Platforms>AnyCPU;x64</Platforms>
+	  <PublishTrimmedFile>true</PublishTrimmedFile>
+	  <TrimMode>CopyUsed</TrimMode>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DebugType>pdbonly</DebugType>
+	<DebugSymbols>true</DebugSymbols>
+	<PlatformTarget>x86</PlatformTarget>
+	  <DefineConstants></DefineConstants>
   </PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<DebugType>pdbonly</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<PlatformTarget>x86</PlatformTarget>
+		<DefineConstants></DefineConstants>
+	</PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DebugType>pdbonly</DebugType>
+	<DebugSymbols>true</DebugSymbols>
+	<PlatformTarget>x64</PlatformTarget>
+	  <DefineConstants></DefineConstants>
+  </PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<DebugType>pdbonly</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<PlatformTarget>x86</PlatformTarget>
+		<DefineConstants>DEBUG; TRACE;</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<DebugType>pdbonly</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<PlatformTarget>x86</PlatformTarget>
+		<DefineConstants>DEBUG; TRACE;</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<DebugType>pdbonly</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<PlatformTarget>x64</PlatformTarget>
+		<DefineConstants>DEBUG; TRACE;</DefineConstants>
+	</PropertyGroup>
+
   <ItemGroup>
-    <None Remove="chart.ico" />
-    <None Remove="Resources\arrow_down.png" />
-    <None Remove="Resources\chart.png" />
-    <None Remove="Resources\config.png" />
-    <None Remove="Resources\config_green.png" />
-    <None Remove="Resources\config_orange.png" />
-    <None Remove="Resources\csv_small.png" />
-    <None Remove="Resources\delete.png" />
-    <None Remove="Resources\Disconnect.png" />
-    <None Remove="Resources\folder.png" />
-    <None Remove="Resources\lock_horizontal.png" />
-    <None Remove="Resources\lock_vertical.png" />
-    <None Remove="Resources\math.png" />
-    <None Remove="Resources\scaling.png" />
-    <None Remove="Resources\send.png" />
-    <None Remove="Resources\settings_code.png" />
-    <None Remove="Resources\start.png" />
-    <None Remove="Resources\stop.png" />
-    <None Remove="Resources\update.png" />
-    <None Remove="Resources\wifi.png" />
+	<None Remove="chart.ico" />
+	<None Remove="Resources\arrow_down.png" />
+	<None Remove="Resources\chart.png" />
+	<None Remove="Resources\config.png" />
+	<None Remove="Resources\config_green.png" />
+	<None Remove="Resources\config_orange.png" />
+	<None Remove="Resources\csv_small.png" />
+	<None Remove="Resources\delete.png" />
+	<None Remove="Resources\Disconnect.png" />
+	<None Remove="Resources\folder.png" />
+	<None Remove="Resources\lock_horizontal.png" />
+	<None Remove="Resources\lock_vertical.png" />
+	<None Remove="Resources\math.png" />
+	<None Remove="Resources\scaling.png" />
+	<None Remove="Resources\send.png" />
+	<None Remove="Resources\settings_code.png" />
+	<None Remove="Resources\start.png" />
+	<None Remove="Resources\stop.png" />
+	<None Remove="Resources\update.png" />
+	<None Remove="Resources\wifi.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="16.1.0" />
-    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.96" />
-    <PackageReference Include="L" Version="5.0.0" />
-    <PackageReference Include="MathParser.org-mXparser" Version="4.4.2" />
-    <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.0.1" />
-    <PackageReference Include="ScottPlot.WPF" Version="4.0.42" />
-    <PackageReference Include="SerialPortStream" Version="2.2.2" />
+	<PackageReference Include="CsvHelper" Version="16.1.0" />
+	<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.96" />
+	<PackageReference Include="L" Version="5.0.0" />
+	<PackageReference Include="MathParser.org-mXparser" Version="4.4.2" />
+	<PackageReference Include="Ookii.Dialogs.Wpf" Version="3.0.1" />
+	<PackageReference Include="ScottPlot.WPF" Version="4.0.42" />
+	<PackageReference Include="SerialPortStream" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Update="Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Resources\Default.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Default.resx</DependentUpon>
-    </Compile>
+	<Compile Update="Properties\Settings.Designer.cs">
+	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Settings.settings</DependentUpon>
+	</Compile>
+	<Compile Update="Resources.Designer.cs">
+	  <DesignTime>True</DesignTime>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Resources.resx</DependentUpon>
+	</Compile>
+	<Compile Update="Resources\Default.Designer.cs">
+	  <DesignTime>True</DesignTime>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Default.resx</DependentUpon>
+	</Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\Default.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Default.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+	<EmbeddedResource Update="Resources.resx">
+	  <Generator>PublicResXFileCodeGenerator</Generator>
+	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	</EmbeddedResource>
+	<EmbeddedResource Update="Resources\Default.resx">
+	  <Generator>PublicResXFileCodeGenerator</Generator>
+	  <LastGenOutput>Default.Designer.cs</LastGenOutput>
+	</EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="chart.ico" />
-    <Resource Include="Resources\arrow_down.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\chart.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\config.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\config_green.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\config_orange.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\csv_small.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\delete.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Disconnect.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\folder.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\lock_horizontal.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\lock_vertical.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\math.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\scaling.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\send.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\settings_code.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\start.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\stop.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\update.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\wifi.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+	<Resource Include="chart.ico" />
+	<Resource Include="Resources\arrow_down.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\chart.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\config.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\config_green.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\config_orange.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\csv_small.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\delete.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\Disconnect.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\folder.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\lock_horizontal.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\lock_vertical.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\math.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\scaling.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\send.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\settings_code.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\start.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\stop.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\update.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\wifi.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>PublicSettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
+	<None Update="Properties\Settings.settings">
+	  <Generator>PublicSettingsSingleFileGenerator</Generator>
+	  <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	</None>
   </ItemGroup>
 
 </Project>

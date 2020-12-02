@@ -47,11 +47,19 @@ namespace AdcControl
         }
         public static bool CheckIfAlreadyExists(string experimentName, AdcChannel channel)
         {
-            return File.Exists(ComputePath(
-                ExportPath, 
-                FormatSingleChannel(experimentName, channel), 
-                false
-                ));
+            try
+            {
+                return File.Exists(ComputePath(
+                    ExportPath,
+                    FormatSingleChannel(experimentName, channel),
+                    false
+                    ));
+            }
+            catch (Exception ex)
+            {
+                Log(ex, Default.msgFileExistenceCheckFailed);
+                return true;
+            }
         }
 
         public static async Task<bool> Export(string experimentName, IEnumerable<AdcChannel> data)

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.ComponentModel;
 using System.Media;
+using AdcControl.Resources;
 
 namespace AdcControl
 {
@@ -72,10 +73,19 @@ namespace AdcControl
 
         private void txtInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            e.Handled = !(e.Text.IndexOfAny(InvalidCharacters) < 0);
-            if (e.Handled)
+            try
             {
-                SystemSounds.Beep.Play();
+                e.Handled = !(e.Text.IndexOfAny(InvalidCharacters) < 0);
+                if (e.Handled)
+                {
+                    SystemSounds.Beep.Play();
+                }
+            }
+            catch (Exception ex)
+            {
+                e.Handled = true;
+                App.Logger.Error(Default.msgInputBoxValidationError);
+                App.Logger.Info(ex);
             }
         }
 
@@ -84,12 +94,21 @@ namespace AdcControl
             var t = txtInput.Text;
             PassedValidation = await Task.Run(() =>
             {
-                bool res = true;
-                if (InvalidCharacters != null)
-                    res = t.IndexOfAny(InvalidCharacters) < 0;
-                if (res && (ValidationFunction != null))
-                    res = ValidationFunction(t);
-                return res;
+                try
+                {
+                    bool res = true;
+                    if (InvalidCharacters != null)
+                        res = t.IndexOfAny(InvalidCharacters) < 0;
+                    if (res && (ValidationFunction != null))
+                        res = ValidationFunction(t);
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.Error(Default.msgInputBoxValidationError);
+                    App.Logger.Info(ex);
+                    return false;
+                }
             });
             txtInput.Background = PassedValidation ? ValidationPassedBrush : ValidationFailedBrush;
         }

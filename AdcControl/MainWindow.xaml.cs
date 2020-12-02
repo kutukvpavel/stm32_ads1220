@@ -107,6 +107,7 @@ namespace AdcControl
         private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
         private bool TableRenderingDefered = false;
+        private DateTime? LastAcquisitionEnd = null;
         private readonly DispatcherTimer MouseTimer = new DispatcherTimer() { IsEnabled = false };
         private readonly DispatcherTimer RefreshTimer = new DispatcherTimer() { IsEnabled = false };
 #if TRACE
@@ -123,15 +124,25 @@ namespace AdcControl
             prgAcquisitionProgress.Minimum = 0;
             prgAcquisitionProgress.Value = 0;
             prgAcquisitionProgress.Maximum = App.AdcChannels.Count;
+            bool success = true;
             foreach (var item in App.AdcChannels.Values)
             {
                 prgAcquisitionProgress.Value++;
-                await AdcChannel.Recalculate(item);
+                try
+                {
+                    await AdcChannel.Recalculate(item);
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.Error(Default.msgFailedRecalaulation);
+                    App.Logger.Info(ex);
+                    success = false;
+                }
             }
             prgAcquisitionProgress.Value++;
             pltMainPlot.Render();
             IsRecalculating = false;
-            CurrentStatus = Default.stsRecalculated;
+            CurrentStatus = success ? Default.stsRecalculated : Default.msgFailedRecalaulation;
         }
 
         private static void Trace(string s)
@@ -328,6 +339,7 @@ namespace AdcControl
 
         private void Stm32Ads1220_AcquisitionFinished(object sender, EventArgs e)
         {
+            LastAcquisitionEnd = DateTime.UtcNow;
             txtStatus.Dispatcher.BeginInvoke(() => 
             {
                 RefreshTimer.Stop();
@@ -378,7 +390,7 @@ namespace AdcControl
             catch (Exception ex)
             {
                 App.Logger.Error(Default.msgChannelArrayUpdateError);
-                App.Logger.Info(ex.ToString());
+                App.Logger.Info(ex);
             }
         }
 
@@ -454,13 +466,37 @@ namespace AdcControl
             {
                 App.Logger.Error(Default.msgCantOpenExportFolder);
                 App.Logger.Info(p ?? "N/A");
-                App.Logger.Info(ex.ToString());
+                App.Logger.Info(ex);
             }
         }
 
         private async void btnStartAcquisition_Click(object sender, RoutedEventArgs e)
         {
             CurrentStatus = Default.stsStartingAcq;
+            if (LastAcquisitionEnd.HasValue)
+            {
+                try
+                {
+                    pltMainPlot.plt.PlotVLine(
+                        App.AdcChannels.Values.Max(x => x.CalculatedCount) / Settings.Default.AcquisitionSpeed,
+                        null,
+                        Settings.ViewSettings.ConcatenationLineWidth,
+                        string.Format(
+                            Settings.ViewSettings.ConcatenationLabelFormat,
+                            (DateTime.UtcNow - (DateTime)LastAcquisitionEnd).TotalSeconds
+                            )
+                        );
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.Error(Default.msgCantPlotConcatLine);
+                    App.Logger.Info(ex);
+                }
+                finally
+                {
+                    LastAcquisitionEnd = null;
+                }
+            }
             if (await App.Stm32Ads1220.StartAcquisition(Settings.Default.AcquisitionDuration))
             {
                 prgAcquisitionProgress.Minimum = DateTime.UtcNow.Ticks;
@@ -491,6 +527,7 @@ namespace AdcControl
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
             ReadyToExportData = false;
+            LastAcquisitionEnd = null;
             txtTerminal.Clear();
             pnlRealTimeData.Children.Clear();
             pltMainPlot.plt.Clear();

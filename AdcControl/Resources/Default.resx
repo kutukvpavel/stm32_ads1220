@@ -468,4 +468,28 @@
   <data name="msgPowerManagementFail" xml:space="preserve">
     <value>Can't prevent sleep.</value>
   </data>
+  <data name="msgApplicationExit" xml:space="preserve">
+    <value>Exiting...</value>
+  </data>
+  <data name="namConcatLineWidth" xml:space="preserve">
+    <value>Concatenation line width</value>
+  </data>
+  <data name="namConcatLabelFormat" xml:space="preserve">
+    <value>Concatenation label format</value>
+  </data>
+  <data name="desConcatLabelFormat" xml:space="preserve">
+    <value>Concatenation line label format as per C# format specifiers documentation. Arguments provided: {0} - time offset in seconds since last acquisition ended.</value>
+  </data>
+  <data name="msgCantPlotConcatLine" xml:space="preserve">
+    <value>Failed to plot concatenation line.</value>
+  </data>
+  <data name="msgFileExistenceCheckFailed" xml:space="preserve">
+    <value>Can't check whether experiment file already exists or not.</value>
+  </data>
+  <data name="msgInputBoxValidationError" xml:space="preserve">
+    <value>Caught an exception during InputBox validation.</value>
+  </data>
+  <data name="msgFailedRecalaulation" xml:space="preserve">
+    <value>Failed to recalculate one or more channels.</value>
+  </data>
 </root>

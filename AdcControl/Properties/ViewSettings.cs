@@ -30,6 +30,8 @@ namespace AdcControl.Properties
                 public const string MouseRefreshPeriod = "desMouseRefreshPeriod";
                 public const string RealtimeTableDrop = "desDropPoints";
                 public const string NumberFormatString = "desNumberFormat";
+                public const string ConcatenationLineColor = "desConcatLineColor";
+                public const string ConcatenationLabelFormat = "desConcatLabelFormat";
             }
             public static class Names
             {
@@ -51,6 +53,9 @@ namespace AdcControl.Properties
                 public const string MouseRefreshPeriod = "namMouseRefreshPeriod";
                 public const string TableDropPoints = "namDropPoints";
                 public const string CalculatedYNumberFormat = "namCalcYFormat";
+                public const string ConcatenationLineColor = "namConcatLineColor";
+                public const string ConcatenationLineWidth = "namConcatLineWidth";
+                public const string ConcatenationLabelFormat = "namConcatLabelFormat";
             }
         }
 
@@ -74,6 +79,8 @@ namespace AdcControl.Properties
             MouseRefreshPeriod = 20;
             TableDropPoints = 2;
             CalculatedYNumberFormat = "F5";
+            ConcatenationLineWidth = 1;
+            ConcatenationLabelFormat = "+{0:F2}";
         }
 
         [LocalizedCategory(ResourseKeys.Categories.Terminal)]
@@ -129,6 +136,13 @@ namespace AdcControl.Properties
         [LocalizedDescription(ResourseKeys.Descriptions.MouseRefreshPeriod)]
         [LocalizedDisplayName(ResourseKeys.Names.MouseRefreshPeriod)]
         public int MouseRefreshPeriod { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.Plot)]
+        [LocalizedDisplayName(ResourseKeys.Names.ConcatenationLineWidth)]
+        public double ConcatenationLineWidth { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.Plot)]
+        [LocalizedDisplayName(ResourseKeys.Names.ConcatenationLabelFormat)]
+        public string ConcatenationLabelFormat { get; set; }
+
         [LocalizedCategory(ResourseKeys.Categories.RealtimeTable)]
         [LocalizedDescription(ResourseKeys.Descriptions.RealtimeTableDrop)]
         [LocalizedDisplayName(ResourseKeys.Names.TableDropPoints)]

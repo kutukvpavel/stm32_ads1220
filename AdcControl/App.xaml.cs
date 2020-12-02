@@ -269,6 +269,7 @@ namespace AdcControl
             SaveColorSet();
             SaveMathSettings();
             Settings.Default.Save();
+            Logger.Info(Default.msgApplicationExit);
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
