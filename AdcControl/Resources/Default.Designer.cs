@@ -169,6 +169,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Number format string as per C# double.ToString(string format) documentation..
+        /// </summary>
+        public static string desNumberFormat {
+            get {
+                return ResourceManager.GetString("desNumberFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Plot data and layout refresh period, milliseconds..
         /// </summary>
         public static string desPlotRefreshPeriod {
@@ -385,6 +394,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Failed to write a CSV record, trying to resume....
+        /// </summary>
+        public static string msgFailedToWriteCsvRecord {
+            get {
+                return ResourceManager.GetString("msgFailedToWriteCsvRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Continue?.
         /// </summary>
         public static string msgFatalContinue {
@@ -480,6 +498,15 @@ namespace AdcControl.Resources {
         public static string msgUnknownExportError {
             get {
                 return ResourceManager.GetString("msgUnknownExportError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Calculated Y value format.
+        /// </summary>
+        public static string namCalcYFormat {
+            get {
+                return ResourceManager.GetString("namCalcYFormat", resourceCulture);
             }
         }
         

@@ -467,4 +467,13 @@
   <data name="msgMathError" xml:space="preserve">
     <value>Failed to compute math expression for point.</value>
   </data>
+  <data name="msgFailedToWriteCsvRecord" xml:space="preserve">
+    <value>Failed to write a CSV record, trying to resume...</value>
+  </data>
+  <data name="desNumberFormat" xml:space="preserve">
+    <value>Number format string as per C# double.ToString(string format) documentation.</value>
+  </data>
+  <data name="namCalcYFormat" xml:space="preserve">
+    <value>Calculated Y value format</value>
+  </data>
 </root>

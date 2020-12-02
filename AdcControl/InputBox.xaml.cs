@@ -93,5 +93,10 @@ namespace AdcControl
             });
             txtInput.Background = PassedValidation ? ValidationPassedBrush : ValidationFailedBrush;
         }
+
+        private void this_Loaded(object sender, RoutedEventArgs e)
+        {
+            txtInput.Focus();
+        }
     }
 }

@@ -18,8 +18,6 @@ namespace AdcControl
     {
         public MainWindow()
         {
-            App.InitGlobals();
-            App.ConfigureCsvExporter();
             InitializeComponent();
             //Internal events
             RefreshTimer.Tick += RefreshTimer_Tick;
@@ -32,22 +30,17 @@ namespace AdcControl
             App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             App.Stm32Ads1220.PropertyChanged += Stm32Ads1220_PropertyChanged;
             App.NewChannelDetected += App_NewChannelDetected;
-            //Settings
+            //Window Settings
             if (Settings.ViewSettings.Maximized) WindowState = WindowState.Maximized;
             Top = Settings.ViewSettings.MainWindowLocation.Y;
             Left = Settings.ViewSettings.MainWindowLocation.X;
             Height = Settings.ViewSettings.MainWindowSize.Height;
             Width = Settings.ViewSettings.MainWindowSize.Width;
-            App.LoadChannelNames();
-            App.LoadMathSettings();
-            App.LoadColorSet();
-            App.LoadChannelEnableMapping();
         }
 
         //Public
 
         public event PropertyChangedEventHandler PropertyChanged;
-
 
         #region Properties
 
@@ -167,6 +160,7 @@ namespace AdcControl
         {
             pltMainPlot.plt.YLabel(Settings.ViewSettings.YAxisLabel);
             pltMainPlot.plt.XLabel(Settings.ViewSettings.XAxisLabel);
+            pltMainPlot.plt.Ticks(numericFormatStringY: Settings.ViewSettings.CalculatedYNumberFormat);
             RestoreAxisLimits();
         }
 
@@ -183,7 +177,6 @@ namespace AdcControl
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             LoadPlotSettings();
-            pltMainPlot.plt.Ticks(numericFormatStringY: "F5");
             pltMainPlot.Render();
             LoadTimerSettings();
             MouseTimer.Start();
@@ -205,6 +198,20 @@ namespace AdcControl
                     pltMainPlot.plt.AxisAutoY();
                 }
             }
+            else
+            {
+                var a = pltMainPlot.plt.GetSettings().axes;
+                if (Settings.ViewSettings.LockHorizontalAxis)
+                {
+                    a.x.max = Settings.ViewSettings.XMax;
+                    a.x.min = Settings.ViewSettings.XMin;
+                }
+                if (Settings.ViewSettings.LockVerticalScale)
+                {
+                    a.y.max = Settings.ViewSettings.YMax;
+                    a.y.min = Settings.ViewSettings.YMin;
+                }
+            }
             pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
             if (Settings.ViewSettings.AutoscrollTable && expTable.IsExpanded) scwRealTimeData.ScrollToBottom();
         }
@@ -213,7 +220,10 @@ namespace AdcControl
         {
             if (!pltMainPlot.IsMouseOver) return;
             (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
-            txtCoordinates.Text = string.Format("{0:F6} @ {1:F2}", mouseY, mouseX);
+            txtCoordinates.Text = string.Format("{0} @ {1:F2}", 
+                mouseY.ToString(Settings.ViewSettings.CalculatedYNumberFormat), 
+                mouseX
+                );
         }
 
         private void MainWindow_DebugLogEvent(object sender, LogEventArgs e)
@@ -246,11 +256,6 @@ namespace AdcControl
             Settings.ViewSettings.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
             Settings.ViewSettings.MainWindowSize = new System.Drawing.Size((int)ActualWidth, (int)ActualHeight);
             SaveAxisLimits();
-            App.SaveChannelNames();
-            App.SaveChannelEnableMapping();
-            App.SaveColorSet();
-            App.SaveMathSettings();
-            Settings.Default.Save();
         }
 
         #endregion
@@ -298,17 +303,20 @@ namespace AdcControl
             Dispatcher.Invoke(() =>
             {
                 PlotChannel(App.AdcChannels[e.Code]);
+                //First access creates the controls, further accesses to my own properties don't have to be through UI thread
                 App.AdcChannels[e.Code].ContextMenuItem.Click += ContextMenuItem_Click;
-                App.AdcChannels[e.Code].CalculatedXColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
-                App.AdcChannels[e.Code].CalculatedXColumn.DropItems = Settings.ViewSettings.TableDropPoints;
+                //This property has to be set upon creation, because this event is being executed asynchronously
+                App.AdcChannels[e.Code].CalculatedYColumn.ItemStringFormat = Settings.ViewSettings.CalculatedYNumberFormat;
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
-                App.AdcChannels[e.Code].CalculatedYColumn.DropItems = Settings.ViewSettings.TableDropPoints;
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
                 pltMainPlot.plt.Legend(location: ScottPlot.legendLocation.upperLeft);
                 pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedXColumn);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedYColumn);
             });
+            App.AdcChannels[e.Code].CalculatedXColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
+            App.AdcChannels[e.Code].CalculatedXColumn.DropItems = Settings.ViewSettings.TableDropPoints;
+            App.AdcChannels[e.Code].CalculatedYColumn.DropItems = Settings.ViewSettings.TableDropPoints;
         }
 
         private void AdcChannel_ArrayChanged(object sender, EventArgs e)
@@ -354,6 +362,7 @@ namespace AdcControl
         {
             var dialog = new ExportSettingsWindow();
             dialog.ShowDialog();
+            App.ConfigureCsvExporter();
         }
 
         private void btnPlotConfig_Click(object sender, RoutedEventArgs e)

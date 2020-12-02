@@ -1,16 +1,12 @@
-﻿using System;
+﻿using AdcControl.Resources;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Drawing;
-using AdcControl.Resources;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 
 namespace AdcControl
@@ -52,12 +48,32 @@ namespace AdcControl
         private double[] _RawY;
         private double[] _CalculatedX;
         private double[] _CalculatedY;
+
+        /// <summary>
+        /// Contains date and time the data was parsed out of the serial port buffer.
+        /// Format: UTC date-time ecoded as OLE automation date.
+        /// Can't be dropped.
+        /// </summary>
         public double[] RawX { get => _RawX; }
+        /// <summary>
+        /// Unprocessed double-precision number.
+        /// Can't be dropped.
+        /// </summary>
         public double[] RawY { get => _RawY; }
+        /// <summary>
+        /// Contains time offset from the "StartTime" (set when the AdcChannel object was created) to RawX.
+        /// Format: OLE automation date offset.
+        /// Can be dropped (see DropPoints)
+        /// </summary>
         public double[] CalculatedX { get => _CalculatedX; }
+        /// <summary>
+        /// Completely processed value: averaging + dropping + math.
+        /// </summary>
         public double[] CalculatedY { get => _CalculatedY; }
 
         //Other
+
+        public Func<double, double> CalculatedXColumnSelector { get; set; } = (x) => x;
         protected Expression _MathExpressionY;
         public Expression MathExpressionY
         {
@@ -275,7 +291,7 @@ namespace AdcControl
                     _CalculatedX[CalculatedCount] = x;
                     _CalculatedY[CalculatedCount] = y;
                     if (_Plot != null && !arrayChanged) _Plot.maxRenderIndex = CalculatedCount;
-                    if (_ColumnX != null) _ColumnX.AddItem(CsvExporter.OADateToSeconds(x));
+                    if (_ColumnX != null) _ColumnX.AddItem(CalculatedXColumnSelector(x));
                     if (_ColumnY != null) _ColumnY.AddItem(y);
                     CalculatedCount++;
                 }

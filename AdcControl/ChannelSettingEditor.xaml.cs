@@ -131,5 +131,10 @@ namespace AdcControl
             PassedValidation = await ParseInput(txtInput.Text);
             txtInput.Background = PassedValidation ? ValidationPassedBrush : ValidationFailedBrush;
         }
+
+        private void this_Loaded(object sender, RoutedEventArgs e)
+        {
+            txtInput.Focus();
+        }
     }
 }

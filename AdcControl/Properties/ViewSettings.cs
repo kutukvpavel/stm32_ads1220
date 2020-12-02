@@ -14,6 +14,7 @@ namespace AdcControl.Properties
         {
             public static class Categories
             {
+                public const string General = "catGeneral";
                 public const string MainWindow = "catMainWindow";
                 public const string Axes = "catAxes";
                 public const string Terminal = "catTerminal";
@@ -31,6 +32,7 @@ namespace AdcControl.Properties
                 public const string PlotRefreshPeriod = "desPlotRefreshPeriod";
                 public const string MouseRefreshPeriod = "desMouseRefreshPeriod";
                 public const string RealtimeTableDrop = "desDropPoints";
+                public const string NumberFormatString = "desNumberFormat";
             }
             public static class Names
             {
@@ -54,6 +56,7 @@ namespace AdcControl.Properties
                 public const string PlotRefreshPeriod = "namPlotRefreshPeriod";
                 public const string MouseRefreshPeriod = "namMouseRefreshPeriod";
                 public const string TableDropPoints = "namDropPoints";
+                public const string CalculatedYNumberFormat = "namCalcYFormat";
             }
         }
 
@@ -79,18 +82,22 @@ namespace AdcControl.Properties
             RefreshPeriod = 500;
             MouseRefreshPeriod = 20;
             TableDropPoints = 2;
+            CalculatedYNumberFormat = "F5";
         }
 
         [LocalizedCategory(ResourseKeys.Categories.MainWindow)]
         [LocalizedDisplayName(ResourseKeys.Names.WindowSize)]
+        [ReadOnly(true)]
         public System.Drawing.Size MainWindowSize { get; set; }
         [LocalizedCategory(ResourseKeys.Categories.MainWindow)]
         [LocalizedDescription(ResourseKeys.Descriptions.WindowState)]
         [LocalizedDisplayName(ResourseKeys.Names.WindowState)]
+        [ReadOnly(true)]
         public bool Maximized { get; set; }
         [LocalizedCategory(ResourseKeys.Categories.MainWindow)]
         [LocalizedDescription(ResourseKeys.Descriptions.WindowLocation)]
         [LocalizedDisplayName(ResourseKeys.Names.WindowLocation)]
+        [ReadOnly(true)]
         public System.Drawing.Point MainWindowLocation { get; set; }
         [LocalizedCategory(ResourseKeys.Categories.Terminal)]
         [LocalizedDescription(ResourseKeys.Descriptions.TerminalLimit)]
@@ -149,5 +156,9 @@ namespace AdcControl.Properties
         [LocalizedDescription(ResourseKeys.Descriptions.RealtimeTableDrop)]
         [LocalizedDisplayName(ResourseKeys.Names.TableDropPoints)]
         public int TableDropPoints { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.General)]
+        [LocalizedDisplayName(ResourseKeys.Names.CalculatedYNumberFormat)]
+        [LocalizedDescription(ResourseKeys.Descriptions.NumberFormatString)]
+        public string CalculatedYNumberFormat { get; set; }
     }
 }

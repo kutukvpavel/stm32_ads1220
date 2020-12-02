@@ -7,7 +7,7 @@ namespace AdcControl
     {
         //Private
 
-        [FlagsAttribute()]
+        [Flags()]
         private enum EXECUTION_STATE : uint //Determine Monitor State
         {
             ES_AWAYMODE_REQUIRED = 0x40,

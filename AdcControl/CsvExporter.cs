@@ -1,5 +1,4 @@
-﻿using AdcControl.Properties;
-using AdcControl.Resources;
+﻿using AdcControl.Resources;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System;
@@ -20,16 +19,36 @@ namespace AdcControl
 
         //Public
 
+        #region Properties
+
         public static CsvConfiguration Configuration { get; set; }
+
+        public static string ExportPath { get; set; } = "";
+
+        public static string AutosavePath { get; set; } = "";
+
+        public static int AutosaveFileLimit { get; set; } = 5;
+
+        public static string ChannelInfoFormat { get; set; } = Default.strDefaultChannelInfoFormat;
+
+        public static string[] ChannelColumnNames { get; set; } = new string[] 
+        { 
+            Default.strDefaultRawX,
+            Default.strDefaultRawY,
+            Default.strDefaultCalcX, 
+            Default.strDefaultCalcY
+        };
+
+        #endregion
 
         public static bool CheckIfAlreadyExists(string experimentName)
         {
-            return File.Exists(ComputePath(Settings.ExportSettings.CsvSavePath, experimentName, false));
+            return File.Exists(ComputePath(ExportPath, experimentName, false));
         }
         public static bool CheckIfAlreadyExists(string experimentName, AdcChannel channel)
         {
             return File.Exists(ComputePath(
-                Settings.ExportSettings.CsvSavePath, 
+                ExportPath, 
                 FormatSingleChannel(experimentName, channel), 
                 false
                 ));
@@ -40,7 +59,7 @@ namespace AdcControl
             return await Task.Run(() => 
             {
                 return ExportEngine(
-                    Settings.ExportSettings.CsvSavePath,
+                    ExportPath,
                     experimentName,
                     true,
                     data.Where(x => x.IsVisible).ToArray()
@@ -53,7 +72,7 @@ namespace AdcControl
             return await Task.Run(() =>
             {
                 return ExportEngine(
-                    Settings.ExportSettings.CsvSavePath,
+                    ExportPath,
                     FormatSingleChannel(experimentName, data),
                     true,
                     data
@@ -67,23 +86,21 @@ namespace AdcControl
             try
             {
                 IEnumerable<FileSystemInfo> files = new DirectoryInfo(Path.GetFullPath(
-                        Environment.CurrentDirectory + Settings.ExportSettings.CsvAutosavePath)
+                        Environment.CurrentDirectory + AutosavePath)
                     ).GetFileSystemInfos().OrderByDescending(x => x.CreationTime)
-                    .Skip(Settings.ExportSettings.AutosaveFileLimit);
+                    .Skip(AutosaveFileLimit);
                 foreach (var item in files)
                 {
                     File.Delete(item.FullName);
-                    App.Logger.Info(Default.msgDeletedOldAutosave);
-                    App.Logger.Info(item.FullName);
+                    Log(null, null, Default.msgDeletedOldAutosave, item.FullName);
                 }
             }
             catch (Exception ex)
             {
-                App.Logger.Error(Default.msgCantDeleteOldAutosave);
-                App.Logger.Info(ex.ToString());
+                Log(ex, Default.msgCantDeleteOldAutosave);
             }
             return ExportEngine(
-                Settings.ExportSettings.CsvAutosavePath,
+                AutosavePath,
                 "Autosave_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"),
                 false,
                 data.ToArray()
@@ -92,13 +109,24 @@ namespace AdcControl
 
         public static double OADateToSeconds(double oa)
         {
-            return DateTime.FromOADate(oa).TimeOfDay.TotalSeconds;
+            return TimeSpan.FromTicks(DateTime.FromOADate(oa).Ticks - TicksInOLEDateMinValue).TotalSeconds;
         }
 
         //Private
+        private static readonly long TicksInOLEDateMinValue = DateTime.FromOADate(0).Ticks;
 #if TRACE
         private static readonly BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
+
+        private static void Log(Exception e, string err, params string[] s)
+        {
+            if (err != null) App.Logger.Error(err);
+            foreach (var item in s)
+            {
+                App.Logger.Info(item);
+            }
+            if (e != null) App.Logger.Info(e);
+        }
 
         private static void Trace(string s)
         {
@@ -124,8 +152,7 @@ namespace AdcControl
             }
             catch (Exception ex)
             {
-                App.Logger.Error(Default.msgCantCreateCsvDirectory);
-                App.Logger.Info(ex);
+                Log(ex, Default.msgCantCreateCsvDirectory);
                 return null;
             }
         }
@@ -135,19 +162,16 @@ namespace AdcControl
             string path = ComputePath(relativePath, experimentName);
             if (path == null) return false;
             //Build required structures
-            string[] columnsPerChannel = new string[]
-            {
-                Settings.ExportSettings.RawXName,
-                Settings.ExportSettings.RawYName,
-                Settings.ExportSettings.CalculatedXName,
-                Settings.ExportSettings.CalculatedYName
-            };
-            string[] topHeaders = new string[data.Length * columnsPerChannel.Length];
+            string[] topHeaders = new string[data.Length * ChannelColumnNames.Length];
             for (int i = 0; i < topHeaders.Length; i++)
             {
-                topHeaders[i] = i % columnsPerChannel.Length == 0 ? data[i / columnsPerChannel.Length].Name : null;
+                topHeaders[i] = i % ChannelColumnNames.Length == 0 ? data[i / ChannelColumnNames.Length].Name : null;
             }
             int maxCount = Math.Max(data.Max(x => x.CalculatedCount), data.Max(x => x.RawCount));
+            string rawTimeFormat = string.Format("HH{0}mm{0}ss{1}ff", 
+                Configuration.CultureInfo.DateTimeFormat.TimeSeparator,
+                Configuration.CultureInfo.NumberFormat.NumberDecimalSeparator
+                );
             //Write to the file
             try
             {
@@ -161,46 +185,54 @@ namespace AdcControl
                 csvWriter.NextRecord();
                 for (int i = 0; i < topHeaders.Length; i++)
                 {
-                    csvWriter.WriteField(columnsPerChannel[i % columnsPerChannel.Length]);
+                    csvWriter.WriteField(ChannelColumnNames[i % ChannelColumnNames.Length]);
                 }
                 csvWriter.NextRecord();
                 //Write data
+                int persistentError = 0;
                 for (int i = 0; i < maxCount; i++)
                 {
-                    for (int j = 0; j < data.Length; j++)
+                    try
                     {
-                        if (data[j].RawCount > i)
+                        for (int j = 0; j < data.Length; j++)
                         {
-                            csvWriter.WriteField(OADateToSeconds(data[j].RawX[i]));
-                            csvWriter.WriteField(data[j].RawY[i]);
+                            if (data[j].RawCount > i)
+                            {
+                                csvWriter.WriteField(DateTime.FromOADate(data[j].RawX[i]).ToString(rawTimeFormat), false);
+                                csvWriter.WriteField(data[j].RawY[i]);
+                            }
+                            else
+                            {
+                                csvWriter.WriteField(null);
+                                csvWriter.WriteField(null);
+                            }
+                            if (data[j].CalculatedCount > i)
+                            {
+                                csvWriter.WriteField(OADateToSeconds(data[j].CalculatedX[i]));
+                                csvWriter.WriteField(data[j].CalculatedY[i]);
+                            }
+                            else
+                            {
+                                csvWriter.WriteField(null);
+                                csvWriter.WriteField(null);
+                            }
                         }
-                        else
-                        {
-                            csvWriter.WriteField(null);
-                            csvWriter.WriteField(null);
-                        }
-                        if (data[j].CalculatedCount > i)
-                        {
-                            csvWriter.WriteField(OADateToSeconds(data[j].CalculatedX[i]));
-                            csvWriter.WriteField(data[j].CalculatedY[i]);
-                        }
-                        else
-                        {
-                            csvWriter.WriteField(null);
-                            csvWriter.WriteField(null);
-                        }
+                        csvWriter.NextRecord();
+                        persistentError = 0;
                     }
-                    csvWriter.NextRecord();
+                    catch (Exception ex)
+                    {
+                        Log(ex, Default.msgFailedToWriteCsvRecord);
+                        if (++persistentError > 10) throw ex;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                App.Logger.Error(Default.msgCsvSaveFailed);
-                App.Logger.Info(ex);
+                Log(ex, Default.msgCsvSaveFailed);
                 return false;
             }
-            App.Logger.Info(Default.msgSuccessfullyExportedToFile);
-            App.Logger.Info(path);
+            Log(null, null, Default.msgSuccessfullyExportedToFile, path);
             if (exportInfo)
             {
                 try
@@ -210,16 +242,16 @@ namespace AdcControl
                     using TextWriter writer = new StreamWriter(path);
                     foreach (var item in data)
                     {
-                        writer.WriteLine(string.Format(Settings.ExportSettings.ChannelInfoFormat,
+                        writer.WriteLine(string.Format(ChannelInfoFormat,
                             item.Code, item.Name,
                             DateTime.FromOADate(item.StartTime),
-                            item.MovingAveraging, item.DropPoints));
+                            item.MovingAveraging,
+                            item.DropPoints > 0 ? (object)item.DropPoints : "none"));
                     }
                 }
                 catch (Exception ex)
                 {
-                    App.Logger.Error(Default.msgFailedToSaveInfo);
-                    App.Logger.Info(ex.ToString());
+                    Log(ex, Default.msgFailedToSaveInfo);
                     return false;
                 }
             }

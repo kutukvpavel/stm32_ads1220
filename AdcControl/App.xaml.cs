@@ -19,6 +19,10 @@ namespace AdcControl
     {
         /* Public */
 
+        public static event EventHandler<NewChannelDetectedEventArgs> NewChannelDetected;
+
+        #region Properties
+
         public static L Logger { get; } = new L(
             deleteOldFiles: TimeSpan.FromDays(3),
             directory: Path.Combine(Environment.CurrentDirectory, "AdcControlLogs"),
@@ -28,7 +32,7 @@ namespace AdcControl
 #endif
             }
             );
-        public static event EventHandler<NewChannelDetectedEventArgs> NewChannelDetected;
+        
         /// <summary>
         /// Do not make this property automatic (possible data binding reasons)!
         /// </summary>
@@ -57,6 +61,8 @@ namespace AdcControl
         public static ConcurrentDictionary<int, bool> ChannelEnable { get; private set; }
         public static ConcurrentDictionary<int, Expression> ChannelMathY { get; private set; }
         public static ConcurrentDictionary<int, Color?> ColorSet { get; private set; }
+
+        #endregion
 
         #region Public Methods
 
@@ -138,6 +144,17 @@ namespace AdcControl
             CsvExporter.Configuration.CultureInfo = c;
             CsvExporter.Configuration.Delimiter = Settings.ExportSettings.RussianExcelCompatible ? ";" : ",";
             CsvExporter.Configuration.NewLine = CsvHelper.Configuration.NewLine.Environment;
+            CsvExporter.AutosaveFileLimit = Settings.ExportSettings.AutosaveFileLimit;
+            CsvExporter.AutosavePath = Settings.ExportSettings.CsvAutosavePath;
+            CsvExporter.ChannelInfoFormat = Settings.ExportSettings.ChannelInfoFormat;
+            CsvExporter.ExportPath = Settings.ExportSettings.CsvSavePath;
+            CsvExporter.ChannelColumnNames = new string[]
+            {
+                Settings.ExportSettings.RawXName,
+                Settings.ExportSettings.RawYName,
+                Settings.ExportSettings.CalculatedXName,
+                Settings.ExportSettings.CalculatedYName
+            };
         }
 
         #endregion
@@ -199,6 +216,7 @@ namespace AdcControl
                 if (added)
                 {
                     AdcChannels[e.Channel].DropPoints = Settings.Default.AcqDropPoints;
+                    AdcChannels[e.Channel].CalculatedXColumnSelector = x => CsvExporter.OADateToSeconds(x);
                     if (ChannelEnable.ContainsKey(e.Channel))
                     {
                         AdcChannels[e.Channel].IsVisible = ChannelEnable[e.Channel];
@@ -233,6 +251,25 @@ namespace AdcControl
         #endregion
 
         #region Application Events
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            InitGlobals();
+            ConfigureCsvExporter();
+            LoadChannelNames();
+            LoadMathSettings();
+            LoadColorSet();
+            LoadChannelEnableMapping();
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            SaveChannelNames();
+            SaveChannelEnableMapping();
+            SaveColorSet();
+            SaveMathSettings();
+            Settings.Default.Save();
+        }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {

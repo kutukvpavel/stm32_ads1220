@@ -86,28 +86,16 @@ namespace AdcControl
             }
         }
 
+        public void AddItem(string item)
+        {
+            if (CheckIfPointShouldBeDropped()) return; //Keep this calculated as eqarly as possible
+            AddPointEngine(item);
+        }
+
         public void AddItem(double item)
         {
-            if ((DropItems > 0) && ((++AdditionAttempts % DropItems) != 0)) return;
-            string s = item.ToString(ItemStringFormat);
-            lock (LockObject)
-            {
-                if (DelayRendering)
-                {
-                    DelayedItems.Add(s);
-                    if (DelayedItems.Count > ItemsLimit)
-                        DelayedItems.RemoveAt(0);
-                }
-                else
-                {
-                    Dispatcher.BeginInvoke(() =>
-                    {
-                        InnerItemsControl.Items.Add(s);
-                        if (InnerItemsControl.Items.Count > ItemsLimit)
-                            InnerItemsControl.Items.RemoveAt(0);
-                    });
-                }
-            }
+            if (CheckIfPointShouldBeDropped()) return; //Keep this calculated as eqarly as possible
+            AddPointEngine(item.ToString(ItemStringFormat));
         }
 
         public void Clear()
@@ -127,6 +115,33 @@ namespace AdcControl
         private void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private bool CheckIfPointShouldBeDropped()
+        {
+            return (DropItems > 0) && ((++AdditionAttempts % DropItems) != 0);
+        }
+
+        private void AddPointEngine(string item)
+        {
+            lock (LockObject)
+            {
+                if (DelayRendering)
+                {
+                    DelayedItems.Add(item);
+                    if (DelayedItems.Count > ItemsLimit)
+                        DelayedItems.RemoveAt(0);
+                }
+                else
+                {
+                    Dispatcher.BeginInvoke(() =>
+                    {
+                        InnerItemsControl.Items.Add(item);
+                        if (InnerItemsControl.Items.Count > ItemsLimit)
+                            InnerItemsControl.Items.RemoveAt(0);
+                    });
+                }
+            }
         }
     }
 }
