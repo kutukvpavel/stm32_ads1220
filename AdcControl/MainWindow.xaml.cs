@@ -103,6 +103,9 @@ namespace AdcControl
 
         //Private
 
+        private static readonly System.Drawing.Color LegendBackcolor = 
+            System.Drawing.Color.FromArgb(200, System.Drawing.Color.White);
+
         private bool _IsRecalculating = false;
         private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
@@ -367,7 +370,11 @@ namespace AdcControl
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemStringFormat = Settings.ViewSettings.CalculatedYNumberFormat;
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
-                pltMainPlot.plt.Legend(location: ScottPlot.legendLocation.upperLeft);
+                pltMainPlot.plt.Legend(
+                    location: ScottPlot.legendLocation.upperLeft, 
+                    backColor: LegendBackcolor,
+                    shadowDirection: ScottPlot.shadowDirection.none //Does nothing yet
+                    );
                 pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedXColumn);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedYColumn);

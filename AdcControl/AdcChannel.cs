@@ -146,7 +146,7 @@ namespace AdcControl
                 if (_Plot != null && _Color != null)
                 {
                     _Plot.color = (Color)_Color;
-                    _Plot.brush = new SolidBrush((Color)_Color);
+                    //_Plot.brush = new SolidBrush((Color)_Color);
                 }
             }
         }
@@ -164,7 +164,7 @@ namespace AdcControl
                 if (_Color != null)
                 {
                     _Plot.color = (Color)_Color;
-                    _Plot.brush = new SolidBrush((Color)_Color);
+                    //_Plot.brush = new SolidBrush((Color)_Color);
                 }
                 _Plot.maxRenderIndex = CalculatedCount - 1;
             }
