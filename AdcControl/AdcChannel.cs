@@ -132,7 +132,7 @@ namespace AdcControl
             set
             {
                 _IsVisible = value;
-                if (_Plot != null) _Plot.visible = _IsVisible;
+                if (_Plot != null) _Plot.IsVisible = _IsVisible;
                 if (_ContextMenuItem != null) _ContextMenuItem.IsChecked = _IsVisible;
             }
         }
@@ -146,25 +146,23 @@ namespace AdcControl
                 if (_Plot != null && _Color != null)
                 {
                     _Plot.color = (Color)_Color;
-                    _Plot.brush = new SolidBrush((Color)_Color);
                 }
             }
         }
-        protected ScottPlot.PlottableSignal _Plot;
-        public ScottPlot.PlottableSignal Plot
+        protected ScottPlot.Plottable.SignalPlot _Plot;
+        public ScottPlot.Plottable.SignalPlot Plot
         {
             get { return _Plot; }
             set
             {
                 _Plot = value;
                 _Plot.label = _Name;
-                _Plot.visible = _IsVisible;
+                _Plot.IsVisible = _IsVisible;
                 _Plot.sampleRate = _SampleRate;
                 _Plot.samplePeriod = 1 / _SampleRate;
                 if (_Color != null)
                 {
                     _Plot.color = (Color)_Color;
-                    _Plot.brush = new SolidBrush((Color)_Color);
                 }
                 _Plot.maxRenderIndex = CalculatedCount - 1;
             }

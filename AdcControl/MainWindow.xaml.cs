@@ -103,6 +103,9 @@ namespace AdcControl
 
         //Private
 
+        private static readonly System.Drawing.Color LegendColor =
+            System.Drawing.Color.FromArgb(200, System.Drawing.Color.White);
+
         private bool _IsRecalculating = false;
         private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
@@ -169,11 +172,11 @@ namespace AdcControl
 
         private void SaveAxisLimits()
         {
-            var s = pltMainPlot.plt.GetSettings();
-            Settings.ViewSettings.YMax = s.axes.y.max;
-            Settings.ViewSettings.YMin = s.axes.y.min;
-            double xMin = s.axes.x.min;
-            double xMax = s.axes.x.max;
+            var s = pltMainPlot.plt.GetAxisLimits(0, 0);
+            Settings.ViewSettings.YMax = s.YMax;
+            Settings.ViewSettings.YMin = s.YMin;
+            double xMin = s.XMin;
+            double xMax = s.XMin;
             if (Settings.ViewSettings.LockHorizontalAxis)
             {
                 xMax -= xMin;
@@ -185,7 +188,7 @@ namespace AdcControl
 
         private void RestoreAxisLimits()
         {
-            pltMainPlot.plt.Axis(y1: Settings.ViewSettings.YMin, y2: Settings.ViewSettings.YMax);
+            pltMainPlot.plt.SetAxisLimits(yMin: Settings.ViewSettings.YMin, yMax: Settings.ViewSettings.YMax);
         }
 
         private void LoadPlotSettings()
@@ -222,8 +225,8 @@ namespace AdcControl
                 pltMainPlot.plt.AxisAutoX(0);
                 if (Settings.ViewSettings.LockHorizontalAxis)
                 {
-                    var d = pltMainPlot.plt.GetSettings().axes.x.max - Settings.ViewSettings.XMax;
-                    pltMainPlot.plt.Axis(Settings.ViewSettings.XMin + (d > 0 ? d : 0));
+                    var d = pltMainPlot.plt.GetAxisLimits().XMax - Settings.ViewSettings.XMax;
+                    pltMainPlot.plt.SetAxisLimits(Settings.ViewSettings.XMin + (d > 0 ? d : 0));
                 }
                 if (!Settings.ViewSettings.LockVerticalScale)
                 {
@@ -232,16 +235,13 @@ namespace AdcControl
             }
             else
             {
-                var a = pltMainPlot.plt.GetSettings().axes;
                 if (Settings.ViewSettings.LockHorizontalAxis)
                 {
-                    a.x.max = Settings.ViewSettings.XMax;
-                    a.x.min = Settings.ViewSettings.XMin;
+                    pltMainPlot.plt.SetAxisLimits(Settings.ViewSettings.XMin, Settings.ViewSettings.XMax);
                 }
                 if (Settings.ViewSettings.LockVerticalScale)
                 {
-                    a.y.max = Settings.ViewSettings.YMax;
-                    a.y.min = Settings.ViewSettings.YMin;
+                    pltMainPlot.plt.SetAxisLimits(yMax: Settings.ViewSettings.YMax, yMin: Settings.ViewSettings.YMin);
                 }
             }
             pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
@@ -367,7 +367,11 @@ namespace AdcControl
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemStringFormat = Settings.ViewSettings.CalculatedYNumberFormat;
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
-                pltMainPlot.plt.Legend(location: ScottPlot.legendLocation.upperLeft);
+                pltMainPlot.plt.Legend(
+                    location: ScottPlot.Alignment.UpperLeft,
+                    backColor: LegendColor,
+                    shadowDirection: ScottPlot.Alignment.MiddleCenter
+                    );
                 pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedXColumn);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedYColumn);
@@ -633,7 +637,7 @@ namespace AdcControl
 
         private void btnForceRender_Click(object sender, RoutedEventArgs e)
         {
-            pltMainPlot.plt.AxisAuto();
+            pltMainPlot.plt.AxisAuto(0);
             pltMainPlot.Render();
         }
 
