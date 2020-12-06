@@ -103,6 +103,13 @@ namespace AdcControl
 
         //Private
 
+        private enum AxisLimitsType
+        {
+            All,
+            X,
+            Y
+        }
+
         private static readonly System.Drawing.Color LegendColor =
             System.Drawing.Color.FromArgb(200, System.Drawing.Color.White);
 
@@ -170,20 +177,26 @@ namespace AdcControl
                 color: channel.Color); //Somehow signalPlot doesn't support color change (only markers change color after the field was modified)
         }
 
-        private void SaveAxisLimits()
+        private void SaveAxisLimits(AxisLimitsType type = AxisLimitsType.All)
         {
             var s = pltMainPlot.plt.GetAxisLimits(0, 0);
-            Settings.ViewSettings.YMax = s.YMax;
-            Settings.ViewSettings.YMin = s.YMin;
-            double xMin = s.XMin;
-            double xMax = s.XMin;
-            if (Settings.ViewSettings.LockHorizontalAxis)
+            if (type != AxisLimitsType.X)
             {
-                xMax -= xMin;
-                xMin = 0;
+                Settings.ViewSettings.YMax = s.YMax;
+                Settings.ViewSettings.YMin = s.YMin;
             }
-            Settings.ViewSettings.XMax = xMax;
-            Settings.ViewSettings.XMin = xMin;
+            if (type != AxisLimitsType.Y)
+            {
+                double xMin = s.XMin;
+                double xMax = s.XMax;
+                if (Settings.ViewSettings.LockHorizontalAxis)
+                {
+                    xMax -= xMin;
+                    xMin = 0;
+                }
+                Settings.ViewSettings.XMax = xMax;
+                Settings.ViewSettings.XMin = xMin;
+            }
         }
 
         private void RestoreAxisLimits()
@@ -237,7 +250,7 @@ namespace AdcControl
                 }
                 if (!Settings.ViewSettings.LockVerticalScale)
                 {
-                    pltMainPlot.plt.AxisAutoY();
+                    pltMainPlot.plt.AxisAutoY(0);
                 }
             }
             else
@@ -674,12 +687,12 @@ namespace AdcControl
 
         private void btnLockHorizontalAxis_Checked(object sender, RoutedEventArgs e)
         {
-            if (IsLoaded) SaveAxisLimits();
+            if (IsLoaded) SaveAxisLimits(AxisLimitsType.X);
         }
 
         private void btnLockVerticalAxis_Checked(object sender, RoutedEventArgs e)
         {
-            if (IsLoaded) SaveAxisLimits();
+            if (IsLoaded) SaveAxisLimits(AxisLimitsType.Y);
         }
 
         private async void btnMathConfig_Click(object sender, RoutedEventArgs e)
