@@ -156,13 +156,13 @@ namespace AdcControl
             set
             {
                 _Plot = value;
-                _Plot.label = _Name;
-                _Plot.IsVisible = _IsVisible;
-                _Plot.sampleRate = _SampleRate;
-                _Plot.samplePeriod = 1 / _SampleRate;
+                _Plot.label = Name;
+                _Plot.IsVisible = IsVisible;
+                _Plot.sampleRate = SampleRate;
+                _Plot.samplePeriod = 1 / SampleRate;
                 if (_Color != null)
                 {
-                    _Plot.color = (Color)_Color;
+                    _Plot.color = (Color)Color;
                 }
                 _Plot.maxRenderIndex = CalculatedCount - 1;
             }

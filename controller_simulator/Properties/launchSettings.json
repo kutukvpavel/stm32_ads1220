@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "controller_simulator": {
+      "commandName": "Project",
+      "commandLineArgs": "-p COM12 -c 0 50"
+    }
+  }
+}

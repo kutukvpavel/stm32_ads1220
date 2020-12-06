@@ -83,7 +83,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="CsvHelper" Version="17.0.1" />
+	<PackageReference Include="CsvHelper" Version="18.0.0" />
 	<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.96" />
 	<PackageReference Include="L" Version="5.0.0" />
 	<PackageReference Include="MathParser.org-mXparser" Version="4.4.2" />

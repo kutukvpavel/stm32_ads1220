@@ -60,6 +60,7 @@ namespace AdcControl
 
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            if (e.EventType != SerialData.Chars) return;
             Trace("Data received");
             Buffer.Append(Port.ReadExisting());
             string read = Buffer.ToString();

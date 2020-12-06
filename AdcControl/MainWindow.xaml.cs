@@ -188,7 +188,8 @@ namespace AdcControl
 
         private void RestoreAxisLimits()
         {
-            pltMainPlot.plt.SetAxisLimits(yMin: Settings.ViewSettings.YMin, yMax: Settings.ViewSettings.YMax);
+            pltMainPlot.plt.SetAxisLimits(xMin: Settings.ViewSettings.XMin, xMax: Settings.ViewSettings.XMax,
+                yMin: Settings.ViewSettings.YMin, yMax: Settings.ViewSettings.YMax);
         }
 
         private void LoadPlotSettings()
@@ -220,13 +221,19 @@ namespace AdcControl
 
         private void RefreshTimer_Tick(object sender, EventArgs e)
         {
+            var l = pltMainPlot.plt.GetAxisLimits();
             if (Settings.ViewSettings.EnableAutoscaling)
             {
                 pltMainPlot.plt.AxisAutoX(0);
                 if (Settings.ViewSettings.LockHorizontalAxis)
                 {
-                    var d = pltMainPlot.plt.GetAxisLimits().XMax - Settings.ViewSettings.XMax;
-                    pltMainPlot.plt.SetAxisLimits(Settings.ViewSettings.XMin + (d > 0 ? d : 0));
+                    var d = l.XMax - Settings.ViewSettings.XMax;
+                    pltMainPlot.plt.SetAxisLimits(
+                        Settings.ViewSettings.XMin + (d > 0 ? d : 0),
+                        l.XMax,
+                        l.YMin,
+                        l.YMax
+                        );
                 }
                 if (!Settings.ViewSettings.LockVerticalScale)
                 {
@@ -237,11 +244,21 @@ namespace AdcControl
             {
                 if (Settings.ViewSettings.LockHorizontalAxis)
                 {
-                    pltMainPlot.plt.SetAxisLimits(Settings.ViewSettings.XMin, Settings.ViewSettings.XMax);
+                    pltMainPlot.plt.SetAxisLimits(
+                        Settings.ViewSettings.XMin, 
+                        Settings.ViewSettings.XMax,
+                        l.YMin,
+                        l.YMax
+                        );
                 }
                 if (Settings.ViewSettings.LockVerticalScale)
                 {
-                    pltMainPlot.plt.SetAxisLimits(yMax: Settings.ViewSettings.YMax, yMin: Settings.ViewSettings.YMin);
+                    pltMainPlot.plt.SetAxisLimits(
+                        l.XMin,
+                        l.XMax,
+                        yMax: Settings.ViewSettings.YMax,
+                        yMin: Settings.ViewSettings.YMin
+                        );
                 }
             }
             pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
