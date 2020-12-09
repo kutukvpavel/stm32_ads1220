@@ -164,7 +164,7 @@ namespace AdcControl
                 {
                     _Plot.color = (Color)Color;
                 }
-                _Plot.maxRenderIndex = CalculatedCount - 1;
+                _Plot.maxRenderIndex = CalculatedCount > 1 ? CalculatedCount - 1 : 1;
             }
         }
         protected AdcChannelContextMenuItem _ContextMenuItem;
@@ -288,7 +288,8 @@ namespace AdcControl
                     }
                     _CalculatedX[CalculatedCount] = x;
                     _CalculatedY[CalculatedCount] = y;
-                    if (_Plot != null && !arrayChanged) _Plot.maxRenderIndex = CalculatedCount;
+                    if (_Plot != null && !arrayChanged) 
+                        _Plot.maxRenderIndex = CalculatedCount > 0 ? CalculatedCount : 1;
                     if (_ColumnX != null) _ColumnX.AddItem(CalculatedXColumnSelector(x));
                     if (_ColumnY != null) _ColumnY.AddItem(y);
                     CalculatedCount++;

@@ -254,8 +254,8 @@ namespace AdcControl
                             item.Code, item.Name,
                             DateTime.FromOADate(item.StartTime),
                             item.MovingAveraging,
-                            item.DropPoints > 0 ? (object)item.DropPoints : "none"),
-                            item.MathExpressionY.getExpressionString());
+                            item.DropPoints > 0 ? (object)item.DropPoints : "none",
+                            item.MathExpressionY.getExpressionString()));
                     }
                 }
                 catch (Exception ex)
