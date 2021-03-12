@@ -307,10 +307,7 @@ namespace AdcControl
             }
             MouseTimer.Stop();
             MouseTimer.Tick -= MouseTimer_Elapsed;
-            if (App.Stm32Ads1220.IsConnected)
-            {
-                App.Stm32Ads1220.Disconnect();
-            }
+            App.Stm32Ads1220.Disconnect();
             OnPropertyChanged();
             Settings.Default.MainWindowMaximized = WindowState == WindowState.Maximized;
             Settings.Default.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
@@ -607,7 +604,11 @@ namespace AdcControl
             {
                 if (!App.Stm32Ads1220.IsConnected)
                 {
-                    App.Stm32Ads1220.Port.PortName = Settings.Default.PortName;
+                    if (!App.Stm32Ads1220.Port.PortName.SequenceEqual(Settings.Default.PortName))
+                    {
+                        if (App.Stm32Ads1220.Port.IsOpen) App.Stm32Ads1220.Disconnect();
+                        App.Stm32Ads1220.Port.PortName = Settings.Default.PortName;
+                    }
                 }
                 foreach (var item in App.AdcChannels)
                 {
