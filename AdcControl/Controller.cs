@@ -18,7 +18,7 @@ namespace AdcControl
         /* Private */
 
         protected const char NewLine = '\n';
-        protected static readonly char[] ToTrim = { '\r', ' ' };
+        protected static readonly char[] ToTrim = { '\r', ' ', '\0' };
         protected const char Splitter = ':';
         protected const char ErrorDesignator = '!';
         protected const string ArrayHexCommandFormat = "{0}{1:2} {3:X}";
@@ -120,7 +120,7 @@ namespace AdcControl
                     try
                     {
                         string[] parsed = line.Split(Splitter);
-                        byte c = byte.Parse(parsed[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                        int c = int.Parse(parsed[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
                         float v = float.Parse(parsed[1].Trim(ToTrim), CultureInfo.InvariantCulture);
                         DataQueue.Enqueue(() =>
                         {
@@ -369,9 +369,9 @@ namespace AdcControl
     public class AcquisitionEventArgs : EventArgs
     {
         public float Value { get; }
-        public byte Channel { get; }
+        public int Channel { get; }
 
-        public AcquisitionEventArgs(byte channel, float value)
+        public AcquisitionEventArgs(int channel, float value)
         {
             Channel = channel;
             Value = value;
