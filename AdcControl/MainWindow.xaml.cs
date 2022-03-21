@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Threading;
 using org.mariuszgromada.math.mxparser;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
+using System.Drawing;
 
 namespace AdcControl
 {
@@ -106,6 +107,7 @@ namespace AdcControl
         private static readonly System.Drawing.Color LegendBackcolor = 
             System.Drawing.Color.FromArgb(200, System.Drawing.Color.White);
 
+        private bool _RightAxisShown = false;
         private bool _IsRecalculating = false;
         private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
@@ -163,20 +165,30 @@ namespace AdcControl
         private void PlotChannel(AdcChannel channel)
         {
             Trace("Replotting");
-            pltMainPlot.plt.Remove(channel.Plot);
-            channel.Plot = pltMainPlot.plt.PlotSignal( //This will automatically apply all properties defined in AdcChannel
+            pltMainPlot.Plot.Remove(channel.Plot);
+            channel.Plot = pltMainPlot.Plot.AddSignal( //This will automatically apply all properties defined in AdcChannel
                 channel.CalculatedY,
-                lineWidth: Settings.ViewSettings.LineWidth,
                 color: channel.Color); //Somehow signalPlot doesn't support color change (only markers change color after the field was modified)
+            channel.Plot.LineWidth = Settings.ViewSettings.LineWidth;
+            if (channel.IsRightAxis)
+            {
+                channel.Plot.YAxisIndex = pltMainPlot.Plot.YAxis2.AxisIndex;
+                if (!_RightAxisShown)
+                {
+                    pltMainPlot.Plot.YAxis2.Ticks(true);
+                    pltMainPlot.Plot.YAxis2.Label(Settings.ViewSettings.RightAxisLabel);
+                    _RightAxisShown = true;
+                }
+            }
         }
 
         private void SaveAxisLimits()
         {
-            var s = pltMainPlot.plt.GetSettings();
-            Settings.ViewSettings.YMax = s.axes.y.max;
-            Settings.ViewSettings.YMin = s.axes.y.min;
-            double xMin = s.axes.x.min;
-            double xMax = s.axes.x.max;
+            var s = pltMainPlot.Plot.GetSettings();
+            Settings.ViewSettings.YMax = s.YAxis.Dims.Max;
+            Settings.ViewSettings.YMin = s.YAxis.Dims.Min;
+            double xMin = s.XAxis.Dims.Min;
+            double xMax = s.XAxis.Dims.Max;
             if (Settings.ViewSettings.LockHorizontalAxis)
             {
                 xMax -= xMin;
@@ -188,14 +200,15 @@ namespace AdcControl
 
         private void RestoreAxisLimits()
         {
-            pltMainPlot.plt.Axis(y1: Settings.ViewSettings.YMin, y2: Settings.ViewSettings.YMax);
+            pltMainPlot.Plot.SetAxisLimitsY(Settings.ViewSettings.YMin, Settings.ViewSettings.YMax);
         }
 
         private void LoadPlotSettings()
         {
-            pltMainPlot.plt.YLabel(Settings.ViewSettings.YAxisLabel);
-            pltMainPlot.plt.XLabel(Settings.ViewSettings.XAxisLabel);
-            pltMainPlot.plt.Ticks(numericFormatStringY: Settings.ViewSettings.CalculatedYNumberFormat);
+            pltMainPlot.Plot.YLabel(Settings.ViewSettings.YAxisLabel);
+            if (_RightAxisShown) pltMainPlot.Plot.YAxis2.Label(Settings.ViewSettings.RightAxisLabel);
+            pltMainPlot.Plot.XLabel(Settings.ViewSettings.XAxisLabel);
+            pltMainPlot.Plot.XAxis.TickLabelFormat(Settings.ViewSettings.CalculatedYNumberFormat, false);
             RestoreAxisLimits();
         }
 
@@ -212,6 +225,7 @@ namespace AdcControl
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             LoadPlotSettings();
+            pltMainPlot.Plot.YAxis2.LockLimits(true);
             pltMainPlot.Render();
             LoadTimerSettings();
             MouseTimer.Start();
@@ -222,32 +236,36 @@ namespace AdcControl
         {
             if (Settings.ViewSettings.EnableAutoscaling)
             {
-                pltMainPlot.plt.AxisAutoX(0);
+                pltMainPlot.Plot.AxisAutoX(0);
                 if (Settings.ViewSettings.LockHorizontalAxis)
                 {
-                    var d = pltMainPlot.plt.GetSettings().axes.x.max - Settings.ViewSettings.XMax;
-                    pltMainPlot.plt.Axis(Settings.ViewSettings.XMin + (d > 0 ? d : 0));
+                    var max = pltMainPlot.Plot.GetSettings().XAxis.Dims.Max;
+                    var d = max - Settings.ViewSettings.XMax;
+                    pltMainPlot.Plot.SetAxisLimitsX(Settings.ViewSettings.XMin + (d > 0 ? d : 0), max);
                 }
                 if (!Settings.ViewSettings.LockVerticalScale)
                 {
-                    pltMainPlot.plt.AxisAutoY();
+                    pltMainPlot.Plot.AxisAutoY();
+                    if (_RightAxisShown)
+                    {
+                        pltMainPlot.Plot.YAxis2.LockLimits(false);
+                        pltMainPlot.Plot.AxisAutoY(yAxisIndex: pltMainPlot.Plot.YAxis2.AxisIndex);
+                        pltMainPlot.Plot.YAxis2.LockLimits(true);
+                    }
                 }
             }
             else
             {
-                var a = pltMainPlot.plt.GetSettings().axes;
                 if (Settings.ViewSettings.LockHorizontalAxis)
                 {
-                    a.x.max = Settings.ViewSettings.XMax;
-                    a.x.min = Settings.ViewSettings.XMin;
+                    pltMainPlot.Plot.SetAxisLimitsX(Settings.ViewSettings.XMin, Settings.ViewSettings.XMax);
                 }
                 if (Settings.ViewSettings.LockVerticalScale)
                 {
-                    a.y.max = Settings.ViewSettings.YMax;
-                    a.y.min = Settings.ViewSettings.YMin;
+                    pltMainPlot.Plot.SetAxisLimitsY(Settings.ViewSettings.YMin, Settings.ViewSettings.YMax);
                 }
             }
-            pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
+            pltMainPlot.RenderRequest(ScottPlot.RenderType.HighQualityDelayed);
             if (expTable.IsExpanded)
             {
                 if (Settings.ViewSettings.AutoscrollTable)
@@ -292,7 +310,7 @@ namespace AdcControl
             App.Logger.Debug(e.Exception.Message);
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private async void Window_Closing(object sender, CancelEventArgs e)
         {
             if (App.Stm32Ads1220.AcquisitionInProgress)
             {
@@ -307,7 +325,7 @@ namespace AdcControl
             }
             MouseTimer.Stop();
             MouseTimer.Tick -= MouseTimer_Elapsed;
-            App.Stm32Ads1220.Disconnect();
+            await App.Stm32Ads1220.Disconnect();
             OnPropertyChanged();
             Settings.Default.MainWindowMaximized = WindowState == WindowState.Maximized;
             Settings.Default.MainWindowLocation = new System.Drawing.Point((int)Left, (int)Top);
@@ -367,12 +385,10 @@ namespace AdcControl
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemStringFormat = Settings.ViewSettings.CalculatedYNumberFormat;
                 App.AdcChannels[e.Code].CalculatedYColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
                 pltMainPlot.ContextMenu.Items.Add(App.AdcChannels[e.Code].ContextMenuItem);
-                pltMainPlot.plt.Legend(
-                    location: ScottPlot.legendLocation.upperLeft, 
-                    backColor: LegendBackcolor,
-                    shadowDirection: ScottPlot.shadowDirection.none //Does nothing yet
-                    );
-                pltMainPlot.Render(skipIfCurrentlyRendering: true, lowQuality: true);
+                var leg = pltMainPlot.Plot.Legend(location: ScottPlot.Alignment.UpperLeft);
+                leg.FillColor = LegendBackcolor;
+                leg.ShadowColor = Color.Transparent;
+                pltMainPlot.RenderRequest(ScottPlot.RenderType.LowQuality);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedXColumn);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedYColumn);
             });
@@ -481,11 +497,11 @@ namespace AdcControl
             {
                 try
                 {
-                    pltMainPlot.plt.PlotVLine(
+                    pltMainPlot.Plot.AddVerticalLine(
                         App.AdcChannels.Values.Max(x => x.CalculatedCount) / Settings.Default.AcquisitionSpeed,
                         null,
-                        Settings.ViewSettings.ConcatenationLineWidth,
-                        string.Format(
+                        (float)Settings.ViewSettings.ConcatenationLineWidth,
+                        label: string.Format(
                             Settings.ViewSettings.ConcatenationLabelFormat,
                             (DateTime.UtcNow - (DateTime)LastAcquisitionEnd).TotalSeconds
                             )
@@ -534,7 +550,7 @@ namespace AdcControl
             LastAcquisitionEnd = null;
             txtTerminal.Clear();
             pnlRealTimeData.Children.Clear();
-            pltMainPlot.plt.Clear();
+            pltMainPlot.Plot.Clear();
             pltMainPlot.ContextMenu.Items.Clear();
             foreach (var item in App.AdcChannels.Values)
             {
@@ -606,7 +622,7 @@ namespace AdcControl
                 {
                     if (!App.Stm32Ads1220.Port.PortName.SequenceEqual(Settings.Default.PortName))
                     {
-                        if (App.Stm32Ads1220.Port.IsOpen) App.Stm32Ads1220.Disconnect();
+                        if (App.Stm32Ads1220.Port.IsOpen) await App.Stm32Ads1220.Disconnect();
                         App.Stm32Ads1220.Port.PortName = Settings.Default.PortName;
                     }
                 }
@@ -621,9 +637,9 @@ namespace AdcControl
             }
         }
 
-        private void btnDisconnect_Click(object sender, RoutedEventArgs e)
+        private async void btnDisconnect_Click(object sender, RoutedEventArgs e)
         {
-            if (App.Stm32Ads1220.Disconnect())
+            if (await App.Stm32Ads1220.Disconnect())
             {
                 CurrentStatus = Default.stsDisconnected;
             }
@@ -641,7 +657,9 @@ namespace AdcControl
 
         private void btnForceRender_Click(object sender, RoutedEventArgs e)
         {
-            pltMainPlot.plt.AxisAuto();
+            pltMainPlot.Plot.YAxis2.LockLimits(false);
+            pltMainPlot.Plot.AxisAuto();
+            pltMainPlot.Plot.YAxis2.LockLimits(true);
             pltMainPlot.Render();
         }
 

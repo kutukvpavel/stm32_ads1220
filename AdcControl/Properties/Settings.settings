@@ -9,7 +9,7 @@
       <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="AcquisitionDuration" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5</Value>
+      <Value Profile="(Default)">10000</Value>
     </Setting>
     <Setting Name="AcquisitionSpeed" Type="System.Single" Scope="User">
       <Value Profile="(Default)">4</Value>
@@ -19,6 +19,10 @@
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;string&gt;0=AIN0_AIN1&lt;/string&gt;
   &lt;string&gt;50=AIN2_AIN3&lt;/string&gt;
+  &lt;string&gt;A00=AIN0_AIN1&lt;/string&gt;
+  &lt;string&gt;A01=AIN2_AIN3&lt;/string&gt;
+  &lt;string&gt;D00=Voltage&lt;/string&gt;
+  &lt;string&gt;C00=Current&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ChannelEnableMapping" Type="System.Collections.Specialized.StringCollection" Scope="User">
@@ -26,6 +30,10 @@
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;string&gt;0=True&lt;/string&gt;
   &lt;string&gt;50=True&lt;/string&gt;
+  &lt;string&gt;A00=True&lt;/string&gt;
+  &lt;string&gt;A01=True&lt;/string&gt;
+  &lt;string&gt;D00=True&lt;/string&gt;
+  &lt;string&gt;C00=True&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="AcqDropPoints" Type="System.Int32" Scope="User">
@@ -42,6 +50,10 @@
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;string&gt;0=-47872&lt;/string&gt;
   &lt;string&gt;50=-16777011&lt;/string&gt;
+  &lt;string&gt;A00=-47872&lt;/string&gt;
+  &lt;string&gt;A01=-16777011&lt;/string&gt;
+  &lt;string&gt;C00=-404185&lt;/string&gt;
+  &lt;string&gt;D00=-7809753&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ChannelMathYMapping" Type="System.Collections.Specialized.StringCollection" Scope="User">
@@ -49,6 +61,10 @@
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;string&gt;0=y&lt;/string&gt;
   &lt;string&gt;50=y&lt;/string&gt;
+  &lt;string&gt;A00=y&lt;/string&gt;
+  &lt;string&gt;A01=y&lt;/string&gt;
+  &lt;string&gt;D00=y&lt;/string&gt;
+  &lt;string&gt;C00=y&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="MainWindowLocation" Type="System.Drawing.Point" Scope="User">

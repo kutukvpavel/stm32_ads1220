@@ -89,7 +89,7 @@
 	<PackageReference Include="L" Version="5.0.0" />
 	<PackageReference Include="MathParser.org-mXparser" Version="4.4.2" />
 	<PackageReference Include="Ookii.Dialogs.Wpf" Version="3.1.0" />
-	<PackageReference Include="ScottPlot.WPF" Version="4.0.45" />
+	<PackageReference Include="ScottPlot.WPF" Version="4.1.36" />
 	<PackageReference Include="SerialPortStream" Version="2.2.2" />
   </ItemGroup>
 

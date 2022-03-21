@@ -492,4 +492,13 @@
   <data name="msgFailedRecalaulation" xml:space="preserve">
     <value>Failed to recalculate one or more channels.</value>
   </data>
+  <data name="namRightAxisLabel" xml:space="preserve">
+    <value>Right Y Axis Label</value>
+  </data>
+  <data name="strDefaultRightAxisLabel" xml:space="preserve">
+    <value>Current, A</value>
+  </data>
+  <data name="lblAcquisitionFrequency" xml:space="preserve">
+    <value>Acquisition frequency (Hz):</value>
+  </data>
 </root>

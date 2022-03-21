@@ -333,7 +333,7 @@ namespace AdcControl
             if (Port.IsOpen)
             {
                 Log(null, Default.msgPortAlreadyOpen);
-                Disconnect();
+                await Disconnect();
             }
             if (portName != null) Port.PortName = portName;
             try
@@ -348,8 +348,9 @@ namespace AdcControl
             if (result) _Completed = true;
             return result;
         }
-        public bool Disconnect()
+        public async Task<bool> Disconnect()
         {
+            if (IsConnected) await SendCommand(Commands.Reset);
             IsConnected = false;
             try
             {
