@@ -246,12 +246,12 @@ namespace AdcControl
                 if (!Settings.ViewSettings.LockVerticalScale)
                 {
                     pltMainPlot.Plot.AxisAutoY();
-                    if (_RightAxisShown)
-                    {
-                        pltMainPlot.Plot.YAxis2.LockLimits(false);
-                        pltMainPlot.Plot.AxisAutoY(yAxisIndex: pltMainPlot.Plot.YAxis2.AxisIndex);
-                        pltMainPlot.Plot.YAxis2.LockLimits(true);
-                    }
+                }
+                if (_RightAxisShown)
+                {
+                    pltMainPlot.Plot.YAxis2.LockLimits(false);
+                    pltMainPlot.Plot.AxisAutoY(yAxisIndex: pltMainPlot.Plot.YAxis2.AxisIndex);
+                    pltMainPlot.Plot.YAxis2.LockLimits(true);
                 }
             }
             else
