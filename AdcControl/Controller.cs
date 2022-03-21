@@ -300,8 +300,9 @@ namespace AdcControl
             if (timeout)
             {
                 Log(new TimeoutException(), Default.msgControllerTimeout);
+                _Completed = true;
                 return false;
-            }    
+            }
             CommandExecutionCompleted = false;
             try
             {
