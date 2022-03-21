@@ -96,6 +96,7 @@ namespace AdcControl
         public int MovingAveraging { get; set; }
         public double StartTime { get; set; }
         public int Code { get; }
+        public bool IsRightAxis { get => Code >= 0xC00 && Code < 0xD00; }
         public int DropPoints { get; set; }
 
         protected double _SampleRate = 4;
@@ -107,8 +108,8 @@ namespace AdcControl
                 _SampleRate = value;
                 if (_Plot != null)
                 {
-                    _Plot.sampleRate = _SampleRate;
-                    _Plot.samplePeriod = 1 / _SampleRate;
+                    _Plot.SampleRate = _SampleRate;
+                    _Plot.SamplePeriod = 1 / _SampleRate;
                 }
             }
         }
@@ -119,7 +120,7 @@ namespace AdcControl
             set
             {
                 _Name = value;
-                if (_Plot != null) _Plot.label = _Name;
+                if (_Plot != null) _Plot.Label = _Name;
                 if (_ContextMenuItem != null) _ContextMenuItem.ChannelName = _Name;
                 if (_ColumnX != null) _ColumnX.Header = _Name + ColumnXSuffix;
                 if (_ColumnY != null) _ColumnY.Header = _Name + ColumnYSuffix;
@@ -132,7 +133,7 @@ namespace AdcControl
             set
             {
                 _IsVisible = value;
-                if (_Plot != null) _Plot.visible = _IsVisible;
+                if (_Plot != null) _Plot.IsVisible = _IsVisible;
                 if (_ContextMenuItem != null) _ContextMenuItem.IsChecked = _IsVisible;
             }
         }
@@ -145,28 +146,28 @@ namespace AdcControl
                 _Color = value;
                 if (_Plot != null && _Color != null)
                 {
-                    _Plot.color = (Color)_Color;
+                    _Plot.Color = (Color)_Color;
                     //_Plot.brush = new SolidBrush((Color)_Color);
                 }
             }
         }
-        protected ScottPlot.PlottableSignal _Plot;
-        public ScottPlot.PlottableSignal Plot
+        protected ScottPlot.Plottable.SignalPlot _Plot;
+        public ScottPlot.Plottable.SignalPlot Plot
         {
             get { return _Plot; }
             set
             {
                 _Plot = value;
-                _Plot.label = _Name;
-                _Plot.visible = _IsVisible;
-                _Plot.sampleRate = _SampleRate;
-                _Plot.samplePeriod = 1 / _SampleRate;
+                _Plot.Label = _Name;
+                _Plot.IsVisible = _IsVisible;
+                _Plot.SampleRate = _SampleRate;
+                _Plot.SamplePeriod = 1 / _SampleRate;
                 if (_Color != null)
                 {
-                    _Plot.color = (Color)_Color;
+                    _Plot.Color = (Color)_Color;
                     //_Plot.brush = new SolidBrush((Color)_Color);
                 }
-                _Plot.maxRenderIndex = CalculatedCount > 1 ? CalculatedCount - 1 : 1;
+                _Plot.MaxRenderIndex = CalculatedCount > 1 ? CalculatedCount - 1 : 1;
             }
         }
         protected AdcChannelContextMenuItem _ContextMenuItem;
@@ -291,7 +292,7 @@ namespace AdcControl
                     _CalculatedX[CalculatedCount] = x;
                     _CalculatedY[CalculatedCount] = y;
                     if (_Plot != null && !arrayChanged) 
-                        _Plot.maxRenderIndex = CalculatedCount > 0 ? CalculatedCount : 1;
+                        _Plot.MaxRenderIndex = CalculatedCount > 0 ? CalculatedCount : 1;
                     if (_ColumnX != null) _ColumnX.AddItem(CalculatedXColumnSelector(x));
                     if (_ColumnY != null) _ColumnY.AddItem(y);
                     CalculatedCount++;
@@ -341,7 +342,7 @@ namespace AdcControl
                 _CalculatedX = new double[capacity];
                 _CalculatedY = new double[capacity];
                 Buffer.Clear();
-                if (_Plot != null) _Plot.maxRenderIndex = 0;
+                if (_Plot != null) _Plot.MaxRenderIndex = 0;
                 if (_ColumnX != null) _ColumnX.Clear();
                 if (_ColumnY != null) _ColumnY.Clear();
             }

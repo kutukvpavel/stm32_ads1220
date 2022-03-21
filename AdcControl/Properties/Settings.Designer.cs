@@ -12,7 +12,7 @@ namespace AdcControl.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
     public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -49,7 +49,7 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
         public int AcquisitionDuration {
             get {
                 return ((int)(this["AcquisitionDuration"]));
@@ -73,9 +73,15 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>0=AIN0_AIN1</string>\r\n  <string>50=AIN2_AIN3</string>\r\n</ArrayOfString>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>0=AIN0_AIN1</string>
+  <string>50=AIN2_AIN3</string>
+  <string>A00=AIN0_AIN1</string>
+  <string>A01=AIN2_AIN3</string>
+  <string>D00=Voltage</string>
+  <string>C00=Current</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection ChannelNameMapping {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["ChannelNameMapping"]));
@@ -87,9 +93,15 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>0=True</string>\r\n  <string>50=True</string>\r\n</ArrayOfString>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>0=True</string>
+  <string>50=True</string>
+  <string>A00=True</string>
+  <string>A01=True</string>
+  <string>D00=True</string>
+  <string>C00=True</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection ChannelEnableMapping {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["ChannelEnableMapping"]));
@@ -135,9 +147,15 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>0=-47872</string>\r\n  <string>50=-16777011</string>\r\n</ArrayOfString>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>0=-47872</string>
+  <string>50=-16777011</string>
+  <string>A00=-47872</string>
+  <string>A01=-16777011</string>
+  <string>C00=-404185</string>
+  <string>D00=-7809753</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection Colorset {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["Colorset"]));
@@ -149,9 +167,15 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>0=y</string>\r\n  <string>50=y</string>\r\n</ArrayOfString>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>0=y</string>
+  <string>50=y</string>
+  <string>A00=y</string>
+  <string>A01=y</string>
+  <string>D00=y</string>
+  <string>C00=y</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection ChannelMathYMapping {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["ChannelMathYMapping"]));

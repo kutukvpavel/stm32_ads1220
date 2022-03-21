@@ -47,6 +47,7 @@ namespace AdcControl.Properties
                 public const string LineWidth = "namLineWidth";
                 public const string YAxisLabel = "namYAxisLabel";
                 public const string XAxisLabel = "namXAxisLabel";
+                public const string RightAxisLabel = "namRightAxisLabel";
                 public const string AutoscrollTable = "namEnableAutoscroll";
                 public const string TableLimit = "namLimit";
                 public const string PlotRefreshPeriod = "namPlotRefreshPeriod";
@@ -71,6 +72,7 @@ namespace AdcControl.Properties
             LockHorizontalAxis = false;
             XAxisLabel = Default.strDefaultXAxisLabel;
             YAxisLabel = Default.strDefaultYAxisLabel;
+            RightAxisLabel = Default.strDefaultRightAxisLabel;
             XMax = 1;
             XMin = 0;
             AutoscrollTable = true;
@@ -115,6 +117,9 @@ namespace AdcControl.Properties
         [LocalizedCategory(ResourseKeys.Categories.Axes)]
         [LocalizedDisplayName(ResourseKeys.Names.YAxisLabel)]
         public string YAxisLabel { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.Axes)]
+        [LocalizedDisplayName(ResourseKeys.Names.RightAxisLabel)]
+        public string RightAxisLabel { get; set; }
         [LocalizedCategory(ResourseKeys.Categories.Axes)]
         [LocalizedDisplayName(ResourseKeys.Names.XMax)]
         public double XMax { get; set; }

@@ -58,6 +58,7 @@ namespace AdcControl
             }
             txtAveraging.Text = Settings.Default.Average.ToString();
             txtDuration.Text = Settings.Default.AcquisitionDuration.ToString();
+            txtFrequency.Text = Settings.Default.AcquisitionSpeed.ToString();
         }
 
         private void btnOK_Click(object sender, RoutedEventArgs e)
@@ -73,6 +74,7 @@ namespace AdcControl
             }
             Settings.Default.Average = int.Parse(txtAveraging.Text);
             Settings.Default.AcquisitionDuration = int.Parse(txtDuration.Text);
+            Settings.Default.AcquisitionSpeed = float.Parse(txtFrequency.Text);
             Settings.Default.Save();
             DialogResult = true;
             Close();
@@ -100,6 +102,16 @@ namespace AdcControl
         }
 
         private void txtDuration_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            OnPropertyChanged();
+        }
+
+        private void txtFrequency_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !ValidateNumericInput(e.Text);
+        }
+
+        private void txtFrequency_TextChanged(object sender, TextChangedEventArgs e)
         {
             OnPropertyChanged();
         }

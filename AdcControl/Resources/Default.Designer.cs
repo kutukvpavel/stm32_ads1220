@@ -250,6 +250,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Acquisition frequency (Hz):.
+        /// </summary>
+        public static string lblAcquisitionFrequency {
+            get {
+                return ResourceManager.GetString("lblAcquisitionFrequency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Averaging window size:.
         /// </summary>
         public static string lblAveraging {
@@ -709,6 +718,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Right Y Axis Label.
+        /// </summary>
+        public static string namRightAxisLabel {
+            get {
+                return ResourceManager.GetString("namRightAxisLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Russian Compatibility.
         /// </summary>
         public static string namRussianCompatibility {
@@ -887,6 +905,15 @@ namespace AdcControl.Resources {
         public static string strDefaultRawY {
             get {
                 return ResourceManager.GetString("strDefaultRawY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Current, A.
+        /// </summary>
+        public static string strDefaultRightAxisLabel {
+            get {
+                return ResourceManager.GetString("strDefaultRightAxisLabel", resourceCulture);
             }
         }
         
