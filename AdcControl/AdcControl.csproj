@@ -75,6 +75,7 @@
 	<None Remove="Resources\lock_vertical.png" />
 	<None Remove="Resources\math.png" />
 	<None Remove="Resources\scaling.png" />
+	<None Remove="Resources\script.png" />
 	<None Remove="Resources\send.png" />
 	<None Remove="Resources\settings_code.png" />
 	<None Remove="Resources\start.png" />
@@ -161,6 +162,9 @@
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Resource>
 	<Resource Include="Resources\scaling.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\script.png">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Resource>
 	<Resource Include="Resources\send.png">

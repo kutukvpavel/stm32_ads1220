@@ -12,6 +12,8 @@ using org.mariuszgromada.math.mxparser;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 using System.Linq;
 using System.Drawing;
+using Microsoft.Win32;
+using System.ComponentModel;
 
 namespace AdcControl
 {
@@ -61,10 +63,58 @@ namespace AdcControl
         public static ConcurrentDictionary<int, bool> ChannelEnable { get; private set; }
         public static ConcurrentDictionary<int, Expression> ChannelMathY { get; private set; }
         public static ConcurrentDictionary<int, Color?> ColorSet { get; private set; }
+        public static bool ScriptLoaded { get => _Script != null; }
+        public static Script Script { get => _Script; }
 
         #endregion
 
         #region Public Methods
+
+        public static void LoadScript()
+        {
+            if (ScriptLoaded)
+            {
+                _Script = null;
+            }
+            else
+            {
+                var dlg = new OpenFileDialog()
+                {
+                    CheckFileExists = true,
+                    Filter = "JSON-serialized object|*.json",
+                    Multiselect = false,
+                    InitialDirectory = Settings.Default.ScriptFolder
+                };
+                if (dlg.ShowDialog() ?? false)
+                {
+                    Settings.Default.ScriptFolder = Path.GetDirectoryName(dlg.FileName);
+                    try
+                    {
+                        _Script = new Script(File.ReadAllText(dlg.FileName));
+                    }
+                    catch (Exception ex)
+                    {
+                        _Script = null;
+                        Logger.Error("Failed to load script:");
+                        Logger.Error(ex);
+                    }
+                }
+            }
+        }
+        public static void StopScript()
+        {
+            _ExecuteScript = false;
+            if (ScriptLoaded)
+            {
+                _ScriptTimer.Stop();
+                _ScriptTime = 0;
+            }
+        }
+        public static void StartScript()
+        {
+            _ExecuteScript = true;
+            if (ScriptLoaded) _ScriptTimer.Start();
+        }
 
         public static void LoadChannelNames()
         {
@@ -135,6 +185,8 @@ namespace AdcControl
                 Enabled = false
             };
             AutosaveTimer.Elapsed += AutosaveTimer_Elapsed;
+            _ScriptTimer = new System.Timers.Timer(1000) { AutoReset = true, Enabled = false };
+            _ScriptTimer.Elapsed += ScriptTimer_Elapsed;
         }
 
         public static void ConfigureCsvExporter()
@@ -162,11 +214,43 @@ namespace AdcControl
         /* Private */
 
         private static Controller _Stm32Ads1220;
+        private static Script _Script;
+        private static System.Timers.Timer _ScriptTimer;
+        private static int _ScriptTime = 0;
+        private static bool _ExecuteScript = false;
 #if TRACE
         private static readonly BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
 
         #region Private Methods
+
+        private static async void ScriptTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (!ScriptLoaded)
+            {
+                _ScriptTimer.Stop();
+                return;
+            }
+            var cmd = _Script.TryGetCommand(_ScriptTime++);
+            if (cmd != null)
+            {
+                try
+                {
+                    int r = AdcControl.Script.RetryCommand;
+                    while (!await Stm32Ads1220.SendCommand(cmd.Designator, cmd.Argument) && _ExecuteScript && (r-- > 0))
+                    {
+                        _ScriptTimer.Stop();
+                        Logger.Warn("Script command timeout, retrying...");
+                    }
+                    if (!_ScriptTimer.Enabled) _ScriptTimer.Start();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Script execution error:");
+                    Logger.Error(ex);
+                }
+            }
+        }
 
         private static void Trace(string s)
         {
@@ -260,6 +344,19 @@ namespace AdcControl
             LoadMathSettings();
             LoadColorSet();
             LoadChannelEnableMapping();
+            string exampleScriptLocation = Path.Combine(Environment.CurrentDirectory, "example_script.json");
+            if (!File.Exists(exampleScriptLocation))
+            {
+                try
+                {
+                    File.WriteAllText(exampleScriptLocation, AdcControl.Script.Example.Dump());
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Failed to generate example script file:");
+                    Logger.Warn(ex);
+                }
+            }
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)

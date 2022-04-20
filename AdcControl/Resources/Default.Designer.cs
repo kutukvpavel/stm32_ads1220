@@ -1080,6 +1080,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Select script file.
+        /// </summary>
+        public static string strScriptBtn {
+            get {
+                return ResourceManager.GetString("strScriptBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Start recording.
         /// </summary>
         public static string strStartButton {

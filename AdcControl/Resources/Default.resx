@@ -501,4 +501,7 @@
   <data name="lblAcquisitionFrequency" xml:space="preserve">
     <value>Acquisition frequency (Hz):</value>
   </data>
+  <data name="strScriptBtn" xml:space="preserve">
+    <value>Select script file</value>
+  </data>
 </root>

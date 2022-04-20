@@ -78,6 +78,13 @@
         </Expander>
         <ToolBarTray Grid.Row="0" Grid.Column="1">
             <ToolBar Grid.Row="0" Height="auto">
+                <ToggleButton x:Name="btnScript" 
+                        ToolTip="{x:Static resx:Default.strScriptBtn}" 
+                        Click="btnScript_Click"
+                        IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=ReadyForAcquisition, Mode=OneWay}"
+                        IsChecked="{Binding Source={x:Static local:App.ScriptLoaded}, Mode=OneWay}">
+                    <Image Source="/AdcControl;component/Resources/script.png" Height="32"></Image>
+                </ToggleButton>
                 <Button x:Name="btnStartAcquisition" 
                         ToolTip="{x:Static resx:Default.strStartButton}" 
                         Click="btnStartAcquisition_Click"

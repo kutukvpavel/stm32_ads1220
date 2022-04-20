@@ -21,9 +21,11 @@ namespace AdcControl
         protected static readonly char[] ToTrim = { '\r', ' ', '\0' };
         protected const char Splitter = ':';
         protected const char ErrorDesignator = '!';
+#warning Fix format for arrays
         protected const string ArrayHexCommandFormat = "{0}{1:2} {3:X}";
-        protected const string ArrayFloatCommandFormat = "{0}{1:2} {3:6}";
+        protected const string ArrayFloatCommandFormat = "{0}{1:2} {3:F6}";
         protected const string SimpleCommandFormat = "{0}{1}";
+        protected const string FloatCommandFormat = "{0}{1:F6}";
         protected const string AcquisitionSignature = "ACQ.";
         protected const string EndOfAcquisitionSignature = "END.";
         protected const string ConnectionSignature = "READY...";
@@ -34,7 +36,11 @@ namespace AdcControl
             { Commands.SetPgaGain, ArrayHexCommandFormat },
             { Commands.SetCalibrationOffset, ArrayFloatCommandFormat },
             { Commands.SetCalibrationCoefficient, ArrayFloatCommandFormat },
-            { Commands.ToggleAcquisition, SimpleCommandFormat }
+            { Commands.ToggleAcquisition, SimpleCommandFormat },
+            { Commands.SetDacSetpoint, FloatCommandFormat },
+            { Commands.SetDepolarizationPercent, FloatCommandFormat },
+            { Commands.SetDepolarizationSetpoint, FloatCommandFormat },
+            { Commands.CompensateDacCurrent, SimpleCommandFormat }
         };
         protected StringBuilder Buffer;
         protected readonly ParameterizedThreadStart DataErrorEventThreadStart;
@@ -216,7 +222,11 @@ namespace AdcControl
             SetCalibrationCoefficient = (byte)'C',
             SetCalibrationOffset = (byte)'O',
             SetPgaGain = (byte)'G',
-            SetChannel = (byte)'H'
+            SetChannel = (byte)'H',
+            SetDacSetpoint = (byte)'S',
+            SetDepolarizationPercent = (byte)'P',
+            SetDepolarizationSetpoint = (byte)'D',
+            CompensateDacCurrent = (byte)'E'
         }
 
         public event EventHandler<AcquisitionEventArgs> AcquisitionDataReceived;
@@ -287,7 +297,7 @@ namespace AdcControl
             if (CommandFormat.ContainsKey(cmd) && args.Length > 0)
             {
                 args = args.Prepend((char)(byte)cmd).ToArray();
-                return await SendCustom(string.Format(CommandFormat[cmd], args));
+                return await SendCustom(string.Format(CultureInfo.InvariantCulture, CommandFormat[cmd], args));
             }
             else
             {
@@ -306,7 +316,9 @@ namespace AdcControl
             CommandExecutionCompleted = false;
             try
             {
+
                 Port.WriteLine(cmd);
+                await Port.FlushAsync();
             }
             catch (Exception e)
             {

@@ -244,5 +244,17 @@ namespace AdcControl.Properties {
                 this["TerminalExpanded"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ScriptFolder {
+            get {
+                return ((string)(this["ScriptFolder"]));
+            }
+            set {
+                this["ScriptFolder"] = value;
+            }
+        }
     }
 }

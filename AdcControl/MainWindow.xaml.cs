@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using org.mariuszgromada.math.mxparser;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 using System.Drawing;
+using System.Windows.Controls.Primitives;
 
 namespace AdcControl
 {
@@ -104,8 +105,8 @@ namespace AdcControl
 
         //Private
 
-        private static readonly System.Drawing.Color LegendBackcolor = 
-            System.Drawing.Color.FromArgb(200, System.Drawing.Color.White);
+        private static readonly Color LegendBackcolor = 
+            Color.FromArgb(200, Color.White);
 
         private bool _RightAxisShown = false;
         private bool _IsRecalculating = false;
@@ -358,6 +359,7 @@ namespace AdcControl
         private void Stm32Ads1220_AcquisitionFinished(object sender, EventArgs e)
         {
             LastAcquisitionEnd = DateTime.UtcNow;
+            App.StopScript();
             txtStatus.Dispatcher.BeginInvoke(() => 
             {
                 RefreshTimer.Stop();
@@ -517,10 +519,13 @@ namespace AdcControl
                     LastAcquisitionEnd = null;
                 }
             }
-            if (await App.Stm32Ads1220.StartAcquisition(Settings.Default.AcquisitionDuration))
+            int duration = App.ScriptLoaded ? App.Script.TotalTime + App.Stm32Ads1220.CompletionTimeout * 2 / 1000
+                : Settings.Default.AcquisitionDuration;
+            if (await App.Stm32Ads1220.StartAcquisition(duration))
             {
+                App.StartScript();
                 prgAcquisitionProgress.Minimum = DateTime.UtcNow.Ticks;
-                prgAcquisitionProgress.Maximum = prgAcquisitionProgress.Minimum + Settings.Default.AcquisitionDuration * 10E6;
+                prgAcquisitionProgress.Maximum = prgAcquisitionProgress.Minimum + duration * 10E6;
                 RefreshTimer.Start();
                 App.Logger.Info(NativeMethods.PreventSleep() ? Default.msgPowerManagementOK : Default.msgPowerManagementFail);
                 CurrentStatus = Default.stsAcqInProgress;
@@ -534,6 +539,7 @@ namespace AdcControl
         private async void btnStopAcquisition_Click(object sender, RoutedEventArgs e)
         {
             CurrentStatus = Default.stsStoppingAcq;
+            App.StopScript();
             if (await App.Stm32Ads1220.StopAcquisition())
             {
                 CurrentStatus = Default.stsReady;
@@ -720,5 +726,11 @@ namespace AdcControl
         }
 
         #endregion
+
+        private void btnScript_Click(object sender, RoutedEventArgs e)
+        {
+            App.LoadScript();
+            (sender as ToggleButton).IsChecked = App.ScriptLoaded;
+        }
     }
 }
