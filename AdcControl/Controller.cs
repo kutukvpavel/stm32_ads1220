@@ -15,7 +15,7 @@ using NModbus.Utility;
 
 namespace AdcControl
 {
-    public class Controller : INotifyPropertyChanged
+    public class Controller : INotifyPropertyChanged, IDisposable
     {
         #region Private
 
@@ -32,6 +32,8 @@ namespace AdcControl
         protected BlockingCollectionQueue DataQueue;
         protected SerialPortStreamAdapter Adapter;
         protected IModbusMaster Master;
+        protected readonly byte UnitAddress;
+        protected readonly ModbusFactory Factory = new ModbusFactory();
 #if TRACE
         protected static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
@@ -75,18 +77,27 @@ namespace AdcControl
             OnPropertyChanged();
             new Thread(() => { UnexpectedDisconnect?.Invoke(this, new EventArgs()); }).Start();
         }
+        private float ReadFloatRegister(ushort[] words)
+        {
+            List<byte> b = new List<byte>(4);
+            b.AddRange(BitConverter.GetBytes(words[0]));
+            b.AddRange(BitConverter.GetBytes(words[1]));
+            return BitConverter.ToSingle(b.ToArray());
+        }
 
 #endregion
 
         /* Public */
 
-        public Controller(SerialPortStream port)
+        public Controller(SerialPortStream port, byte addr = 0x01)
         {
             TerminalQueue = new BlockingCollectionQueue();
             DataQueue = new BlockingCollectionQueue();
             Port = port;
             DataErrorEventThreadStart = (object x) => { DataError?.Invoke(this, (DataErrorEventArgs)x); };
             DeviceErrorThreadStart = (object x) => { DeviceError?.Invoke(this, (TerminalEventArgs)x); };
+
+            UnitAddress = addr;
         }
 
         public event EventHandler<AcquisitionEventArgs> AcquisitionDataReceived;
@@ -101,9 +112,7 @@ namespace AdcControl
 #region Properties
 
         public SerialPortStream Port { get; }
-        public int ConnectionTimeout { get; set; } = 5000; //mS
-        public int CompletionTimeout { get; set; } = 3000; //mS
-        public int TerminalTimeout { get; set; } = 1000; //mS
+        public static int ConnectionTimeout { get; set; } = 3000; //mS
         public bool IsConnected
         {
             get { return _IsConnected; }
@@ -138,37 +147,55 @@ namespace AdcControl
 
 #region Methods
 
-        public async Task<bool> StartAcquisition(int duration = 0)
+        public async Task<float[]> ReadADC()
+        {
+            
+        }
+        public async Task<bool> StartAcquisition(ushort duration = 0)
         {
             if (!AcquisitionInProgress)
-                return await SendCommand(Commands.ToggleAcquisition, duration > 0 ? duration.ToString() : null);
+            {
+                try
+                {
+                    await Master.WriteSingleRegisterAsync(UnitAddress, (ushort)AdcConstants.HoldingRegisters.AcquisitionDuration, duration);
+                    await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.Acquire, true);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log(ex, "Failed to start acquisition");
+                }
+            }
             return false;
         }
         public async Task<bool> StopAcquisition()
         {
-            if (AcquisitionInProgress) return await SendCommand(Commands.ToggleAcquisition);
+            if (AcquisitionInProgress)
+            {
+                try
+                {
+                    await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.Acquire, false);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log(ex, "Failed to stop acquisition");
+                }
+            }
             return false;
         }
         public async Task<bool> Connect(string portName = null)
         {
+            if (Port.IsOpen) Port.Close();
             IsConnected = false;
-            if (Port.IsOpen)
-            {
-                Log(null, Default.msgPortAlreadyOpen);
-                Disconnect();
-            }
             if (portName != null) Port.PortName = portName;
-            try
+            Adapter = new SerialPortStreamAdapter(Port)
             {
-                Port.Open();
-            }
-            catch (Exception e)
-            {
-                Log(e, Default.msgPortOpenProblem);
-            }
-            var result = await Task.Run(() => { return !Wait(ref _IsConnected, ConnectionTimeout); });
-            if (result) _Completed = true;
-            return result;
+                ReadTimeout = ConnectionTimeout,
+                WriteTimeout = ConnectionTimeout
+            };
+            Master = Factory.CreateRtuMaster(Adapter);
+            return (await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0];
         }
         public bool Disconnect()
         {
@@ -184,7 +211,13 @@ namespace AdcControl
             return !Port.IsOpen;
         }
 
-#endregion
+        public void Dispose()
+        {
+            Disconnect();
+            Master.Dispose();
+        }
+
+        #endregion
     }
 
 #region EventArgs

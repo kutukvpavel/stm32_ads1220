@@ -107,8 +107,8 @@ namespace AdcControl
                 _SampleRate = value;
                 if (_Plot != null)
                 {
-                    _Plot.sampleRate = _SampleRate;
-                    _Plot.samplePeriod = 1 / _SampleRate;
+                    _Plot.SampleRate = _SampleRate;
+                    _Plot.SamplePeriod = 1 / _SampleRate;
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace AdcControl
             set
             {
                 _Name = value;
-                if (_Plot != null) _Plot.label = _Name;
+                if (_Plot != null) _Plot.Label = _Name;
                 if (_ContextMenuItem != null) _ContextMenuItem.ChannelName = _Name;
                 if (_ColumnX != null) _ColumnX.Header = _Name + ColumnXSuffix;
                 if (_ColumnY != null) _ColumnY.Header = _Name + ColumnYSuffix;
@@ -145,7 +145,7 @@ namespace AdcControl
                 _Color = value;
                 if (_Plot != null && _Color != null)
                 {
-                    _Plot.color = (Color)_Color;
+                    _Plot.Color = (Color)_Color;
                 }
             }
         }
@@ -156,15 +156,15 @@ namespace AdcControl
             set
             {
                 _Plot = value;
-                _Plot.label = Name;
+                _Plot.Label = Name;
                 _Plot.IsVisible = IsVisible;
-                _Plot.sampleRate = SampleRate;
-                _Plot.samplePeriod = 1 / SampleRate;
+                _Plot.SampleRate = SampleRate;
+                _Plot.SamplePeriod = 1 / SampleRate;
                 if (_Color != null)
                 {
-                    _Plot.color = (Color)Color;
+                    _Plot.Color = (Color)Color;
                 }
-                _Plot.maxRenderIndex = CalculatedCount > 1 ? CalculatedCount - 1 : 1;
+                _Plot.MaxRenderIndex = CalculatedCount > 1 ? CalculatedCount - 1 : 1;
             }
         }
         protected AdcChannelContextMenuItem _ContextMenuItem;
@@ -289,7 +289,7 @@ namespace AdcControl
                     _CalculatedX[CalculatedCount] = x;
                     _CalculatedY[CalculatedCount] = y;
                     if (_Plot != null && !arrayChanged) 
-                        _Plot.maxRenderIndex = CalculatedCount > 0 ? CalculatedCount : 1;
+                        _Plot.MaxRenderIndex = CalculatedCount > 0 ? CalculatedCount : 1;
                     if (_ColumnX != null) _ColumnX.AddItem(CalculatedXColumnSelector(x));
                     if (_ColumnY != null) _ColumnY.AddItem(y);
                     CalculatedCount++;
@@ -339,7 +339,7 @@ namespace AdcControl
                 _CalculatedX = new double[capacity];
                 _CalculatedY = new double[capacity];
                 Buffer.Clear();
-                if (_Plot != null) _Plot.maxRenderIndex = 0;
+                if (_Plot != null) _Plot.MaxRenderIndex = 0;
                 if (_ColumnX != null) _ColumnX.Clear();
                 if (_ColumnY != null) _ColumnY.Clear();
             }
