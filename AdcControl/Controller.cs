@@ -98,6 +98,16 @@ namespace AdcControl
             DeviceErrorThreadStart = (object x) => { DeviceError?.Invoke(this, (TerminalEventArgs)x); };
 
             UnitAddress = addr;
+
+            RegisterMap = new Modbus.Map();
+            //Add configuration registers by default, build configuration dependent layout later
+            RegisterMap.AddInput<ushort>("MOTORS_NUM", 1);
+            RegisterMap.AddInput<ushort>("MAX_ADC_MODULES", 1);
+            RegisterMap.AddInput<ushort>("ADC_CHANNELS_PER_CHIP", 1);
+            RegisterMap.AddInput<ushort>("PRESENT_ADC_CHANNELS", 1);
+            RegisterMap.AddInput<ushort>("MAX_DAC_MODULES", 1);
+            RegisterMap.AddInput<ushort>("PRESENT_DAC_MODULES", 1);
+            RegisterMap.AddInput<ushort>("AIO_NUM", 1);
         }
 
         public event EventHandler<AcquisitionEventArgs> AcquisitionDataReceived;
@@ -142,14 +152,20 @@ namespace AdcControl
         {
             get { return !_IsConnected; }
         }
+        public Modbus.Map RegisterMap { get; }
 
 #endregion
 
 #region Methods
 
-        public async Task<float[]> ReadADC()
+        public async Task<AdcResult> Read()
         {
             
+        }
+        public async Task<bool> Init()
+        {
+            //Read configuration registers and build complete register map
+
         }
         public async Task<bool> StartAcquisition(ushort duration = 0)
         {

@@ -47,24 +47,6 @@ namespace AdcControl
             OUT6,
             OUT7
         }
-        public enum HoldingRegisters : ushort
-        {
-            AcquisitionDuration,
-            DACSetpoint,
-            DepolarizationPercent,
-            DepolarizationSetpoint,
-            Motors
-        }
-        public enum MotorParams : ushort
-        {
-            RateToSpeed_LW,
-            RateToSpeed_HW,
-            Microsteps,
-            Teeth,
-            InvertEnable,
-            InvertError,
-            Direction
-        }
         public enum DiscreteInputs : ushort
         {
             MOTOR_ERR0,
@@ -75,28 +57,6 @@ namespace AdcControl
             IN5,
             IN6,
             IN7
-        }
-        public enum InputRegisters : ushort
-        {
-            ANALOG0,
-            ANALOG1,
-            ANALOG2,
-            ANALOG3,
-            ModulesADC,
-            ModulesDAC = ModulesADC + InputModuleADC.LEN
-        }
-        public enum InputModuleADC : ushort
-        {
-            V0,
-            V1,
-
-            LEN
-        }
-        public enum InputModuleDAC : ushort
-        {
-            Current,
-            Voltage,
-            CorrectedVoltage
         }
     }
 }
