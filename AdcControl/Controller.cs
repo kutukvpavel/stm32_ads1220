@@ -111,6 +111,10 @@ namespace AdcControl
                         }).Start();
                     }
                 }
+                catch (TimeoutException)
+                {
+                    OnUnexpectedDisconnect();
+                }
                 catch (Exception)
                 {
 
