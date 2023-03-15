@@ -214,45 +214,5 @@
                 <TextBlock x:Name="txtCoordinates" Text="Coordinates"></TextBlock>
             </StatusBarItem>
         </StatusBar>
-        <Expander x:Name="expTerminal" Grid.Row="0" Grid.RowSpan="3"
-                  ExpandDirection="Left" Grid.Column="2" Padding="0,5,0,0"
-                  BorderBrush="SlateGray"
-                  IsExpanded="{Binding Source={x:Static settings:Settings.Default}, Path=TerminalExpanded, Mode=TwoWay}">
-            <Expander.Header>
-                <TextBlock Text="{Binding Source={x:Static resx:Default.strTerminalHeader}}"
-                           Margin="0,10,0,0">
-                    <TextBlock.LayoutTransform>
-                        <RotateTransform Angle="-90"></RotateTransform>
-                    </TextBlock.LayoutTransform>
-                </TextBlock>
-            </Expander.Header>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" Margin="3,3,3,3" x:Name="txtSendCustom" FontSize="15"
-                             KeyDown="txtSendCustom_KeyDown" AcceptsReturn="False"></TextBox>
-                    <Button Grid.Column="1" Margin="3,3,3,3" x:Name="btnSendCustom" Click="btnSendCustom_Click">
-                        <Image Source="/AdcControl;component/Resources/send.png" Height="24"></Image>
-                    </Button>
-                </Grid>
-                <TextBox 
-                    x:Name="txtTerminal"
-                    MinWidth="150"
-                    MaxWidth="200"
-                    Grid.Row="1"
-                    VerticalScrollBarVisibility="Visible"
-                    HorizontalScrollBarVisibility="Auto"
-                    FontSize="15"
-                    IsReadOnly="True">
-                </TextBox>
-            </Grid>
-        </Expander>
     </Grid>
 </Window>

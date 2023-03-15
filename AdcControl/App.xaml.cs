@@ -125,7 +125,6 @@ namespace AdcControl
             _Stm32Ads1220 = new Controller(new RJCP.IO.Ports.SerialPortStream());
             _Stm32Ads1220.Port.PortName = Settings.Default.PortName;
             _Stm32Ads1220.LogEvent += (sender, e) => { Logger.Error(e.Message); if (e.Exception != null) Logger.Info(e.Exception); };
-            _Stm32Ads1220.TerminalEvent += (sender, e) => { Logger.Debug(e.Line); };
             _Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
             _Stm32Ads1220.DeviceError += Stm32Ads1220_DeviceError;
             _Stm32Ads1220.DataError += Stm32Ads1220_DataError;
@@ -141,9 +140,11 @@ namespace AdcControl
         {
             var c = (CultureInfo)CultureInfo.InvariantCulture.Clone();
             c.NumberFormat.NumberDecimalSeparator = Settings.ExportSettings.RussianExcelCompatible ? "," : ".";
-            CsvExporter.Configuration.CultureInfo = c;
-            CsvExporter.Configuration.Delimiter = Settings.ExportSettings.RussianExcelCompatible ? ";" : ",";
-            CsvExporter.Configuration.NewLine = CsvHelper.Configuration.NewLine.Environment;
+            CsvExporter.Configuration = new CsvHelper.Configuration.CsvConfiguration(c)
+            {
+                Delimiter = Settings.ExportSettings.RussianExcelCompatible ? ";" : ",",
+                NewLine = Environment.NewLine
+            };
             CsvExporter.AutosaveFileLimit = Settings.ExportSettings.AutosaveFileLimit;
             CsvExporter.AutosavePath = Settings.ExportSettings.CsvAutosavePath;
             CsvExporter.ChannelInfoFormat = Settings.ExportSettings.ChannelInfoFormat;

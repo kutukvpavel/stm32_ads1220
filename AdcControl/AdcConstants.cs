@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Text;
 
 namespace AdcControl
@@ -58,5 +58,31 @@ namespace AdcControl
             IN6,
             IN7
         }
+        public enum ConfigurationRegisters : ushort
+        {
+            MOTORS_NUM,
+            MAX_ADC_MODULES,
+            ADC_CHANNELS_PER_CHIP,
+            PRESENT_ADC_CHANNELS,
+            MAX_DAC_MODULES,
+            PRESENT_DAC_MODULES,
+            AIO_NUM,
+
+            LEN
+        }
+        public static readonly OrderedDictionary ConfigurationRegisterNames 
+            = new OrderedDictionary()
+        {
+                { ConfigurationRegisters.MOTORS_NUM, "MOTORS_NUM" },
+                { ConfigurationRegisters.MAX_ADC_MODULES, "MAX_ADC_MODULES" },
+                { ConfigurationRegisters.ADC_CHANNELS_PER_CHIP, "ADC_CHANNELS_PER_CHIP" },
+                { ConfigurationRegisters.PRESENT_ADC_CHANNELS, "PRESENT_ADC_CHANNELS" },
+                { ConfigurationRegisters.MAX_DAC_MODULES, "MAX_DAC_MODULES" },
+                { ConfigurationRegisters.PRESENT_DAC_MODULES, "PRESENT_DAC_MODULES" },
+                { ConfigurationRegisters.AIO_NUM, "AIO_NUM" }
+        };
+        public static readonly string AdcVoltagesNameTemplate = "ADC_VOLTAGE_";
+        public static readonly string DacCurrentsNameTemplate = "DAC_CURRENT_";
+        public static readonly string DacCorrectedNameTemplate = "DAC_CORR_";
     }
 }

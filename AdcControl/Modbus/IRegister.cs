@@ -9,8 +9,8 @@ namespace AdcControl.Modbus
         public object Value { get; }
         public Type Type { get; }
 
-        public int Address { get; }
-        public int Length { get; }
+        public ushort Address { get; }
+        public ushort Length { get; }
         public string Name { get; }
 
         public void Set(params ushort[] regs);

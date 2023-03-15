@@ -13,6 +13,8 @@ using NModbus.SerialPortStream;
 using NModbus.Extensions;
 using NModbus.Utility;
 
+using Timer = System.Timers.Timer;
+
 namespace AdcControl
 {
     public class Controller : INotifyPropertyChanged, IDisposable
@@ -28,12 +30,11 @@ namespace AdcControl
         protected bool _IsConnected = false;
         protected bool _Completed = true;
         protected object LockObject = new object();
-        protected BlockingCollectionQueue TerminalQueue;
-        protected BlockingCollectionQueue DataQueue;
         protected SerialPortStreamAdapter Adapter;
         protected IModbusMaster Master;
         protected readonly byte UnitAddress;
         protected readonly ModbusFactory Factory = new ModbusFactory();
+        protected readonly Timer PollTimer;
 #if TRACE
         protected static BlockingCollectionQueue TraceQueue = new BlockingCollectionQueue();
 #endif
@@ -49,22 +50,6 @@ namespace AdcControl
         {
             new Thread(() => { LogEvent?.Invoke(this, new LogEventArgs(e, m)); }).Start();
         }
-        /// <summary>
-        /// Check for timeout
-        /// </summary>
-        /// <param name="flag"></param>
-        /// <param name="timeout"></param>
-        /// <returns>True = timeout, False = ok</returns>
-        private bool Wait(ref bool flag, int timeout)
-        {
-            int i = 0;
-            while (!flag)
-            {
-                Thread.Sleep(1);
-                if (i++ > timeout) return true;
-            }
-            return false;
-        }
         private void OnPropertyChanged()
         {
             new Thread(() => { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null)); }).Start();
@@ -77,13 +62,6 @@ namespace AdcControl
             OnPropertyChanged();
             new Thread(() => { UnexpectedDisconnect?.Invoke(this, new EventArgs()); }).Start();
         }
-        private float ReadFloatRegister(ushort[] words)
-        {
-            List<byte> b = new List<byte>(4);
-            b.AddRange(BitConverter.GetBytes(words[0]));
-            b.AddRange(BitConverter.GetBytes(words[1]));
-            return BitConverter.ToSingle(b.ToArray());
-        }
 
 #endregion
 
@@ -91,30 +69,59 @@ namespace AdcControl
 
         public Controller(SerialPortStream port, byte addr = 0x01)
         {
-            TerminalQueue = new BlockingCollectionQueue();
-            DataQueue = new BlockingCollectionQueue();
             Port = port;
             DataErrorEventThreadStart = (object x) => { DataError?.Invoke(this, (DataErrorEventArgs)x); };
             DeviceErrorThreadStart = (object x) => { DeviceError?.Invoke(this, (TerminalEventArgs)x); };
 
             UnitAddress = addr;
-
             RegisterMap = new Modbus.Map();
-            //Add configuration registers by default, build configuration dependent layout later
-            RegisterMap.AddInput<ushort>("MOTORS_NUM", 1);
-            RegisterMap.AddInput<ushort>("MAX_ADC_MODULES", 1);
-            RegisterMap.AddInput<ushort>("ADC_CHANNELS_PER_CHIP", 1);
-            RegisterMap.AddInput<ushort>("PRESENT_ADC_CHANNELS", 1);
-            RegisterMap.AddInput<ushort>("MAX_DAC_MODULES", 1);
-            RegisterMap.AddInput<ushort>("PRESENT_DAC_MODULES", 1);
-            RegisterMap.AddInput<ushort>("AIO_NUM", 1);
+
+            PollTimer = new Timer(1000)
+            {
+                AutoReset = true,
+                Enabled = false
+            };
+            PollTimer.Elapsed += PollTimer_Elapsed;
+        }
+
+        private void PollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            lock (LockObject)
+            {
+                try
+                {
+                    var task = Read();
+                    task.Wait();
+                    if (task.IsCompletedSuccessfully)
+                    {
+                        var value = task.Result;
+                        new Thread(() => {
+                            foreach (var item in value.Voltages.Select((x, i) => new AcquisitionEventArgs(i, x)))
+                            {
+                                AcquisitionDataReceived?.Invoke(this, item);
+                            }
+                            foreach (var item in value.Currents.Select((x, i) => new AcquisitionEventArgs(i + 0xD00, x)))
+                            {
+                                AcquisitionDataReceived?.Invoke(this, item);
+                            }
+                            foreach (var item in value.CorrectedCurrents.Select((x, i) => new AcquisitionEventArgs(i + 0xC00, x)))
+                            {
+                                AcquisitionDataReceived?.Invoke(this, item);
+                            }
+                        }).Start();
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
         }
 
         public event EventHandler<AcquisitionEventArgs> AcquisitionDataReceived;
         public event EventHandler<DataErrorEventArgs> DataError;
         public event EventHandler<TerminalEventArgs> DeviceError;
         public event EventHandler<LogEventArgs> LogEvent;
-        public event EventHandler<TerminalEventArgs> TerminalEvent;
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler AcquisitionFinished;
         public event EventHandler UnexpectedDisconnect;
@@ -160,21 +167,95 @@ namespace AdcControl
 
         public async Task<AdcResult> Read()
         {
-            
+            try
+            {
+                foreach (var item in RegisterMap.PollRegisters)
+                {
+                    var reg = RegisterMap.InputRegisters[item] as Modbus.IRegister;
+                    reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, 1));
+                }
+                int adcPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_ADC_CHANNELS);
+                int dacPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_DAC_MODULES);
+                float[] adcBuffer = new float[adcPresent];
+                for (int i = 0; i < adcPresent; i++)
+                {
+                    adcBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.AdcVoltagesNameTemplate + i.ToString());
+                }
+                float[] dacBuffer = new float[dacPresent];
+                float[] dacCorrBuffer = new float[dacPresent];
+                for (int i = 0; i < dacPresent; i++)
+                {
+                    dacBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.DacCurrentsNameTemplate + i.ToString());
+                    dacCorrBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.DacCorrectedNameTemplate + i.ToString());
+                }
+                return new AdcResult()
+                {
+                    Voltages = adcBuffer,
+                    Currents = dacBuffer,
+                    CorrectedCurrents = dacCorrBuffer
+                };
+            }
+            catch (Exception ex)
+            {
+                Log(ex, "Failed to poll the device");
+                throw;
+            }
         }
-        public async Task<bool> Init()
+        public async Task<bool> InitRegisterMap()
         {
-            //Read configuration registers and build complete register map
+            try
+            {
+                RegisterMap.Clear();
+                //Add configuration registers by default, build configuration dependent layout later
+                for (int i = 0; i < (int)AdcConstants.ConfigurationRegisters.LEN; i++)
+                {
+                    AdcConstants.ConfigurationRegisters reg = (AdcConstants.ConfigurationRegisters)i;
+                    RegisterMap.AddInput<Modbus.DevUshort>(AdcConstants.ConfigurationRegisterNames[reg] as string, 1, true);
+                }
 
+                //Read configuration registers
+                foreach (var item in RegisterMap.ConfigRegisters)
+                {
+                    var reg = RegisterMap.InputRegisters[item] as Modbus.IRegister;
+                    reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, 1));
+                }
+                //Build complete register map
+                int adcTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.MAX_ADC_MODULES) *
+                    RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.ADC_CHANNELS_PER_CHIP);
+                int dacTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.MAX_DAC_MODULES);
+                int aioTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.AIO_NUM);
+                int motorTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.MOTORS_NUM);
+                //Input
+                RegisterMap.AddInput<Modbus.DevFloat>(AdcConstants.AdcVoltagesNameTemplate, adcTotal, poll: true);
+                RegisterMap.AddInput<Modbus.DevFloat>(AdcConstants.DacCurrentsNameTemplate, dacTotal, poll: true);
+                RegisterMap.AddInput<Modbus.DevFloat>(AdcConstants.DacCorrectedNameTemplate, dacTotal, poll: true);
+                RegisterMap.AddInput<Modbus.DevFloat>("A_IN_", aioTotal);
+                RegisterMap.AddInput<Modbus.DevFloat>("TEMP", 1);
+                //Holding
+                RegisterMap.AddInput<Modbus.DevFloat>("DAC_SETPOINT_", dacTotal);
+                RegisterMap.AddInput<Modbus.AdcChannelCal>("ADC_CAL_", adcTotal);
+                RegisterMap.AddInput<Modbus.DacCal>("DAC_CAL_", dacTotal);
+                RegisterMap.AddInput<Modbus.AioCal>("AIO_CAL_", aioTotal);
+                RegisterMap.AddInput<Modbus.AioCal>("TEMP_CAL", 1);
+                RegisterMap.AddInput<Modbus.MotorParams>("MOTOR_PARAMS_", motorTotal);
+                RegisterMap.AddInput<Modbus.DevFloat>("DEPO_PERCENT_", dacTotal);
+                RegisterMap.AddInput<Modbus.DevFloat>("DEPO_SETPOINT_", dacTotal);
+            }
+            catch (Exception ex)
+            {
+                Log(ex, "Failed to initialize register map.");
+                return false;
+            }
+            return true;
         }
-        public async Task<bool> StartAcquisition(ushort duration = 0)
+        public async Task<bool> StartAcquisition()
         {
             if (!AcquisitionInProgress)
             {
                 try
                 {
-                    await Master.WriteSingleRegisterAsync(UnitAddress, (ushort)AdcConstants.HoldingRegisters.AcquisitionDuration, duration);
                     await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.Acquire, true);
+                    PollTimer.Start();
                     return true;
                 }
                 catch (Exception ex)
@@ -190,6 +271,7 @@ namespace AdcControl
             {
                 try
                 {
+                    PollTimer.Stop();
                     await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.Acquire, false);
                     return true;
                 }
@@ -211,7 +293,11 @@ namespace AdcControl
                 WriteTimeout = ConnectionTimeout
             };
             Master = Factory.CreateRtuMaster(Adapter);
-            return (await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0];
+            if ((await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0])
+            {
+                return await InitRegisterMap();
+            }
+            return false;
         }
         public bool Disconnect()
         {
@@ -241,9 +327,9 @@ namespace AdcControl
     public class AcquisitionEventArgs : EventArgs
     {
         public float Value { get; }
-        public byte Channel { get; }
+        public int Channel { get; }
 
-        public AcquisitionEventArgs(byte channel, float value)
+        public AcquisitionEventArgs(int channel, float value)
         {
             Channel = channel;
             Value = value;

@@ -23,7 +23,6 @@ namespace AdcControl
             RefreshTimer.Tick += RefreshTimer_Tick;
             MouseTimer.Tick += MouseTimer_Elapsed;
             //External events
-            App.Stm32Ads1220.TerminalEvent += Stm32Ads1220_TerminalEvent;
             App.Stm32Ads1220.AcquisitionFinished += Stm32Ads1220_AcquisitionFinished;
             App.Stm32Ads1220.UnexpectedDisconnect += Stm32Ads1220_UnexpectedDisconnect;
             App.Stm32Ads1220.AcquisitionDataReceived += Stm32Ads1220_AcquisitionDataReceived;
@@ -429,19 +428,6 @@ namespace AdcControl
             pltMainPlot.Dispatcher.BeginInvoke(() => { pltMainPlot.Render(); });
         }
 
-        private void Stm32Ads1220_TerminalEvent(object sender, TerminalEventArgs e)
-        {
-            txtTerminal.Dispatcher.Invoke(() =>
-            {
-                txtTerminal.AppendText(e.Line + Environment.NewLine);
-                if (txtTerminal.Text.Length > Settings.ViewSettings.TerminalLimit)
-                {
-                    txtTerminal.Text = txtTerminal.Text.Remove(0, Settings.ViewSettings.TerminalRemoveStep);
-                }
-                if (expTerminal.IsExpanded) txtTerminal.ScrollToEnd();
-            });
-        }
-
         #endregion
 
         #region UI Events
@@ -527,7 +513,7 @@ namespace AdcControl
                     LastAcquisitionEnd = null;
                 }
             }
-            if (await App.Stm32Ads1220.StartAcquisition((ushort)Settings.Default.AcquisitionDuration))
+            if (await App.Stm32Ads1220.StartAcquisition())
             {
                 prgAcquisitionProgress.Minimum = DateTime.UtcNow.Ticks;
                 prgAcquisitionProgress.Maximum = prgAcquisitionProgress.Minimum + Settings.Default.AcquisitionDuration * 10E6;
@@ -558,7 +544,6 @@ namespace AdcControl
         {
             ReadyToExportData = false;
             LastAcquisitionEnd = null;
-            txtTerminal.Clear();
             pnlRealTimeData.Children.Clear();
             pltMainPlot.Plot.Clear();
             pltMainPlot.ContextMenu.Items.Clear();

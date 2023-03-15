@@ -6,9 +6,8 @@ namespace AdcControl
 {
     public class AdcResult
     {
-        public float[] Voltages { get; }
-        public float[] Currents { get; }
-        public float[] CorrectedCurrents { get; }
-
+        public float[] Voltages { get; set; }
+        public float[] Currents { get; set; }
+        public float[] CorrectedCurrents { get; set; }
     }
 }
