@@ -36,7 +36,7 @@ namespace AdcControl.Modbus
         }
         public ushort GetConfigValue(AdcConstants.ConfigurationRegisters reg)
         {
-            return (ushort)GetConfig(reg).Value;
+            return (ushort)GetConfig(reg).Value; //TODO: Add explicit cast operators to DevTypes
         }
         public void AddHolding<T>(string name, int num) where T : IDeviceType
         {
@@ -49,7 +49,11 @@ namespace AdcControl.Modbus
 
         private void Add<T>(OrderedDictionary to, string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType
         {
-            int lastAddr = to.Count > 0 ? (to[^1] as IRegister).Address : -1;
+            int lastAddr = -1;
+            if (to.Count > 0)
+            {
+                lastAddr = (to[to.Count - 1] as IRegister).Address;
+            }
             string n = name;
             for (int i = 0; i < num; i++)
             {

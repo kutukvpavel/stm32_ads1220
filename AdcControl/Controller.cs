@@ -296,10 +296,34 @@ namespace AdcControl
                 ReadTimeout = ConnectionTimeout,
                 WriteTimeout = ConnectionTimeout
             };
-            Master = Factory.CreateRtuMaster(Adapter);
-            if ((await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0])
+            try
             {
-                return await InitRegisterMap();
+                Port.Open();
+                await Task.Delay(1000);
+                Port.ReadExisting();
+            }
+            catch (Exception ex)
+            {
+                Log(ex, "Failed to open port");
+                return false;
+            }
+            Master = Factory.CreateRtuMaster(Adapter);
+            try
+            {
+                if ((await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0])
+                {
+                    return await InitRegisterMap();
+                }
+            }
+            catch (TimeoutException ex)
+            {
+                Log(ex, "Connection timeout");
+                Port.Close();
+            }
+            catch (Exception ex)
+            {
+                Log(ex, "Unknown error");
+                Port.Close();
             }
             return false;
         }
