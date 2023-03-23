@@ -18,6 +18,8 @@ namespace AdcControl.Modbus
         {
             Value = BitConverter.ToSingle(data);
         }
+
+        public static explicit operator float(DevFloat v) => v.Value;
     }
 
     public struct DevUshort : IDeviceType
@@ -34,6 +36,8 @@ namespace AdcControl.Modbus
         {
             Value = BitConverter.ToUInt16(data);
         }
+
+        public static explicit operator ushort(DevUshort v) => v.Value;
     }
 
     public struct AdcChannelCal : IDeviceType
