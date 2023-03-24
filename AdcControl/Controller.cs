@@ -221,7 +221,8 @@ namespace AdcControl
                 foreach (var item in RegisterMap.ConfigRegisters)
                 {
                     var reg = RegisterMap.InputRegisters[item] as Modbus.IRegister;
-                    reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, 1));
+                    var read = await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, 1);
+                    reg.Set(read);
                 }
                 //Build complete register map
                 int adcTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.MAX_ADC_MODULES) *
@@ -229,6 +230,16 @@ namespace AdcControl
                 int dacTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.MAX_DAC_MODULES);
                 int aioTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.AIO_NUM);
                 int motorTotal = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.MOTORS_NUM);
+
+                int adcPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_ADC_CHANNELS);
+                int dacPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_DAC_MODULES);
+
+                Log(null, $@"Device connected, config info:
+    Max ADC channels: {adcTotal}, present = {adcPresent};
+    Max DAC channels: {dacTotal}, present = {dacPresent};
+    AIO channels: {aioTotal};
+    Motors: {motorTotal}.");
+
                 //Input
                 RegisterMap.AddInput<Modbus.DevFloat>(AdcConstants.AdcVoltagesNameTemplate, adcTotal, poll: true);
                 RegisterMap.AddInput<Modbus.DevFloat>(AdcConstants.DacCurrentsNameTemplate, dacTotal, poll: true);
@@ -260,6 +271,7 @@ namespace AdcControl
                 {
                     await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.Acquire, true);
                     PollTimer.Start();
+                    AcquisitionInProgress = true;
                     return true;
                 }
                 catch (Exception ex)
@@ -277,6 +289,7 @@ namespace AdcControl
                 {
                     PollTimer.Stop();
                     await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.Acquire, false);
+                    AcquisitionInProgress = false;
                     return true;
                 }
                 catch (Exception ex)
@@ -312,7 +325,8 @@ namespace AdcControl
             {
                 if ((await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0])
                 {
-                    return await InitRegisterMap();
+                    IsConnected = await InitRegisterMap();
+                    return IsConnected;
                 }
             }
             catch (TimeoutException ex)

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace AdcControl.Modbus
 {
-    public class Register<T> : IRegister where T : IDeviceType
+    public class Register<T> : IRegister where T : IDeviceType, new()
     {
         static Dictionary<Type, ushort> SizeOfRegister = new Dictionary<Type, ushort>() //In modbus words
         {
@@ -22,7 +22,7 @@ namespace AdcControl.Modbus
 
         public Type Type => typeof(T);
         public object Value => TypedValue;
-        public T TypedValue { get; private set; }
+        public T TypedValue { get; private set; } = new T();
         public ushort Address { get; }
         public ushort Length => SizeOfRegister[typeof(T)];
         public string Name { get; }

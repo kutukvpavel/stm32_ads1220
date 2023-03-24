@@ -4,9 +4,9 @@ using System.Text;
 
 namespace AdcControl.Modbus
 {
-    public struct DevFloat : IDeviceType
+    public class DevFloat : IDeviceType
     {
-        public float Value;
+        public float Value { get; private set; }
 
         public ushort Size => 2;
         public object Get()
@@ -22,9 +22,9 @@ namespace AdcControl.Modbus
         public static explicit operator float(DevFloat v) => v.Value;
     }
 
-    public struct DevUshort : IDeviceType
+    public class DevUshort : IDeviceType
     {
-        public ushort Value;
+        public ushort Value { get; private set; }
 
         public ushort Size => 1;
         public object Get()
@@ -40,11 +40,11 @@ namespace AdcControl.Modbus
         public static explicit operator ushort(DevUshort v) => v.Value;
     }
 
-    public struct AdcChannelCal : IDeviceType
+    public class AdcChannelCal : IDeviceType
     {
-        public float K;
-        public float B;
-        public ushort Invert;
+        public float K { get; private set; }
+        public float B { get; private set; }
+        public ushort Invert { get; private set; }
 
         public ushort Size => 2 * 2 + 1;
         public object Get()
@@ -61,12 +61,12 @@ namespace AdcControl.Modbus
         }
     }
 
-    public struct DacCal : IDeviceType
+    public class DacCal : IDeviceType
     {
-        public float K;
-        public float B;
-        public float Current_K;
-        public float Current_B;
+        public float K { get; private set; }
+        public float B { get; private set; }
+        public float Current_K { get; private set; }
+        public float Current_B { get; private set; }
 
         public ushort Size => 2 * 4;
         public object Get()
@@ -84,10 +84,10 @@ namespace AdcControl.Modbus
         }
     }
 
-    public struct AioCal : IDeviceType
+    public class AioCal : IDeviceType
     {
-        public float K;
-        public float B;
+        public float K { get; private set; }
+        public float B { get; private set; }
 
         public ushort Size => 2 * 2;
         public object Get()
@@ -102,14 +102,14 @@ namespace AdcControl.Modbus
         }
     }
 
-    public struct MotorParams : IDeviceType
+    public class MotorParams : IDeviceType
     {
-        public float RateToSpeed;
-        public ushort Microsteps;
-        public ushort Teeth;
-        public ushort InvertEnable;
-        public ushort InvertError;
-        public ushort Direction;
+        public float RateToSpeed { get; private set; }
+        public ushort Microsteps { get; private set; }
+        public ushort Teeth { get; private set; }
+        public ushort InvertEnable { get; private set; }
+        public ushort InvertError { get; private set; }
+        public ushort Direction { get; private set; }
 
         public ushort Size => 2 + 1 * 5;
         public object Get()

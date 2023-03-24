@@ -38,16 +38,16 @@ namespace AdcControl.Modbus
         {
             return (ushort)(DevUshort)(GetConfig(reg).Value);
         }
-        public void AddHolding<T>(string name, int num) where T : IDeviceType
+        public void AddHolding<T>(string name, int num) where T : IDeviceType, new()
         {
             Add<T>(HoldingRegisters, name, num);
         }
-        public void AddInput<T>(string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType
+        public void AddInput<T>(string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType, new()
         {
             Add<T>(InputRegisters, name, num, cfg);
         }
 
-        private void Add<T>(OrderedDictionary to, string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType
+        private void Add<T>(OrderedDictionary to, string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType, new()
         {
             int lastAddr = -1;
             if (to.Count > 0)
