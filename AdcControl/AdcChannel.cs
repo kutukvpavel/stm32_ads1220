@@ -29,7 +29,7 @@ namespace AdcControl
             SampleRate = sampleRate;
         }
         public AdcChannel(int code, int rawCapacity, int averaging, double sampleRate) 
-            : this(code, rawCapacity, averaging, sampleRate, DateTime.UtcNow.ToOADate())
+            : this(code, rawCapacity, averaging, sampleRate, DateTime.Now.ToOADate())
         { }
 
         public event EventHandler ArrayChanged;
@@ -149,8 +149,8 @@ namespace AdcControl
                 }
             }
         }
-        protected ScottPlot.Plottable.SignalPlot _Plot;
-        public ScottPlot.Plottable.SignalPlot Plot
+        protected ScottPlot.Plottable.SignalPlotXY _Plot;
+        public ScottPlot.Plottable.SignalPlotXY Plot
         {
             get { return _Plot; }
             set
@@ -164,7 +164,7 @@ namespace AdcControl
                 {
                     _Plot.Color = (Color)Color;
                 }
-                _Plot.MaxRenderIndex = CalculatedCount > 1 ? CalculatedCount - 1 : 1;
+                _Plot.MaxRenderIndex = CalculatedCount > 1 ? CalculatedCount - 1 : 0;
             }
         }
         protected AdcChannelContextMenuItem _ContextMenuItem;
@@ -243,11 +243,6 @@ namespace AdcControl
 
         #region Public Functions
 
-        public void AddPoint(double val)
-        {
-            AddPoint(val, DateTime.UtcNow.ToOADate());
-        }
-
         public void AddPoint(double val, double time)
         {
             bool arrayChanged = false;
@@ -289,9 +284,11 @@ namespace AdcControl
                     _CalculatedX[CalculatedCount] = x;
                     _CalculatedY[CalculatedCount] = y;
                     if (_Plot != null && !arrayChanged) 
-                        _Plot.MaxRenderIndex = CalculatedCount > 0 ? CalculatedCount : 1;
-                    if (_ColumnX != null) _ColumnX.AddItem(CalculatedXColumnSelector(x));
-                    if (_ColumnY != null) _ColumnY.AddItem(y);
+                        _Plot.MaxRenderIndex = CalculatedCount > 0 ? CalculatedCount : 0;
+                    if (_ColumnX != null) 
+                        _ColumnX.AddItem(CalculatedXColumnSelector(x));
+                    if (_ColumnY != null) 
+                        _ColumnY.AddItem(y);
                     CalculatedCount++;
                 }
                 while (Buffer.Count >= MovingAveraging) //Lag-less buffering and dynamic window size support

@@ -6,6 +6,7 @@ namespace AdcControl
 {
     public class AdcResult
     {
+        public DateTime Timestamp { get; set; }
         public float[] Voltages { get; set; }
         public float[] Currents { get; set; }
         public float[] CorrectedCurrents { get; set; }

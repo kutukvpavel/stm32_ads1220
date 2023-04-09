@@ -44,23 +44,26 @@ namespace AdcControl.Modbus
         }
         public void AddInput<T>(string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType, new()
         {
-            Add<T>(InputRegisters, name, num, cfg);
+            Add<T>(InputRegisters, name, num, cfg, poll);
         }
 
         private void Add<T>(OrderedDictionary to, string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType, new()
         {
-            int lastAddr = -1;
+            int addr = 0;
             if (to.Count > 0)
             {
-                lastAddr = (to[to.Count - 1] as IRegister).Address; //Do not use ^1 with OrderedDictionary index-based access!! Will return NULL.
+                var last = to[to.Count - 1] as IRegister; //Do not use ^1 with OrderedDictionary index-based access!! Will return NULL.
+                addr = last.Address + last.Length;
             }
             string n = name;
             for (int i = 0; i < num; i++)
             {
-                if (num > 1) n = name + i.ToString(); 
-                to.Add(n, new Register<T>((ushort)++lastAddr, n));
+                if (num > 1) n = name + i.ToString();
+                var item = new Register<T>((ushort)addr, n);
+                to.Add(n, item);
                 if (cfg) ConfigRegisters.Add(n);
                 if (poll) PollRegisters.Add(n);
+                addr += item.Length;
             }
         }
     }

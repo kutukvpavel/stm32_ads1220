@@ -7,12 +7,6 @@ namespace AdcControl.Modbus
 {
     public class Register<T> : IRegister where T : IDeviceType, new()
     {
-        static Dictionary<Type, ushort> SizeOfRegister = new Dictionary<Type, ushort>() //In modbus words
-        {
-            { typeof(ushort), 1 },
-            { typeof(float), 2 }
-        };
-
         public Register(ushort addr, string name)
         {
             if (!BitConverter.IsLittleEndian) throw new NotImplementedException("Non-LE archs not supported.");
@@ -24,7 +18,7 @@ namespace AdcControl.Modbus
         public object Value => TypedValue;
         public T TypedValue { get; private set; } = new T();
         public ushort Address { get; }
-        public ushort Length => SizeOfRegister[typeof(T)];
+        public ushort Length => TypedValue.Size; //In modbus words
         public string Name { get; }
 
         public void Set(params ushort[] regs)

@@ -245,7 +245,7 @@ namespace AdcControl
                     return;
                 }
             }
-            AdcChannels[e.Channel].AddPoint(e.Value);
+            AdcChannels[e.Channel].AddPoint(e.Value, e.TimeStamp.ToOADate());
             if (!AutosaveTimer.Enabled) AutosaveTimer.Start();
         }
 

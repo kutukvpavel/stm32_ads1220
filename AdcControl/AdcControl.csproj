@@ -56,8 +56,8 @@
 		<DebugType>pdbonly</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<PlatformTarget>x64</PlatformTarget>
-		<DefineConstants>DEBUG; TRACE;</DefineConstants>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>DEBUG;</DefineConstants>
+		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	</PropertyGroup>
 
   <ItemGroup>

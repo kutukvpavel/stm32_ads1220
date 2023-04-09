@@ -67,6 +67,7 @@ namespace AdcControl
             MAX_DAC_MODULES,
             PRESENT_DAC_MODULES,
             AIO_NUM,
+            RESERVED1,
 
             LEN
         }
@@ -79,7 +80,8 @@ namespace AdcControl
                 { ConfigurationRegisters.PRESENT_ADC_CHANNELS, "PRESENT_ADC_CHANNELS" },
                 { ConfigurationRegisters.MAX_DAC_MODULES, "MAX_DAC_MODULES" },
                 { ConfigurationRegisters.PRESENT_DAC_MODULES, "PRESENT_DAC_MODULES" },
-                { ConfigurationRegisters.AIO_NUM, "AIO_NUM" }
+                { ConfigurationRegisters.AIO_NUM, "AIO_NUM" },
+                { ConfigurationRegisters.RESERVED1, "RESERVED_1" }
         };
         public static readonly string AdcVoltagesNameTemplate = "ADC_VOLTAGE_";
         public static readonly string DacCurrentsNameTemplate = "DAC_CURRENT_";

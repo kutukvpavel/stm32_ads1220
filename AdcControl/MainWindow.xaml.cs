@@ -168,8 +168,8 @@ namespace AdcControl
         {
             Trace("Replotting");
             pltMainPlot.Plot.Remove(channel.Plot);
-            channel.Plot = pltMainPlot.Plot.AddSignal( //This will automatically apply all properties defined in AdcChannel
-                channel.CalculatedY,
+            channel.Plot = pltMainPlot.Plot.AddSignalXY( //This will automatically apply all properties defined in AdcChannel
+                channel.CalculatedX, channel.CalculatedY,
                 color: channel.Color); //Somehow signalPlot doesn't support color change (only markers change color after the field was modified)
             channel.Plot.LineWidth = Settings.ViewSettings.LineWidth;
         }
@@ -207,6 +207,8 @@ namespace AdcControl
             pltMainPlot.Plot.YLabel(Settings.ViewSettings.YAxisLabel);
             pltMainPlot.Plot.XLabel(Settings.ViewSettings.XAxisLabel);
             pltMainPlot.Plot.YAxis.TickLabelFormat(Settings.ViewSettings.CalculatedYNumberFormat, false);
+            //pltMainPlot.Plot.XAxis.DateTimeFormat(true);
+            pltMainPlot.Plot.XAxis.TickLabelFormat(x => CsvExporter.OADateToSeconds(x).ToString("F1"));
             RestoreAxisLimits();
         }
 
@@ -306,7 +308,7 @@ namespace AdcControl
             (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
             txtCoordinates.Text = string.Format("{0} @ {1:F2}", 
                 mouseY.ToString(Settings.ViewSettings.CalculatedYNumberFormat), 
-                mouseX
+                CsvExporter.OADateToSeconds(mouseX)
                 );
         }
 

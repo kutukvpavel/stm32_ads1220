@@ -86,39 +86,45 @@ namespace AdcControl
 
         private void PollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            lock (LockObject)
+            if (!Monitor.TryEnter(LockObject)) return;
+            try
             {
-                try
+                var task = Read();
+                task.Wait();
+                if (task.IsCompletedSuccessfully)
                 {
-                    var task = Read();
-                    task.Wait();
-                    if (task.IsCompletedSuccessfully)
+                    var value = task.Result;
+                    new Thread(() =>
                     {
-                        var value = task.Result;
-                        new Thread(() => {
-                            foreach (var item in value.Voltages.Select((x, i) => new AcquisitionEventArgs(i, x)))
-                            {
-                                AcquisitionDataReceived?.Invoke(this, item);
-                            }
-                            foreach (var item in value.Currents.Select((x, i) => new AcquisitionEventArgs(i + 0xD00, x)))
-                            {
-                                AcquisitionDataReceived?.Invoke(this, item);
-                            }
-                            foreach (var item in value.CorrectedCurrents.Select((x, i) => new AcquisitionEventArgs(i + 0xC00, x)))
-                            {
-                                AcquisitionDataReceived?.Invoke(this, item);
-                            }
-                        }).Start();
-                    }
+                        foreach (var item in value.Voltages.Select((x, i) => 
+                            new AcquisitionEventArgs(i, x, value.Timestamp)))
+                        {
+                            AcquisitionDataReceived?.Invoke(this, item);
+                        }
+                        foreach (var item in value.Currents.Select((x, i) => 
+                            new AcquisitionEventArgs(i + 0xD00, x, value.Timestamp)))
+                        {
+                            AcquisitionDataReceived?.Invoke(this, item);
+                        }
+                        foreach (var item in value.CorrectedCurrents.Select((x, i) => 
+                            new AcquisitionEventArgs(i + 0xC00, x, value.Timestamp)))
+                        {
+                            AcquisitionDataReceived?.Invoke(this, item);
+                        }
+                    }).Start();
                 }
-                catch (TimeoutException)
-                {
-                    OnUnexpectedDisconnect();
-                }
-                catch (Exception)
-                {
+            }
+            catch (TimeoutException)
+            {
+                OnUnexpectedDisconnect();
+            }
+            catch (Exception)
+            {
 
-                }
+            }
+            finally
+            {
+                Monitor.Exit(LockObject);
             }
         }
 
@@ -133,7 +139,7 @@ namespace AdcControl
 #region Properties
 
         public SerialPortStream Port { get; }
-        public static int ConnectionTimeout { get; set; } = 3000; //mS
+        public static int ConnectionTimeout { get; set; } = 300; //mS
         public bool IsConnected
         {
             get { return _IsConnected; }
@@ -173,31 +179,31 @@ namespace AdcControl
         {
             try
             {
+                AdcResult res = new AdcResult();
                 foreach (var item in RegisterMap.PollRegisters)
                 {
                     var reg = RegisterMap.InputRegisters[item] as Modbus.IRegister;
-                    reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, 1));
+                    reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, reg.Length));
                 }
+                res.Timestamp = DateTime.Now;
                 int adcPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_ADC_CHANNELS);
                 int dacPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_DAC_MODULES);
                 float[] adcBuffer = new float[adcPresent];
+                float[] dacBuffer = new float[dacPresent];
+                float[] dacCorrBuffer = new float[dacPresent];
                 for (int i = 0; i < adcPresent; i++)
                 {
                     adcBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.AdcVoltagesNameTemplate + i.ToString());
                 }
-                float[] dacBuffer = new float[dacPresent];
-                float[] dacCorrBuffer = new float[dacPresent];
                 for (int i = 0; i < dacPresent; i++)
                 {
                     dacBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.DacCurrentsNameTemplate + i.ToString());
                     dacCorrBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.DacCorrectedNameTemplate + i.ToString());
                 }
-                return new AdcResult()
-                {
-                    Voltages = adcBuffer,
-                    Currents = dacBuffer,
-                    CorrectedCurrents = dacCorrBuffer
-                };
+                res.Voltages = adcBuffer;
+                res.Currents = dacBuffer;
+                res.CorrectedCurrents = dacCorrBuffer;
+                return res;
             }
             catch (Exception ex)
             {
@@ -221,7 +227,7 @@ namespace AdcControl
                 foreach (var item in RegisterMap.ConfigRegisters)
                 {
                     var reg = RegisterMap.InputRegisters[item] as Modbus.IRegister;
-                    var read = await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, 1);
+                    var read = await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, reg.Length);
                     reg.Set(read);
                 }
                 //Build complete register map
@@ -370,11 +376,13 @@ namespace AdcControl
     {
         public float Value { get; }
         public int Channel { get; }
+        public DateTime TimeStamp { get; }
 
-        public AcquisitionEventArgs(int channel, float value)
+        public AcquisitionEventArgs(int channel, float value, DateTime timestamp)
         {
             Channel = channel;
             Value = value;
+            TimeStamp = timestamp;
         }
     }
 
