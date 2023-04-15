@@ -56,6 +56,11 @@ namespace AdcControl.Properties
                 public const string ConcatenationLineColor = "namConcatLineColor";
                 public const string ConcatenationLineWidth = "namConcatLineWidth";
                 public const string ConcatenationLabelFormat = "namConcatLabelFormat";
+                public const string CurrentAxisFormat = "namCurrentFormat";
+                public const string CurrentAxisLabel = "namCurrentAxisLabel";
+                public const string LockRightAxis = "strLockRightAxis";
+                public const string RightYMax = "namRightYMax";
+                public const string RightYMin = "namRightYMin";
             }
         }
 
@@ -81,6 +86,8 @@ namespace AdcControl.Properties
             CalculatedYNumberFormat = "F5";
             ConcatenationLineWidth = 1;
             ConcatenationLabelFormat = "+{0:F2}";
+            CurrentAxisLabel = "Current, A";
+            CurrentNumberFormat = "F4";
         }
 
         [LocalizedCategory(ResourseKeys.Categories.Terminal)]
@@ -97,6 +104,9 @@ namespace AdcControl.Properties
         [LocalizedCategory(ResourseKeys.Categories.Axes)]
         [LocalizedDisplayName(ResourseKeys.Names.LockVerticalAxis)]
         public bool LockVerticalScale { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.Axes)]
+        [LocalizedDisplayName(ResourseKeys.Names.LockRightAxis)]
+        public bool LockRightScale { get; set; }
         [LocalizedCategory(ResourseKeys.Categories.Axes)]
         [LocalizedDisplayName(ResourseKeys.Names.YMax)]
         public double YMax { get; set; }
@@ -151,5 +161,18 @@ namespace AdcControl.Properties
         [LocalizedDisplayName(ResourseKeys.Names.CalculatedYNumberFormat)]
         [LocalizedDescription(ResourseKeys.Descriptions.NumberFormatString)]
         public string CalculatedYNumberFormat { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.General)]
+        [LocalizedDisplayName(ResourseKeys.Names.CurrentAxisFormat)]
+        [LocalizedDescription(ResourseKeys.Descriptions.NumberFormatString)]
+        public string CurrentNumberFormat { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.General)]
+        [LocalizedDisplayName(ResourseKeys.Names.CurrentAxisLabel)]
+        public string CurrentAxisLabel { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.Axes)]
+        [LocalizedDisplayName(ResourseKeys.Names.RightYMin)]
+        public double RightYMin { get; set; }
+        [LocalizedCategory(ResourseKeys.Categories.Axes)]
+        [LocalizedDisplayName(ResourseKeys.Names.RightYMax)]
+        public double RightYMax { get; set; }
     }
 }

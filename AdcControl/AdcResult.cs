@@ -9,6 +9,6 @@ namespace AdcControl
         public DateTime Timestamp { get; set; }
         public float[] Voltages { get; set; }
         public float[] Currents { get; set; }
-        public float[] CorrectedCurrents { get; set; }
+        public float[] CorrectedVoltages { get; set; }
     }
 }

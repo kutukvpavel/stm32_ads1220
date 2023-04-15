@@ -20,6 +20,9 @@ namespace AdcControl
             SPS_20 = 0x00
         }*/
 
+        public const int DacCurrentsBase = 0xD00;
+        public const int DacCorrectedVoltagesBase = 0xC00;
+
         public enum Coils : ushort
         {
             Acquire,

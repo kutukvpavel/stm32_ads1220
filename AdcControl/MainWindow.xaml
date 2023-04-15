@@ -109,6 +109,13 @@
                         Margin="5,0,3,0">
                     <Image Source="/AdcControl;component/Resources/lock_horizontal.png" Height="38"></Image>
                 </ToggleButton>
+                <ToggleButton x:Name="btnLockRightAxis"
+                        Checked="btnLockRightAxis_Checked"
+                        IsChecked="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=LockRightScale, Mode=TwoWay}"
+                        ToolTip="{x:Static resx:Default.strLockRightAxis}"
+                        Margin="5,0,3,0">
+                    <Image Source="/AdcControl;component/Resources/lock_vertical_right.png" Height="38"></Image>
+                </ToggleButton>
                 <ToggleButton x:Name="btnEnableAutoAxis"
                         IsChecked="{Binding Source={x:Static settings:Settings.ViewSettings}, Path=EnableAutoscaling, Mode=TwoWay}"
                         ToolTip="{x:Static resx:Default.strEnableAutoAxis}"

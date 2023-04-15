@@ -460,7 +460,7 @@
     <value>Number format string as per C# double.ToString(string format) documentation.</value>
   </data>
   <data name="namCalcYFormat" xml:space="preserve">
-    <value>Calculated Y value format</value>
+    <value>Calculated voltage axis format</value>
   </data>
   <data name="msgPowerManagementOK" xml:space="preserve">
     <value>Sleep prevention was successful.</value>
@@ -491,5 +491,20 @@
   </data>
   <data name="msgFailedRecalaulation" xml:space="preserve">
     <value>Failed to recalculate one or more channels.</value>
+  </data>
+  <data name="namCurrentFormat" xml:space="preserve">
+    <value>DAC Current axis (right) format</value>
+  </data>
+  <data name="namCurrentAxisLabel" xml:space="preserve">
+    <value>DAC Current axis (right) label text</value>
+  </data>
+  <data name="strLockRightAxis" xml:space="preserve">
+    <value>Lock current axis (right)</value>
+  </data>
+  <data name="namRightYMin" xml:space="preserve">
+    <value>Current axis (right) min value</value>
+  </data>
+  <data name="namRightYMax" xml:space="preserve">
+    <value>Current axis (right) max value</value>
   </data>
 </root>

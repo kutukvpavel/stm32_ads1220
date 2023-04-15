@@ -73,6 +73,7 @@
 	<None Remove="Resources\folder.png" />
 	<None Remove="Resources\lock_horizontal.png" />
 	<None Remove="Resources\lock_vertical.png" />
+	<None Remove="Resources\lock_vertical_right.png" />
 	<None Remove="Resources\math.png" />
 	<None Remove="Resources\scaling.png" />
 	<None Remove="Resources\send.png" />
@@ -157,6 +158,9 @@
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Resource>
 	<Resource Include="Resources\lock_vertical.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\lock_vertical_right.png">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Resource>
 	<Resource Include="Resources\math.png">

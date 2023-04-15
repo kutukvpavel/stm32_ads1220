@@ -107,7 +107,8 @@ namespace AdcControl
         {
             All,
             X,
-            Y
+            Y,
+            RightY
         }
 
         private static readonly System.Drawing.Color LegendColor =
@@ -175,17 +176,14 @@ namespace AdcControl
                 channel.CalculatedX, channel.CalculatedY,
                 color: channel.Color); //Somehow signalPlot doesn't support color change (only markers change color after the field was modified)
             channel.Plot.LineWidth = Settings.ViewSettings.LineWidth;
+            channel.Plot.YAxisIndex = (channel.Code & AdcConstants.DacCurrentsBase) == AdcConstants.DacCurrentsBase ?
+                pltMainPlot.Plot.RightAxis.AxisIndex : pltMainPlot.Plot.LeftAxis.AxisIndex;
         }
 
         private void SaveAxisLimits(AxisLimitsType type = AxisLimitsType.All)
         {
-            var s = pltMainPlot.Plot.GetAxisLimits(0, 0);
-            if (type != AxisLimitsType.X)
-            {
-                Settings.ViewSettings.YMax = s.YMax;
-                Settings.ViewSettings.YMin = s.YMin;
-            }
-            if (type != AxisLimitsType.Y)
+            var s = pltMainPlot.Plot.GetAxisLimits(0, pltMainPlot.Plot.LeftAxis.AxisIndex);
+            if (type == AxisLimitsType.X || type == AxisLimitsType.All)
             {
                 double xMin = s.XMin;
                 double xMax = s.XMax;
@@ -196,6 +194,17 @@ namespace AdcControl
                 }
                 Settings.ViewSettings.XMax = xMax;
                 Settings.ViewSettings.XMin = xMin;
+            }
+            if (type == AxisLimitsType.Y || type == AxisLimitsType.All)
+            {
+                Settings.ViewSettings.YMax = s.YMax;
+                Settings.ViewSettings.YMin = s.YMin;
+            }
+            if (type == AxisLimitsType.RightY || type == AxisLimitsType.All)
+            {
+                var r = pltMainPlot.Plot.GetAxisLimits(0, pltMainPlot.Plot.RightAxis.AxisIndex);
+                Settings.ViewSettings.RightYMax = r.YMax;
+                Settings.ViewSettings.RightYMin = r.YMin;
             }
         }
 
@@ -210,6 +219,10 @@ namespace AdcControl
             pltMainPlot.Plot.YLabel(Settings.ViewSettings.YAxisLabel);
             pltMainPlot.Plot.XLabel(Settings.ViewSettings.XAxisLabel);
             pltMainPlot.Plot.YAxis.TickLabelFormat(Settings.ViewSettings.CalculatedYNumberFormat, false);
+            //pltMainPlot.Plot.RightAxis.IsVisible = true;
+            pltMainPlot.Plot.RightAxis.Ticks(true);
+            pltMainPlot.Plot.RightAxis.Label(Settings.ViewSettings.CurrentAxisLabel);
+            pltMainPlot.Plot.RightAxis.TickLabelFormat(Settings.ViewSettings.CurrentNumberFormat, false);
             //pltMainPlot.Plot.XAxis.DateTimeFormat(true);
             pltMainPlot.Plot.XAxis.TickLabelFormat(x => CsvExporter.OADateToSeconds(x).ToString("F1"));
             RestoreAxisLimits();
@@ -254,6 +267,10 @@ namespace AdcControl
                 {
                     pltMainPlot.Plot.AxisAutoY(0);
                 }
+                if (!Settings.ViewSettings.LockRightScale)
+                {
+                    pltMainPlot.Plot.AxisAutoY(yAxisIndex: pltMainPlot.Plot.RightAxis.AxisIndex);
+                }
             }
             else
             {
@@ -273,6 +290,13 @@ namespace AdcControl
                         l.XMax,
                         yMax: Settings.ViewSettings.YMax,
                         yMin: Settings.ViewSettings.YMin
+                        );
+                }
+                if (Settings.ViewSettings.LockRightScale)
+                {
+                    pltMainPlot.Plot.SetAxisLimits(yAxisIndex: pltMainPlot.Plot.RightAxis.AxisIndex,
+                        yMin: Settings.ViewSettings.RightYMin,
+                        yMax: Settings.ViewSettings.RightYMax
                         );
                 }
             }
@@ -309,8 +333,10 @@ namespace AdcControl
         {
             if (!pltMainPlot.IsMouseOver) return;
             (double mouseX, double mouseY) = pltMainPlot.GetMouseCoordinates();
-            txtCoordinates.Text = string.Format("{0} @ {1:F2}", 
-                mouseY.ToString(Settings.ViewSettings.CalculatedYNumberFormat), 
+            (double _, double mouseRightY) = pltMainPlot.GetMouseCoordinates(yAxisIndex: pltMainPlot.Plot.RightAxis.AxisIndex);
+            txtCoordinates.Text = string.Format("V = {0}, I = {1} @ {2:F2}", 
+                mouseY.ToString(Settings.ViewSettings.CalculatedYNumberFormat),
+                mouseRightY.ToString(Settings.ViewSettings.CurrentNumberFormat),
                 CsvExporter.OADateToSeconds(mouseX)
                 );
         }
@@ -436,6 +462,11 @@ namespace AdcControl
         #endregion
 
         #region UI Events
+
+        private void btnLockRightAxis_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IsLoaded) SaveAxisLimits(AxisLimitsType.Y);
+        }
 
         private void PltMainPlot_RightClicked(object sender, RoutedEventArgs e)
         {

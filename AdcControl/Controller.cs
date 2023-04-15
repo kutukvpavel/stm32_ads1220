@@ -102,12 +102,12 @@ namespace AdcControl
                             AcquisitionDataReceived?.Invoke(this, item);
                         }
                         foreach (var item in value.Currents.Select((x, i) => 
-                            new AcquisitionEventArgs(i + 0xD00, x, value.Timestamp)))
+                            new AcquisitionEventArgs(i + AdcConstants.DacCurrentsBase, x, value.Timestamp)))
                         {
                             AcquisitionDataReceived?.Invoke(this, item);
                         }
-                        foreach (var item in value.CorrectedCurrents.Select((x, i) => 
-                            new AcquisitionEventArgs(i + 0xC00, x, value.Timestamp)))
+                        foreach (var item in value.CorrectedVoltages.Select((x, i) => 
+                            new AcquisitionEventArgs(i + AdcConstants.DacCorrectedVoltagesBase, x, value.Timestamp)))
                         {
                             AcquisitionDataReceived?.Invoke(this, item);
                         }
@@ -202,7 +202,7 @@ namespace AdcControl
                 }
                 res.Voltages = adcBuffer;
                 res.Currents = dacBuffer;
-                res.CorrectedCurrents = dacCorrBuffer;
+                res.CorrectedVoltages = dacCorrBuffer;
                 return res;
             }
             catch (Exception ex)
@@ -332,6 +332,7 @@ namespace AdcControl
                 if ((await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0])
                 {
                     IsConnected = await InitRegisterMap();
+                    await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.CorrectDAC, true);
                     return IsConnected;
                 }
             }

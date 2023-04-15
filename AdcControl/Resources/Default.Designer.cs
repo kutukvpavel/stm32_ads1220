@@ -556,7 +556,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Calculated Y value format.
+        ///   Ищет локализованную строку, похожую на Calculated voltage axis format.
         /// </summary>
         public static string namCalcYFormat {
             get {
@@ -588,6 +588,24 @@ namespace AdcControl.Resources {
         public static string namConcatLineWidth {
             get {
                 return ResourceManager.GetString("namConcatLineWidth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на DAC Current axis (right) label text.
+        /// </summary>
+        public static string namCurrentAxisLabel {
+            get {
+                return ResourceManager.GetString("namCurrentAxisLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на DAC Current axis (right) format.
+        /// </summary>
+        public static string namCurrentFormat {
+            get {
+                return ResourceManager.GetString("namCurrentFormat", resourceCulture);
             }
         }
         
@@ -705,6 +723,24 @@ namespace AdcControl.Resources {
         public static string namPlotRefreshPeriod {
             get {
                 return ResourceManager.GetString("namPlotRefreshPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Current axis (right) max value.
+        /// </summary>
+        public static string namRightYMax {
+            get {
+                return ResourceManager.GetString("namRightYMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Current axis (right) min value.
+        /// </summary>
+        public static string namRightYMin {
+            get {
+                return ResourceManager.GetString("namRightYMin", resourceCulture);
             }
         }
         
@@ -1004,6 +1040,15 @@ namespace AdcControl.Resources {
         public static string strLockHorizontalAxis {
             get {
                 return ResourceManager.GetString("strLockHorizontalAxis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Lock current axis (right).
+        /// </summary>
+        public static string strLockRightAxis {
+            get {
+                return ResourceManager.GetString("strLockRightAxis", resourceCulture);
             }
         }
         
