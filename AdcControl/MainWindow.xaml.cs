@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Threading;
 using org.mariuszgromada.math.mxparser;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
+using System.Windows.Input;
 
 namespace AdcControl
 {
@@ -34,6 +35,8 @@ namespace AdcControl
             Left = Settings.Default.MainWindowLocation.X;
             Height = Settings.Default.MainWindowSize.Height;
             Width = Settings.Default.MainWindowSize.Width;
+            pltMainPlot.RightClicked -= pltMainPlot.DefaultRightClickEvent;
+            pltMainPlot.RightClicked += PltMainPlot_RightClicked;
         }
 
         //Public
@@ -434,6 +437,11 @@ namespace AdcControl
 
         #region UI Events
 
+        private void PltMainPlot_RightClicked(object sender, RoutedEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl)) pltMainPlot.DefaultRightClickEvent(this, e);
+        }
+
         private void btnExportConfig_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new ExportSettingsWindow();
@@ -491,7 +499,7 @@ namespace AdcControl
         private async void btnStartAcquisition_Click(object sender, RoutedEventArgs e)
         {
             CurrentStatus = Default.stsStartingAcq;
-            if (LastAcquisitionEnd.HasValue)
+            /*if (LastAcquisitionEnd.HasValue)
             {
                 try
                 {
@@ -514,7 +522,7 @@ namespace AdcControl
                 {
                     LastAcquisitionEnd = null;
                 }
-            }
+            }*/
             if (await App.Stm32Ads1220.StartAcquisition())
             {
                 prgAcquisitionProgress.Minimum = DateTime.UtcNow.Ticks;
@@ -622,8 +630,7 @@ namespace AdcControl
                 foreach (var item in App.AdcChannels)
                 {
                     item.Value.MovingAveraging = Settings.Default.Average;
-                    item.Value.CapacityStep = (int)
-                        Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed);
+                    item.Value.CapacityStep = Settings.Default.AcquisitionDuration;
                 }
                 await RecalculateChannels();
                 OnPropertyChanged();

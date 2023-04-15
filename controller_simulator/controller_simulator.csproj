@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="ScottPlot.WPF" Version="4.1.1-beta" />
-    <PackageReference Include="SerialPortStream" Version="2.2.2" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="ScottPlot.WPF" Version="4.1.63" />
+    <PackageReference Include="SerialPortStream" Version="2.4.1" />
   </ItemGroup>
 
 </Project>

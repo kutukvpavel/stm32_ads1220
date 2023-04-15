@@ -210,8 +210,8 @@ namespace AdcControl
                 bool added = AdcChannels.TryAdd(
                     e.Channel,
                     new AdcChannel(e.Channel,
-                        (int)Math.Ceiling(Settings.Default.AcquisitionDuration * Settings.Default.AcquisitionSpeed),
-                        Settings.Default.Average, Settings.Default.AcquisitionSpeed
+                        Settings.Default.AcquisitionDuration,
+                        Settings.Default.Average, 1
                         )
                     );
                 if (added)
