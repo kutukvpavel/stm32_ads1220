@@ -41,7 +41,13 @@
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;string&gt;0=-47872&lt;/string&gt;
-  &lt;string&gt;50=-16777011&lt;/string&gt;
+  &lt;string&gt;1=-16777011&lt;/string&gt;
+  &lt;string&gt;2=-17408&lt;/string&gt;
+  &lt;string&gt;3=-8323328&lt;/string&gt;
+  &lt;string&gt;D00=-256&lt;/string&gt;
+  &lt;string&gt;D01=-16711689&lt;/string&gt;
+  &lt;string&gt;C00=-65323&lt;/string&gt;
+  &lt;string&gt;C01=-5570305&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ChannelMathYMapping" Type="System.Collections.Specialized.StringCollection" Scope="User">
