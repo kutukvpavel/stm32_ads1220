@@ -21,12 +21,20 @@ namespace AdcControl.Modbus
         {
             Value = BitConverter.ToSingle(data);
         }
+        public void Set(string data)
+        {
+            Value = float.Parse(data);
+        }
+        public override string ToString()
+        {
+            return Value.ToString("F6");
+        }
 
         public static explicit operator float(DevFloat v) => v.Value;
         public static explicit operator DevFloat(float v) => new DevFloat() { Value = v };
     }
 
-    public class DevUshort : IDeviceType
+    public class DevUShort : IDeviceType
     {
         public ushort Value { get; set; }
 
@@ -43,9 +51,17 @@ namespace AdcControl.Modbus
         {
             Value = BitConverter.ToUInt16(data);
         }
+        public void Set(string data)
+        {
+            Value = ushort.Parse(data);
+        }
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
 
-        public static explicit operator ushort(DevUshort v) => v.Value;
-        public static explicit operator DevUshort(ushort v) => new DevUshort() { Value = v };
+        public static explicit operator ushort(DevUShort v) => v.Value;
+        public static explicit operator DevUShort(ushort v) => new DevUShort() { Value = v };
     }
 
     public class DevULong : IDeviceType
@@ -64,6 +80,14 @@ namespace AdcControl.Modbus
         public void Set(byte[] data)
         {
             Value = BitConverter.ToUInt32(data);
+        }
+        public void Set(string data)
+        {
+            Value = uint.Parse(data);
+        }
+        public override string ToString()
+        {
+            return Value.ToString();
         }
 
         public static explicit operator uint(DevULong v) => v.Value;
@@ -92,6 +116,10 @@ namespace AdcControl.Modbus
             B = BitConverter.ToSingle(data, startIndex += sizeof(float));
             Invert = BitConverter.ToUInt16(data, startIndex += sizeof(float));
         }
+        public void Set(string data)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class DacCal : IDeviceType
@@ -118,6 +146,10 @@ namespace AdcControl.Modbus
             Current_K = BitConverter.ToSingle(data, startIndex += sizeof(float));
             Current_B = BitConverter.ToSingle(data, startIndex += sizeof(float));
         }
+        public void Set(string data)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class AioCal : IDeviceType
@@ -139,6 +171,10 @@ namespace AdcControl.Modbus
         {
             K = BitConverter.ToSingle(data);
             B = BitConverter.ToSingle(data, sizeof(float));
+        }
+        public void Set(string data)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -169,6 +205,10 @@ namespace AdcControl.Modbus
             InvertEnable = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             InvertError = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             Direction = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+        }
+        public void Set(string data)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -221,6 +261,10 @@ namespace AdcControl.Modbus
             startIndex += sizeof(ushort); //Reserved1
             TotalFlowrate = BitConverter.ToSingle(data, startIndex += sizeof(ushort));
 
+        }
+        public void Set(string data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

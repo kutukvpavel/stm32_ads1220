@@ -1,0 +1,14 @@
+﻿<Window x:Class="AdcControl.ComplexRegisterEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AdcControl"
+        xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="ComplexRegisterEdit" Height="450" Width="800"
+        Name="ComplexRegEditWindow">
+    <Grid>
+        <toolkit:PropertyGrid SelectedObject="{Binding ElementName=ComplexRegEditWindow, Path=DataContext}"></toolkit:PropertyGrid>
+    </Grid>
+</Window>

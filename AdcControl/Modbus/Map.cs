@@ -50,7 +50,7 @@ namespace AdcControl.Modbus
         }
         public ushort GetConfigValue(AdcConstants.ConfigurationRegisters reg)
         {
-            return (ushort)(DevUshort)(GetConfig(reg).Value);
+            return (ushort)(DevUShort)GetConfig(reg).Value;
         }
         public void AddHolding<T>(string name, int num) where T : IDeviceType, new()
         {

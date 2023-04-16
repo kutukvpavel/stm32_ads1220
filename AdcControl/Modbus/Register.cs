@@ -15,7 +15,7 @@ namespace AdcControl.Modbus
         }
 
         public Type Type => typeof(T);
-        public object Value => TypedValue;
+        public IDeviceType Value => TypedValue;
         public T TypedValue { get; set; } = new T();
         public ushort Address { get; }
         public ushort Length => TypedValue.Size; //In modbus words

@@ -1,0 +1,51 @@
+﻿<Window x:Class="AdcControl.RegisterView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AdcControl"
+        mc:Ignorable="d"
+        Title="RegisterView" Height="400" Width="800">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"></Setter>
+            <Setter Property="Margin" Value="5,2"></Setter>
+        </Style>
+        <Style TargetType="ScrollViewer">
+            <Setter Property="Margin" Value="1"></Setter>
+            <Setter Property="Padding" Value="0,3,3,3"></Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="0" FontWeight="Bold">Input registers:</TextBlock>
+        <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Column="0" Grid.Row="1">
+            <ItemsControl
+                          ItemsSource="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=RegisterMap.InputRegisters}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:RegisterEdit IsReadonly="True" DataContext="{Binding Value}"></local:RegisterEdit>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <TextBlock Grid.Column="1" FontWeight="Bold">Holding registers:</TextBlock>
+        <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Column="1" Grid.Row="1">
+            <ItemsControl
+                      ItemsSource="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=RegisterMap.HoldingRegisters}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:RegisterEdit IsReadonly="False" DataContext="{Binding Value}"></local:RegisterEdit>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Window>

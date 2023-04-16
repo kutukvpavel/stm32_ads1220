@@ -6,6 +6,13 @@ namespace AdcControl.Modbus
 {
     public interface IDeviceType
     {
+        public static Type[] SimpleTypes { get; } =
+        {
+            typeof(DevFloat),
+            typeof(DevULong),
+            typeof(DevUShort)
+        };
+
         protected static byte[] GetBytes(ushort[] data, ushort size)
         {
             byte[] buf = new byte[size * sizeof(ushort)];
@@ -37,5 +44,6 @@ namespace AdcControl.Modbus
         {
             Set(GetBytes(data, Size));
         }
+        public void Set(string data);
     }
 }

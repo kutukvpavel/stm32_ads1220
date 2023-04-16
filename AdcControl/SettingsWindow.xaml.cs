@@ -103,5 +103,11 @@ namespace AdcControl
         {
             OnPropertyChanged();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new RegisterView();
+            dialog.ShowDialog();
+        }
     }
 }

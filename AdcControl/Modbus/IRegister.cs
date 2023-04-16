@@ -6,7 +6,7 @@ namespace AdcControl.Modbus
 {
     public interface IRegister
     {
-        public object Value { get; }
+        public IDeviceType Value { get; }
         public Type Type { get; }
 
         public ushort Address { get; }

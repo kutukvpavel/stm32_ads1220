@@ -187,24 +187,37 @@ namespace AdcControl
             if (c >= AdcConstants.Coils.LEN) throw new ArgumentOutOfRangeException(nameof(c));
             await Master.WriteSingleCoilAsync(UnitAddress, (ushort)c, v);
         }
-        public async Task<T> ReadRegister<T>(string name) where T : Modbus.IDeviceType, new()
+        public async Task<Modbus.IDeviceType> ReadRegister(string name)
         {
-            Modbus.Register<T> reg;
+            Modbus.IRegister reg;
             if (RegisterMap.HoldingRegisters.Contains(name))
             {
-                reg = RegisterMap.HoldingRegisters[name] as Modbus.Register<T>;
+                reg = RegisterMap.HoldingRegisters[name] as Modbus.IRegister;
                 reg.Set(await Master.ReadHoldingRegistersAsync(UnitAddress, reg.Address, reg.Length));
-                return reg.TypedValue;
+                return reg.Value;
             }
             if (RegisterMap.InputRegisters.Contains(name))
             {
-                reg = RegisterMap.InputRegisters[name] as Modbus.Register<T>;
+                reg = RegisterMap.InputRegisters[name] as Modbus.IRegister;
                 reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, reg.Length));
-                return reg.TypedValue;
+                return reg.Value;
             }
             throw new ArgumentException("Specified register name doen't exist!");
         }
-        public async Task WriteRegister<T>(string name, T value) where T : Modbus.IDeviceType, new()
+        public async Task<T> ReadRegister<T>(string name) where T : Modbus.IDeviceType, new()
+        {
+            return (T) await ReadRegister(name);
+        }
+        public async Task WriteRegister(Modbus.IRegister reg)
+        {
+            await Master.WriteMultipleRegistersAsync(UnitAddress, reg.Address, reg.Value.GetWords());
+        }
+        public async Task WriteRegister(string name)
+        {
+            var reg = RegisterMap.HoldingRegisters[name] as Modbus.IRegister;
+            await WriteRegister(reg);
+        }
+        public async Task WriteRegister(string name, Modbus.IDeviceType value)
         {
             var reg = RegisterMap.HoldingRegisters[name] as Modbus.IRegister;
             await Master.WriteMultipleRegistersAsync(UnitAddress, reg.Address, value.GetWords());
@@ -266,7 +279,7 @@ namespace AdcControl
                 for (int i = 0; i < (int)AdcConstants.ConfigurationRegisters.LEN; i++)
                 {
                     AdcConstants.ConfigurationRegisters reg = (AdcConstants.ConfigurationRegisters)i;
-                    RegisterMap.AddInput<Modbus.DevUshort>(AdcConstants.ConfigurationRegisterNames[reg] as string, 1, true);
+                    RegisterMap.AddInput<Modbus.DevUShort>(AdcConstants.ConfigurationRegisterNames[reg] as string, 1, true);
                 }
 
                 //Read configuration registers
