@@ -56,7 +56,8 @@ namespace AdcControl
         {
             Coils.CorrectDAC,
             Coils.Depolarize,
-            Coils.EnableMotors
+            Coils.EnableMotors,
+            Coils.Regulate
         };
         public enum DiscreteInputs : ushort
         {

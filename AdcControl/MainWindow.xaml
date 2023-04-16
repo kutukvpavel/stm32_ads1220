@@ -15,7 +15,7 @@
         x:Name="_this"
         Icon="/Resources/chart.png"
         FontSize="16"
-        d:DesignWidth="950" d:DesignHeight="257.871">
+        d:DesignWidth="1200" d:DesignHeight="257.871">
     <Window.Resources>
         <Style TargetType="Image">
             <Style.Triggers>
@@ -235,13 +235,17 @@
                 </StackPanel>
             </Expander.Header>
             <ScrollViewer VerticalScrollBarVisibility="Visible">
-                <ItemsControl ItemsSource="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=StatusBits, Mode=OneWay}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <CheckBox Content="{Binding Name}" IsChecked="{Binding State}" Margin="3"></CheckBox>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <StackPanel>
+                    <Button x:Name="btnUpdateStatusBits" Margin="3" Background="LightSalmon" Click="btnUpdateStatusBits_Click"
+                            IsEnabled="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=IsConnected}">Update...</Button>
+                    <ItemsControl ItemsSource="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=StatusBits, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Click="CheckBoxDac_Click" Content="{Binding Name}" IsChecked="{Binding State}" Margin="3"></CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </ScrollViewer>
         </Expander>
         <StatusBar FontSize="16" Grid.Row="2" x:Name="stbMainStatusBar" Grid.Column="1">

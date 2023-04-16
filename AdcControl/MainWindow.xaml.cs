@@ -465,6 +465,10 @@ namespace AdcControl
         #endregion
 
         #region UI Events
+        private async void btnUpdateStatusBits_Click(object sender, RoutedEventArgs e)
+        {
+            await App.Stm32Ads1220.ReadCoils();
+        }
         private async void CheckBoxDac_Click(object sender, RoutedEventArgs e)
         {
             var chk = sender as CheckBox;

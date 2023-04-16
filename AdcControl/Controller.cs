@@ -175,7 +175,12 @@ namespace AdcControl
 
         public async Task<bool[]> ReadCoils()
         {
-            return await Master.ReadCoilsAsync(UnitAddress, 0, (ushort)AdcConstants.Coils.LEN);
+            var res = await Master.ReadCoilsAsync(UnitAddress, 0, (ushort)AdcConstants.Coils.LEN);
+            for (int i = 0; i < StatusBits.Count; i++)
+            {
+                StatusBits[i].State = res[i];
+            }
+            return res;
         }
         public async Task WriteCoil(AdcConstants.Coils c, bool v)
         {
