@@ -85,6 +85,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<PackageReference Include="CsvHelper" Version="30.0.1" />
 	<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.103" />
 	<PackageReference Include="L" Version="5.0.0" />

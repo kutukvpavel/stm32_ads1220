@@ -510,4 +510,7 @@
   <data name="strExpanderDac" xml:space="preserve">
     <value>DAC Control</value>
   </data>
+  <data name="strStatusBitsExpander" xml:space="preserve">
+    <value>Status Bits</value>
+  </data>
 </root>

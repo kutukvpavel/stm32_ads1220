@@ -31,8 +31,8 @@ namespace AdcControl
             Ready,
             SaveEEPROM,
             HaveNewData,
-            Reserved_1,
-            Reserved_2,
+            Regulate,
+            Depolarize,
             ADC_RES,
             ADC_EN,
             DAC_RES,
@@ -48,8 +48,16 @@ namespace AdcControl
             OUT4,
             OUT5,
             OUT6,
-            OUT7
+            OUT7,
+
+            LEN
         }
+        public static readonly Coils[] ConfigurationCoils =
+        {
+            Coils.CorrectDAC,
+            Coils.Depolarize,
+            Coils.EnableMotors
+        };
         public enum DiscreteInputs : ushort
         {
             MOTOR_ERR0,
@@ -89,6 +97,10 @@ namespace AdcControl
         public static readonly string AdcVoltagesNameTemplate = "ADC_VOLTAGE_";
         public static readonly string DacCurrentsNameTemplate = "DAC_CURRENT_";
         public static readonly string DacCorrectedNameTemplate = "DAC_CORR_";
+        public static readonly string DacCorrectionIntervalNameTemplate = "DAC_CORR_INTERVAL_";
         public static readonly string DacSetpointNameTemplate = "DAC_SETPOINT_";
+        public static readonly string DacDepoPercentNameTemplate = "DEPO_PERCENT_";
+        public static readonly string DacDepoIntervalNameTemplate = "DEPO_INVERAL_";
+        public static readonly string DacDepoSetpointNameTemplate = "DEPO_SETPOINT_";
     }
 }

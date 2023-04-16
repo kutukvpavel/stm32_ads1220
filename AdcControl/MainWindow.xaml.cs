@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using org.mariuszgromada.math.mxparser;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 using System.Windows.Input;
+using System.Windows.Controls;
 
 namespace AdcControl
 {
@@ -414,6 +415,8 @@ namespace AdcControl
         private void App_NewChannelDetected(object sender, NewChannelDetectedEventArgs e)
         {
             App.AdcChannels[e.Code].ArrayChanged += AdcChannel_ArrayChanged;
+            var rtd = DictionarySerializer.Parse(Settings.Default.RealTimeTableChannels, x => bool.Parse(x), false);
+            bool skipTableColumns = !rtd.ContainsKey(e.Code) || !rtd[e.Code];
             Dispatcher.Invoke(() =>
             {
                 PlotChannel(App.AdcChannels[e.Code]);
@@ -427,9 +430,11 @@ namespace AdcControl
                     location: ScottPlot.Alignment.UpperLeft
                     );
                 pltMainPlot.RenderRequest(ScottPlot.RenderType.LowQualityThenHighQuality);
+                if (skipTableColumns) return;
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedXColumn);
                 pnlRealTimeData.Children.Add(App.AdcChannels[e.Code].CalculatedYColumn);
             });
+            if (skipTableColumns) return;
             App.AdcChannels[e.Code].CalculatedXColumn.ItemsLimit = Settings.ViewSettings.TableLimit;
             App.AdcChannels[e.Code].CalculatedXColumn.DropItems = Settings.ViewSettings.TableDropPoints;
             App.AdcChannels[e.Code].CalculatedYColumn.DropItems = Settings.ViewSettings.TableDropPoints;
@@ -460,7 +465,13 @@ namespace AdcControl
         #endregion
 
         #region UI Events
-
+        private async void CheckBoxDac_Click(object sender, RoutedEventArgs e)
+        {
+            var chk = sender as CheckBox;
+            if (chk == null) return;
+            var context = chk.DataContext as StatusBit;
+            await context.Write();
+        }
         private void btnLockRightAxis_Checked(object sender, RoutedEventArgs e)
         {
             if (IsLoaded) SaveAxisLimits(AxisLimitsType.Y);
@@ -709,5 +720,6 @@ namespace AdcControl
         }
 
         #endregion
+
     }
 }

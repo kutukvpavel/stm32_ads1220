@@ -49,7 +49,7 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
         public int AcquisitionDuration {
             get {
                 return ((int)(this["AcquisitionDuration"]));
@@ -61,9 +61,17 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>0=AIN0_AIN1</string>\r\n  <string>50=AIN2_AIN3</string>\r\n</ArrayOfString>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>0=ADC0_0</string>
+  <string>1=ADC0_1</string>
+  <string>2=ADC1_0</string>
+  <string>3=ADC1_1</string>
+  <string>D00=DAC0_I</string>
+  <string>D01=DAC1_I</string>
+  <string>C00=DAC0_V</string>
+  <string>C01=DAC1_V</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection ChannelNameMapping {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["ChannelNameMapping"]));
@@ -75,9 +83,17 @@ namespace AdcControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>0=True</string>\r\n  <string>50=True</string>\r\n</ArrayOfString>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>0=True</string>
+  <string>1=True</string>
+  <string>2=True</string>
+  <string>3=True</string>
+  <string>D00=True</string>
+  <string>D01=True</string>
+  <string>C00=True</string>
+  <string>C01=True</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection ChannelEnableMapping {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["ChannelEnableMapping"]));
@@ -214,6 +230,28 @@ namespace AdcControl.Properties {
             }
             set {
                 this["TerminalExpanded"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>0=True</string>
+  <string>1=True</string>
+  <string>2=True</string>
+  <string>3=False</string>
+  <string>D00=True</string>
+  <string>D01=True</string>
+  <string>C00=False</string>
+  <string>C01=False</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection RealTimeTableChannels {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["RealTimeTableChannels"]));
+            }
+            set {
+                this["RealTimeTableChannels"] = value;
             }
         }
     }

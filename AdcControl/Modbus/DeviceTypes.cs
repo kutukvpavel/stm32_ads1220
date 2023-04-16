@@ -6,17 +6,16 @@ namespace AdcControl.Modbus
 {
     public class DevFloat : IDeviceType
     {
-        public float Value { get; private set; }
+        public float Value { get; set; }
 
         public ushort Size => 2;
         public object Get()
         {
             return this;
         }
-        public ushort[] GetWords(object data)
+        public ushort[] GetWords()
         {
-            float v = (float)data;
-            return IDeviceType.BytesToWords(BitConverter.GetBytes(v), Size);
+            return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
         public void Set(byte[] data)
         {
@@ -24,21 +23,21 @@ namespace AdcControl.Modbus
         }
 
         public static explicit operator float(DevFloat v) => v.Value;
+        public static explicit operator DevFloat(float v) => new DevFloat() { Value = v };
     }
 
     public class DevUshort : IDeviceType
     {
-        public ushort Value { get; private set; }
+        public ushort Value { get; set; }
 
         public ushort Size => 1;
         public object Get()
         {
             return this;
         }
-        public ushort[] GetWords(object data)
+        public ushort[] GetWords()
         {
-            ushort v = (ushort)data;
-            return IDeviceType.BytesToWords(BitConverter.GetBytes(v), Size);
+            return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
         public void Set(byte[] data)
         {
@@ -46,20 +45,43 @@ namespace AdcControl.Modbus
         }
 
         public static explicit operator ushort(DevUshort v) => v.Value;
+        public static explicit operator DevUshort(ushort v) => new DevUshort() { Value = v };
+    }
+
+    public class DevULong : IDeviceType
+    {
+        public uint Value { get; set; }
+
+        public ushort Size => 2;
+        public object Get()
+        {
+            return this;
+        }
+        public ushort[] GetWords()
+        {
+            return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
+        }
+        public void Set(byte[] data)
+        {
+            Value = BitConverter.ToUInt32(data);
+        }
+
+        public static explicit operator uint(DevULong v) => v.Value;
+        public static explicit operator DevULong(uint v) => new DevULong() { Value = v };
     }
 
     public class AdcChannelCal : IDeviceType
     {
-        public float K { get; private set; }
-        public float B { get; private set; }
-        public ushort Invert { get; private set; }
+        public float K { get; set; }
+        public float B { get; set; }
+        public ushort Invert { get; set; }
 
         public ushort Size => 2 * 2 + 1;
         public object Get()
         {
             return this;
         }
-        public ushort[] GetWords(object data)
+        public ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
@@ -74,17 +96,17 @@ namespace AdcControl.Modbus
 
     public class DacCal : IDeviceType
     {
-        public float K { get; private set; }
-        public float B { get; private set; }
-        public float Current_K { get; private set; }
-        public float Current_B { get; private set; }
+        public float K { get; set; }
+        public float B { get; set; }
+        public float Current_K { get; set; }
+        public float Current_B { get; set; }
 
         public ushort Size => 2 * 4;
         public object Get()
         {
             return this;
         }
-        public ushort[] GetWords(object data)
+        public ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
@@ -100,8 +122,8 @@ namespace AdcControl.Modbus
 
     public class AioCal : IDeviceType
     {
-        public float K { get; private set; }
-        public float B { get; private set; }
+        public float K { get; set; }
+        public float B { get; set; }
 
         public ushort Size => 2 * 2;
         public object Get()
@@ -109,7 +131,7 @@ namespace AdcControl.Modbus
             return this;
         }
 
-        public ushort[] GetWords(object data)
+        public ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
@@ -122,19 +144,19 @@ namespace AdcControl.Modbus
 
     public class MotorParams : IDeviceType
     {
-        public float RateToSpeed { get; private set; }
-        public ushort Microsteps { get; private set; }
-        public ushort Teeth { get; private set; }
-        public ushort InvertEnable { get; private set; }
-        public ushort InvertError { get; private set; }
-        public ushort Direction { get; private set; }
+        public float RateToSpeed { get; set; }
+        public ushort Microsteps { get; set; }
+        public ushort Teeth { get; set; }
+        public ushort InvertEnable { get; set; }
+        public ushort InvertError { get; set; }
+        public ushort Direction { get; set; }
 
         public ushort Size => 2 + 1 * 5;
         public object Get()
         {
             return this;
         }
-        public ushort[] GetWords(object data)
+        public ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
@@ -147,6 +169,58 @@ namespace AdcControl.Modbus
             InvertEnable = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             InvertError = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             Direction = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+        }
+    }
+
+    public class RegulatorParams : IDeviceType
+    {
+        public float kP { get; set; }
+        public float kI { get; set; }
+        public float kD { get; set; }
+        public ushort LowConcMotor { get; set; }
+        public ushort HighConcMotor { get; set; }
+        public ushort SensingAdcChannel { get; set; }
+        public ushort LowConcDacChannel { get; set; }
+        public ushort HighConcDacChannel { get; set; }
+        //public ushort Reserved1 { get; set; }
+        public float TotalFlowrate { get; set; }
+
+        public ushort Size => 2 * 3 + 1 * 6 + 2 * 1;
+        public object Get()
+        {
+            return this;
+        }
+        public ushort[] GetWords()
+        {
+            List<byte> buf = new List<byte>(Size * sizeof(ushort));
+            buf.AddRange(BitConverter.GetBytes(kP));
+            buf.AddRange(BitConverter.GetBytes(kI));
+            buf.AddRange(BitConverter.GetBytes(kD));
+            buf.AddRange(BitConverter.GetBytes(LowConcMotor));
+            buf.AddRange(BitConverter.GetBytes(HighConcMotor));
+            buf.AddRange(BitConverter.GetBytes(SensingAdcChannel));
+            buf.AddRange(BitConverter.GetBytes(LowConcDacChannel));
+            buf.AddRange(BitConverter.GetBytes(HighConcDacChannel));
+            buf.AddRange(BitConverter.GetBytes((ushort)0)); //Reserved1
+            buf.AddRange(BitConverter.GetBytes(TotalFlowrate));
+            if (buf.Count != Size * sizeof(ushort))
+                throw new InvalidOperationException("Device type write buffer size is not equal to defined type size!");
+            return IDeviceType.BytesToWords(buf.ToArray(), Size);
+        }
+        public void Set(byte[] data)
+        {
+            int startIndex = 0;
+            kP = BitConverter.ToSingle(data, startIndex);
+            kI = BitConverter.ToSingle(data, startIndex += sizeof(float));
+            kD = BitConverter.ToSingle(data, startIndex += sizeof(float));
+            LowConcMotor = BitConverter.ToUInt16(data, startIndex += sizeof(float));
+            HighConcMotor = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            SensingAdcChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            LowConcDacChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            HighConcDacChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            startIndex += sizeof(ushort); //Reserved1
+            TotalFlowrate = BitConverter.ToSingle(data, startIndex += sizeof(ushort));
+
         }
     }
 }

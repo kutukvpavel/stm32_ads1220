@@ -9,20 +9,32 @@
       <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="AcquisitionDuration" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5</Value>
+      <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="ChannelNameMapping" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;0=AIN0_AIN1&lt;/string&gt;
-  &lt;string&gt;50=AIN2_AIN3&lt;/string&gt;
+  &lt;string&gt;0=ADC0_0&lt;/string&gt;
+  &lt;string&gt;1=ADC0_1&lt;/string&gt;
+  &lt;string&gt;2=ADC1_0&lt;/string&gt;
+  &lt;string&gt;3=ADC1_1&lt;/string&gt;
+  &lt;string&gt;D00=DAC0_I&lt;/string&gt;
+  &lt;string&gt;D01=DAC1_I&lt;/string&gt;
+  &lt;string&gt;C00=DAC0_V&lt;/string&gt;
+  &lt;string&gt;C01=DAC1_V&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ChannelEnableMapping" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;string&gt;0=True&lt;/string&gt;
-  &lt;string&gt;50=True&lt;/string&gt;
+  &lt;string&gt;1=True&lt;/string&gt;
+  &lt;string&gt;2=True&lt;/string&gt;
+  &lt;string&gt;3=True&lt;/string&gt;
+  &lt;string&gt;D00=True&lt;/string&gt;
+  &lt;string&gt;D01=True&lt;/string&gt;
+  &lt;string&gt;C00=True&lt;/string&gt;
+  &lt;string&gt;C01=True&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="AcqDropPoints" Type="System.Int32" Scope="User">
@@ -68,6 +80,19 @@
     </Setting>
     <Setting Name="TerminalExpanded" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="RealTimeTableChannels" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;0=True&lt;/string&gt;
+  &lt;string&gt;1=True&lt;/string&gt;
+  &lt;string&gt;2=True&lt;/string&gt;
+  &lt;string&gt;3=False&lt;/string&gt;
+  &lt;string&gt;D00=True&lt;/string&gt;
+  &lt;string&gt;D01=True&lt;/string&gt;
+  &lt;string&gt;C00=False&lt;/string&gt;
+  &lt;string&gt;C01=False&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

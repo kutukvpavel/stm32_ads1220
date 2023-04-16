@@ -1116,6 +1116,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Status Bits.
+        /// </summary>
+        public static string strStatusBitsExpander {
+            get {
+                return ResourceManager.GetString("strStatusBitsExpander", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Stop data acquisition before exiting!.
         /// </summary>
         public static string strStopAcquisitionBeforeExiting {

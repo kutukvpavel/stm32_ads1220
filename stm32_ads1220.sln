@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdcControl", "AdcControl\Ad
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugHelper", "DebugHelper\DebugHelper.csproj", "{0B0997AB-9E12-45DC-B6F5-A0AC58DC831E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "controller_simulator", "controller_simulator\controller_simulator.csproj", "{21E94453-EEB7-49C4-92BA-FC6B2CE9B03E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "controller_simulator", "controller_simulator\controller_simulator.csproj", "{21E94453-EEB7-49C4-92BA-FC6B2CE9B03E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF4EAAAC-2E1C-4360-AA2D-3CD89AC21E7A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

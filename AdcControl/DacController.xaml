@@ -5,10 +5,31 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AdcControl" d:DataContext="{d:DesignInstance Type=local:DacChannel}"
              mc:Ignorable="d" 
-             d:DesignHeight="100" d:DesignWidth="300" Focusable="True"
-             KeyDown="UserControl_KeyDown">
+             Focusable="True">
+    <UserControl.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="25"></Setter>
+            <Setter Property="Margin" Value="1"></Setter>
+            <Setter Property="Background" Value="LightCoral" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="1"></Setter>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="3,1,3,1"></Setter>
+        </Style>
+    </UserControl.Resources>
     <Grid Margin="3">
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
@@ -16,10 +37,31 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ChannelLabel}" Margin="3"></TextBlock>
-        <TextBox Grid.Row="1" Grid.Column="0" Margin="0,0,3,0" Text="{Binding VoltageText}"
-                 KeyDown="TextBox_KeyDown" x:Name="txtValue"></TextBox>
-        <Button Grid.Column="1" Grid.Row="1" Width="25" Height="25" Background="LightCoral"
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ChannelLabel}" Margin="3" FontWeight="Bold"></TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="0">Setpoint (V):</TextBlock>
+        <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding VoltageText, Mode=TwoWay}"
+                 KeyDown="TextBox_KeyDown" x:Name="txtSetpoint"></TextBox>
+        <Button Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" x:Name="btnSetpoint"
                 Click="Button_Click">W</Button>
+        <TextBlock Grid.Row="3" Grid.Column="0">Depolarization V:</TextBlock>
+        <TextBox Grid.Row="4" Grid.Column="0" Text="{Binding DepolarizationSetpointText, Mode=TwoWay}"
+                 KeyDown="txtDepoSetpoint_KeyDown"  x:Name="txtDepoSetpoint"></TextBox>
+        <Button Grid.Column="1" Grid.Row="3" Grid.RowSpan="2" x:Name="btnDepoSetpoint"
+                Click="btnDepoSetpoint_Click">W</Button>
+        <TextBlock Grid.Row="5" Grid.Column="0">Depolarization %:</TextBlock>
+        <TextBox Grid.Row="6" Grid.Column="0" Text="{Binding DepolarizationPercentText, Mode=TwoWay}"
+                 KeyDown="txtDepoPrecent_KeyDown"  x:Name="txtDepoPrecent"></TextBox>
+        <Button Grid.Column="1" Grid.Row="5" Grid.RowSpan="2" x:Name="btnDepoPercent"
+                Click="btnDepoPercent_Click">W</Button>
+        <TextBlock Grid.Row="7" Grid.Column="0">Depolarization T (s):</TextBlock>
+        <TextBox Grid.Row="8" Grid.Column="0" Text="{Binding DepolarizationIntervalText, Mode=TwoWay}"
+                 KeyDown="txtDepoInterval_KeyDown"  x:Name="txtDepoInterval"></TextBox>
+        <Button Grid.Column="1" Grid.Row="7" Grid.RowSpan="2" x:Name="btnDepoInterval"
+                Click="btnDepoInterval_Click">W</Button>
+        <TextBlock Grid.Row="9" Grid.Column="0">Correction T (s):</TextBlock>
+        <TextBox Grid.Row="10" Grid.Column="0" Text="{Binding CorrectionIntervalText, Mode=TwoWay}"
+                 KeyDown="txtCorrInterval_KeyDown" x:Name="txtCorrInterval"></TextBox>
+        <Button Grid.Column="1" Grid.Row="9" Grid.RowSpan="2" x:Name="btnCorrInterval"
+                Click="btnCorrInterval_Click">W</Button>
     </Grid>
 </UserControl>

@@ -26,9 +26,23 @@ namespace AdcControl.Modbus
             ConfigRegisters.Clear();
             PollRegisters.Clear();
         }
-        public float GetInputFloat(string name)
+        public IRegister GetHolding(string name, int index)
         {
+            return HoldingRegisters[name + index.ToString()] as IRegister;
+        }
+        public IRegister GetInput(string name, int index)
+        {
+            return InputRegisters[name + index.ToString()] as IRegister;
+        }
+        public float GetInputFloat(string name, int index = -1)
+        {
+            if (index >= 0) name += index.ToString();
             return (InputRegisters[name] as Register<DevFloat>).TypedValue.Value;
+        }
+        public float GetHoldingFloat(string name, int index = -1)
+        {
+            if (index >= 0) name += index.ToString();
+            return (HoldingRegisters[name] as Register<DevFloat>).TypedValue.Value;
         }
         public IRegister GetConfig(AdcConstants.ConfigurationRegisters reg)
         {

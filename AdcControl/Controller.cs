@@ -84,7 +84,7 @@ namespace AdcControl
             if (!Monitor.TryEnter(LockObject)) return;
             try
             {
-                var task = Read();
+                var task = Poll();
                 task.Wait();
                 if (task.IsCompletedSuccessfully)
                 {
@@ -166,23 +166,45 @@ namespace AdcControl
         }
         public Modbus.Map RegisterMap { get; }
         public ObservableCollection<DacChannel> DacChannels { get; } = new ObservableCollection<DacChannel>();
+        public ObservableCollection<StatusBit> StatusBits { get; } = new ObservableCollection<StatusBit>();
+        public ObservableCollection<StatusBit> DacControlBits { get; } = new ObservableCollection<StatusBit>();
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
-        public async Task ReadDacSetpoint(int index)
+        public async Task<bool[]> ReadCoils()
         {
-            var reg = RegisterMap.HoldingRegisters[AdcConstants.DacSetpointNameTemplate + index.ToString()] as Modbus.IRegister;
-            reg.Set(await Master.ReadHoldingRegistersAsync(UnitAddress, reg.Address, reg.Length));
+            return await Master.ReadCoilsAsync(UnitAddress, 0, (ushort)AdcConstants.Coils.LEN);
         }
-        public async Task WriteDacSetpoint(int index, float setpoint)
+        public async Task WriteCoil(AdcConstants.Coils c, bool v)
         {
-            var reg = RegisterMap.HoldingRegisters[AdcConstants.DacSetpointNameTemplate + index.ToString()] as Modbus.IRegister;
-            await Master.WriteMultipleRegistersAsync(UnitAddress, reg.Address, reg.GetWords(setpoint));
+            if (c >= AdcConstants.Coils.LEN) throw new ArgumentOutOfRangeException(nameof(c));
+            await Master.WriteSingleCoilAsync(UnitAddress, (ushort)c, v);
         }
-
-        public async Task<AdcResult> Read()
+        public async Task<T> ReadRegister<T>(string name) where T : Modbus.IDeviceType, new()
+        {
+            Modbus.Register<T> reg;
+            if (RegisterMap.HoldingRegisters.Contains(name))
+            {
+                reg = RegisterMap.HoldingRegisters[name] as Modbus.Register<T>;
+                reg.Set(await Master.ReadHoldingRegistersAsync(UnitAddress, reg.Address, reg.Length));
+                return reg.TypedValue;
+            }
+            if (RegisterMap.InputRegisters.Contains(name))
+            {
+                reg = RegisterMap.InputRegisters[name] as Modbus.Register<T>;
+                reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, reg.Length));
+                return reg.TypedValue;
+            }
+            throw new ArgumentException("Specified register name doen't exist!");
+        }
+        public async Task WriteRegister<T>(string name, T value) where T : Modbus.IDeviceType, new()
+        {
+            var reg = RegisterMap.HoldingRegisters[name] as Modbus.IRegister;
+            await Master.WriteMultipleRegistersAsync(UnitAddress, reg.Address, value.GetWords());
+        }
+        public async Task<AdcResult> Poll()
         {
             try
             {
@@ -222,6 +244,18 @@ namespace AdcControl
         {
             try
             {
+                //Add coils first
+                StatusBits.Clear();
+                var coils = await ReadCoils();
+                for (int i = 0; i < (int)AdcConstants.Coils.LEN; i++)
+                {
+                    StatusBits.Add(new StatusBit(this, (AdcConstants.Coils)i, coils[i]));
+                }
+                foreach (var item in AdcConstants.ConfigurationCoils)
+                {
+                    DacControlBits.Add(StatusBits[(ushort)item]);
+                }
+                
                 RegisterMap.Clear();
                 //Add configuration registers by default, build configuration dependent layout later
                 for (int i = 0; i < (int)AdcConstants.ConfigurationRegisters.LEN; i++)
@@ -246,11 +280,6 @@ namespace AdcControl
 
                 int adcPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_ADC_CHANNELS);
                 int dacPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_DAC_MODULES);
-                DacChannels.Clear();
-                for (int i = 0; i < dacPresent; i++)
-                {
-                    DacChannels.Add(new DacChannel(this, i));
-                }
 
                 Log(null, $@"Device connected, config info:
     Max ADC channels: {adcTotal}, present = {adcPresent};
@@ -266,15 +295,29 @@ namespace AdcControl
                 RegisterMap.AddInput<Modbus.DevFloat>("TEMP", 1);
                 //Holding
                 RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.DacSetpointNameTemplate, dacTotal);
+                RegisterMap.AddHolding<Modbus.DevULong>(AdcConstants.DacCorrectionIntervalNameTemplate, dacTotal);
                 RegisterMap.AddHolding<Modbus.AdcChannelCal>("ADC_CAL_", adcTotal);
                 RegisterMap.AddHolding<Modbus.DacCal>("DAC_CAL_", dacTotal);
                 RegisterMap.AddHolding<Modbus.AioCal>("AIO_CAL_", aioTotal);
                 RegisterMap.AddHolding<Modbus.AioCal>("TEMP_CAL", 1);
                 RegisterMap.AddHolding<Modbus.MotorParams>("MOTOR_PARAMS_", motorTotal);
-                RegisterMap.AddHolding<Modbus.DevFloat>("DEPO_PERCENT_", dacTotal);
-                RegisterMap.AddHolding<Modbus.DevFloat>("DEPO_SETPOINT_", dacTotal);
+                RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.DacDepoPercentNameTemplate, dacTotal);
+                RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.DacDepoSetpointNameTemplate, dacTotal);
+                RegisterMap.AddHolding<Modbus.DevULong>(AdcConstants.DacDepoIntervalNameTemplate, dacTotal);
+                RegisterMap.AddHolding<Modbus.RegulatorParams>("REGULATOR_PARAMS", 1);
+                RegisterMap.AddHolding<Modbus.DevFloat>("REGULATOR_SETPOINT", 1);
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DacChannels)));
+                DacChannels.Clear();
+                for (int i = 0; i < dacPresent; i++)
+                {
+                    var ch = new DacChannel(this, i);
+                    await ch.ReadSetpoint();
+                    await ch.ReadCorrectionInterval();
+                    await ch.ReadDepolarizationInterval();
+                    await ch.ReadDepolarizationPercent();
+                    await ch.ReadDepolarizationSetpoint();
+                    DacChannels.Add(ch);
+                }
             }
             catch (Exception ex)
             {
@@ -346,7 +389,6 @@ namespace AdcControl
                 if ((await Master.ReadCoilsAsync(UnitAddress, (ushort)AdcConstants.Coils.Ready, 1))[0])
                 {
                     IsConnected = await InitRegisterMap();
-                    await Master.WriteSingleCoilAsync(UnitAddress, (ushort)AdcConstants.Coils.CorrectDAC, true);
                     return IsConnected;
                 }
             }
