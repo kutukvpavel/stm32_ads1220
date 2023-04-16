@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="AdcControl.DacController"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AdcControl" d:DataContext="{d:DesignInstance Type=local:DacChannel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="300" Focusable="True"
+             KeyDown="UserControl_KeyDown">
+    <Grid Margin="3">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ChannelLabel}" Margin="3"></TextBlock>
+        <TextBox Grid.Row="1" Grid.Column="0" Margin="0,0,3,0" Text="{Binding VoltageText}"
+                 KeyDown="TextBox_KeyDown" x:Name="txtValue"></TextBox>
+        <Button Grid.Column="1" Grid.Row="1" Width="25" Height="25" Background="LightCoral"
+                Click="Button_Click">W</Button>
+    </Grid>
+</UserControl>

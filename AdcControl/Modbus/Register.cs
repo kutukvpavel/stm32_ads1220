@@ -21,6 +21,10 @@ namespace AdcControl.Modbus
         public ushort Length => TypedValue.Size; //In modbus words
         public string Name { get; }
 
+        public ushort[] GetWords(object origin)
+        {
+            return TypedValue.GetWords(origin);
+        }
         public void Set(params ushort[] regs)
         {
             Set(0, regs);

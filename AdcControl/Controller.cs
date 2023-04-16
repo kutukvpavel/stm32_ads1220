@@ -1,18 +1,13 @@
 ﻿using AdcControl.Resources;
-using RJCP.IO.Ports;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using NModbus;
 using NModbus.SerialPortStream;
-using NModbus.Extensions;
-using NModbus.Utility;
-
+using RJCP.IO.Ports;
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Timer = System.Timers.Timer;
 
 namespace AdcControl
@@ -170,10 +165,22 @@ namespace AdcControl
             get { return !_IsConnected; }
         }
         public Modbus.Map RegisterMap { get; }
+        public ObservableCollection<DacChannel> DacChannels { get; } = new ObservableCollection<DacChannel>();
 
 #endregion
 
 #region Methods
+
+        public async Task ReadDacSetpoint(int index)
+        {
+            var reg = RegisterMap.HoldingRegisters[AdcConstants.DacSetpointNameTemplate + index.ToString()] as Modbus.IRegister;
+            reg.Set(await Master.ReadHoldingRegistersAsync(UnitAddress, reg.Address, reg.Length));
+        }
+        public async Task WriteDacSetpoint(int index, float setpoint)
+        {
+            var reg = RegisterMap.HoldingRegisters[AdcConstants.DacSetpointNameTemplate + index.ToString()] as Modbus.IRegister;
+            await Master.WriteMultipleRegistersAsync(UnitAddress, reg.Address, reg.GetWords(setpoint));
+        }
 
         public async Task<AdcResult> Read()
         {
@@ -239,6 +246,11 @@ namespace AdcControl
 
                 int adcPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_ADC_CHANNELS);
                 int dacPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_DAC_MODULES);
+                DacChannels.Clear();
+                for (int i = 0; i < dacPresent; i++)
+                {
+                    DacChannels.Add(new DacChannel(this, i));
+                }
 
                 Log(null, $@"Device connected, config info:
     Max ADC channels: {adcTotal}, present = {adcPresent};
@@ -253,14 +265,16 @@ namespace AdcControl
                 RegisterMap.AddInput<Modbus.DevFloat>("A_IN_", aioTotal);
                 RegisterMap.AddInput<Modbus.DevFloat>("TEMP", 1);
                 //Holding
-                RegisterMap.AddInput<Modbus.DevFloat>("DAC_SETPOINT_", dacTotal);
-                RegisterMap.AddInput<Modbus.AdcChannelCal>("ADC_CAL_", adcTotal);
-                RegisterMap.AddInput<Modbus.DacCal>("DAC_CAL_", dacTotal);
-                RegisterMap.AddInput<Modbus.AioCal>("AIO_CAL_", aioTotal);
-                RegisterMap.AddInput<Modbus.AioCal>("TEMP_CAL", 1);
-                RegisterMap.AddInput<Modbus.MotorParams>("MOTOR_PARAMS_", motorTotal);
-                RegisterMap.AddInput<Modbus.DevFloat>("DEPO_PERCENT_", dacTotal);
-                RegisterMap.AddInput<Modbus.DevFloat>("DEPO_SETPOINT_", dacTotal);
+                RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.DacSetpointNameTemplate, dacTotal);
+                RegisterMap.AddHolding<Modbus.AdcChannelCal>("ADC_CAL_", adcTotal);
+                RegisterMap.AddHolding<Modbus.DacCal>("DAC_CAL_", dacTotal);
+                RegisterMap.AddHolding<Modbus.AioCal>("AIO_CAL_", aioTotal);
+                RegisterMap.AddHolding<Modbus.AioCal>("TEMP_CAL", 1);
+                RegisterMap.AddHolding<Modbus.MotorParams>("MOTOR_PARAMS_", motorTotal);
+                RegisterMap.AddHolding<Modbus.DevFloat>("DEPO_PERCENT_", dacTotal);
+                RegisterMap.AddHolding<Modbus.DevFloat>("DEPO_SETPOINT_", dacTotal);
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DacChannels)));
             }
             catch (Exception ex)
             {

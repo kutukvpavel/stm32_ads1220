@@ -13,6 +13,7 @@ namespace AdcControl.Modbus
         public ushort Length { get; }
         public string Name { get; }
 
+        public ushort[] GetWords(object origin);
         public void Set(params ushort[] regs);
     }
 }

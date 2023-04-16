@@ -89,5 +89,6 @@ namespace AdcControl
         public static readonly string AdcVoltagesNameTemplate = "ADC_VOLTAGE_";
         public static readonly string DacCurrentsNameTemplate = "DAC_CURRENT_";
         public static readonly string DacCorrectedNameTemplate = "DAC_CORR_";
+        public static readonly string DacSetpointNameTemplate = "DAC_SETPOINT_";
     }
 }

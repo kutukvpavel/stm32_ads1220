@@ -19,9 +19,19 @@ namespace AdcControl.Modbus
             }
             return buf;
         }
+        protected static ushort[] BytesToWords(byte[] data, ushort size)
+        {
+            ushort[] buf = new ushort[size];
+            for (int i = 0; i < size; i++)
+            {
+                buf[i] = BitConverter.ToUInt16(data, i * sizeof(ushort));
+            }
+            return buf;
+        }
 
         public ushort Size { get; } //in modbus words
         public object Get();
+        public ushort[] GetWords(object data);
         public void Set(byte[] data);
         public void Set(ushort[] data)
         {

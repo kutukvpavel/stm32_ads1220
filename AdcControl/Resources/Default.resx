@@ -507,4 +507,7 @@
   <data name="namRightYMax" xml:space="preserve">
     <value>Current axis (right) max value</value>
   </data>
+  <data name="strExpanderDac" xml:space="preserve">
+    <value>DAC Control</value>
+  </data>
 </root>

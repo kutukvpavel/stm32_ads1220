@@ -118,7 +118,6 @@ namespace AdcControl
         private bool _ReadyToExportData = false;
         private string _CurrentStatus = Default.stsReady;
         private bool TableRenderingDefered = false;
-        private DateTime? LastAcquisitionEnd = null;
         private readonly DispatcherTimer MouseTimer = new DispatcherTimer() { IsEnabled = false };
         private readonly DispatcherTimer RefreshTimer = new DispatcherTimer() { IsEnabled = false };
 #if TRACE
@@ -379,7 +378,7 @@ namespace AdcControl
 
         private void Stm32Ads1220_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            OnPropertyChanged();
+            OnPropertyChanged(e.PropertyName);
         }
 
         private void Stm32Ads1220_AcquisitionDataReceived(object sender, AcquisitionEventArgs e)
@@ -397,7 +396,6 @@ namespace AdcControl
 
         private void Stm32Ads1220_AcquisitionFinished(object sender, EventArgs e)
         {
-            LastAcquisitionEnd = DateTime.UtcNow;
             txtStatus.Dispatcher.BeginInvoke(() => 
             {
                 RefreshTimer.Stop();
@@ -530,30 +528,6 @@ namespace AdcControl
         private async void btnStartAcquisition_Click(object sender, RoutedEventArgs e)
         {
             CurrentStatus = Default.stsStartingAcq;
-            /*if (LastAcquisitionEnd.HasValue)
-            {
-                try
-                {
-                    pltMainPlot.Plot.AddVerticalLine(
-                        App.AdcChannels.Values.Max(x => x.CalculatedCount) / Settings.Default.AcquisitionSpeed,
-                        null,
-                        (float)Settings.ViewSettings.ConcatenationLineWidth,
-                        label: string.Format(
-                            Settings.ViewSettings.ConcatenationLabelFormat,
-                            (DateTime.UtcNow - (DateTime)LastAcquisitionEnd).TotalSeconds
-                            )
-                        );
-                }
-                catch (Exception ex)
-                {
-                    App.Logger.Error(Default.msgCantPlotConcatLine);
-                    App.Logger.Info(ex);
-                }
-                finally
-                {
-                    LastAcquisitionEnd = null;
-                }
-            }*/
             if (await App.Stm32Ads1220.StartAcquisition())
             {
                 prgAcquisitionProgress.Minimum = DateTime.UtcNow.Ticks;
@@ -584,7 +558,6 @@ namespace AdcControl
         private void btnClearScreen_Click(object sender, RoutedEventArgs e)
         {
             ReadyToExportData = false;
-            LastAcquisitionEnd = null;
             pnlRealTimeData.Children.Clear();
             pltMainPlot.Plot.Clear();
             pltMainPlot.ContextMenu.Items.Clear();

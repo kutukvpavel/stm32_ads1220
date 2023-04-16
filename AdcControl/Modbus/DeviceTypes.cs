@@ -13,7 +13,11 @@ namespace AdcControl.Modbus
         {
             return this;
         }
-
+        public ushort[] GetWords(object data)
+        {
+            float v = (float)data;
+            return IDeviceType.BytesToWords(BitConverter.GetBytes(v), Size);
+        }
         public void Set(byte[] data)
         {
             Value = BitConverter.ToSingle(data);
@@ -31,7 +35,11 @@ namespace AdcControl.Modbus
         {
             return this;
         }
-
+        public ushort[] GetWords(object data)
+        {
+            ushort v = (ushort)data;
+            return IDeviceType.BytesToWords(BitConverter.GetBytes(v), Size);
+        }
         public void Set(byte[] data)
         {
             Value = BitConverter.ToUInt16(data);
@@ -51,7 +59,10 @@ namespace AdcControl.Modbus
         {
             return this;
         }
-
+        public ushort[] GetWords(object data)
+        {
+            throw new NotImplementedException();
+        }
         public void Set(byte[] data)
         {
             int startIndex = 0;
@@ -73,7 +84,10 @@ namespace AdcControl.Modbus
         {
             return this;
         }
-
+        public ushort[] GetWords(object data)
+        {
+            throw new NotImplementedException();
+        }
         public void Set(byte[] data)
         {
             int startIndex = 0;
@@ -95,6 +109,10 @@ namespace AdcControl.Modbus
             return this;
         }
 
+        public ushort[] GetWords(object data)
+        {
+            throw new NotImplementedException();
+        }
         public void Set(byte[] data)
         {
             K = BitConverter.ToSingle(data);
@@ -116,7 +134,10 @@ namespace AdcControl.Modbus
         {
             return this;
         }
-
+        public ushort[] GetWords(object data)
+        {
+            throw new NotImplementedException();
+        }
         public void Set(byte[] data)
         {
             int startIndex = 0;

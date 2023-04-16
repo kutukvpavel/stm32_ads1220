@@ -981,6 +981,15 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на DAC Control.
+        /// </summary>
+        public static string strExpanderDac {
+            get {
+                return ResourceManager.GetString("strExpanderDac", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Real-time table.
         /// </summary>
         public static string strExpanderTable {
