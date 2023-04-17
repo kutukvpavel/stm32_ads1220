@@ -38,7 +38,7 @@ namespace AdcControl.Modbus
         public ushort Size { get; } //in modbus words
         public object Get();
         public ushort[] GetWords();
-        public void Set(byte[] data);
+        public void Set(byte[] data, int startIndex = 0);
         public void Set(ushort[] data)
         {
             Set(GetBytes(data, Size));

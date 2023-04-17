@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AdcControl.Modbus
 {
@@ -13,7 +14,7 @@ namespace AdcControl.Modbus
 
         public abstract object Get();
         public abstract ushort[] GetWords();
-        public abstract void Set(byte[] data);
+        public abstract void Set(byte[] data, int startIndex = 0);
         public abstract void Set(string data);
 
         protected void OnPropertyChanged(string name = null)
@@ -36,9 +37,9 @@ namespace AdcControl.Modbus
         {
             return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
-            Value = BitConverter.ToSingle(data);
+            Value = BitConverter.ToSingle(data, startIndex);
             OnPropertyChanged();
         }
         public override void Set(string data)
@@ -69,9 +70,9 @@ namespace AdcControl.Modbus
         {
             return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
-            Value = BitConverter.ToUInt16(data);
+            Value = BitConverter.ToUInt16(data, startIndex);
             OnPropertyChanged();
         }
         public override void Set(string data)
@@ -101,9 +102,9 @@ namespace AdcControl.Modbus
         {
             return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
-            Value = BitConverter.ToUInt32(data);
+            Value = BitConverter.ToUInt32(data, startIndex);
             OnPropertyChanged();
         }
         public override void Set(string data)
@@ -135,9 +136,8 @@ namespace AdcControl.Modbus
         {
             throw new NotImplementedException();
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
-            int startIndex = 0;
             K = BitConverter.ToSingle(data, startIndex);
             B = BitConverter.ToSingle(data, startIndex += sizeof(float));
             Invert = BitConverter.ToUInt16(data, startIndex += sizeof(float));
@@ -165,9 +165,8 @@ namespace AdcControl.Modbus
         {
             throw new NotImplementedException();
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
-            int startIndex = 0;
             K = BitConverter.ToSingle(data, startIndex);
             B = BitConverter.ToSingle(data, startIndex += sizeof(float));
             Current_K = BitConverter.ToSingle(data, startIndex += sizeof(float));
@@ -195,7 +194,7 @@ namespace AdcControl.Modbus
         {
             throw new NotImplementedException();
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
             K = BitConverter.ToSingle(data);
             B = BitConverter.ToSingle(data, sizeof(float));
@@ -209,12 +208,27 @@ namespace AdcControl.Modbus
 
     public class MotorParams : DevTypeBase
     {
-        public float RateToSpeed { get; set; }
-        public ushort Microsteps { get; set; }
-        public ushort Teeth { get; set; }
-        public ushort InvertEnable { get; set; }
-        public ushort InvertError { get; set; }
-        public ushort Direction { get; set; }
+        public MotorParams()
+        {
+            Fields = new IDeviceType[]
+            {
+                RateToSpeed,
+                Microsteps,
+                Teeth,
+                InvertEnable,
+                InvertError,
+                Direction
+            };
+        }
+
+        protected IDeviceType[] Fields;
+
+        public DevFloat RateToSpeed { get; set; } = new DevFloat();
+        public DevUShort Microsteps { get; set; } = new DevUShort();
+        public DevUShort Teeth { get; set; } = new DevUShort();
+        public DevUShort InvertEnable { get; set; } = new DevUShort();
+        public DevUShort InvertError { get; set; } = new DevUShort();
+        public DevUShort Direction { get; set; } = new DevUShort();
 
         public override ushort Size => 2 + 1 * 5 + 1; //Trailing padding (32-bit alignment)!
         public override object Get()
@@ -223,17 +237,22 @@ namespace AdcControl.Modbus
         }
         public override ushort[] GetWords()
         {
-            throw new NotImplementedException();
+            ushort[] buf = new ushort[Size];
+            int i = 0;
+            foreach (var item in Fields)
+            {
+                item.GetWords().CopyTo(buf, i);
+                i += item.Size;
+            }
+            return buf;
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
-            int startIndex = 0;
-            RateToSpeed = BitConverter.ToSingle(data, startIndex);
-            Microsteps = BitConverter.ToUInt16(data, startIndex += sizeof(float));
-            Teeth = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
-            InvertEnable = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
-            InvertError = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
-            Direction = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            foreach (var item in Fields)
+            {
+                item.Set(data, startIndex);
+                startIndex += item.Size * sizeof(ushort);
+            }
             OnPropertyChanged();
         }
         public override void Set(string data)
@@ -277,9 +296,8 @@ namespace AdcControl.Modbus
                 throw new InvalidOperationException("Device type write buffer size is not equal to defined type size!");
             return IDeviceType.BytesToWords(buf.ToArray(), Size);
         }
-        public override void Set(byte[] data)
+        public override void Set(byte[] data, int startIndex = 0)
         {
-            int startIndex = 0;
             kP = BitConverter.ToSingle(data, startIndex);
             kI = BitConverter.ToSingle(data, startIndex += sizeof(float));
             kD = BitConverter.ToSingle(data, startIndex += sizeof(float));

@@ -4,11 +4,59 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AdcControl"
+        xmlns:modbus="clr-namespace:AdcControl.Modbus"
         xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="ComplexRegisterEdit" Height="450" Width="800"
+        Title="ComplexRegisterEdit" Height="400" Width="300"
         Name="ComplexRegEditWindow">
     <Grid>
-        <toolkit:PropertyGrid SelectedObject="{Binding ElementName=ComplexRegEditWindow, Path=DataContext}"></toolkit:PropertyGrid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <toolkit:PropertyGrid Grid.ColumnSpan="2"
+            SelectedObject="{Binding ElementName=ComplexRegEditWindow, Path=DataContext}">
+            <toolkit:PropertyGrid.EditorDefinitions>
+                <toolkit:EditorTemplateDefinition TargetProperties="{x:Type modbus:DevFloat}">
+                    <toolkit:EditorTemplateDefinition.EditingTemplate>
+                        <DataTemplate>
+                            <toolkit:ValueRangeTextBox ValueDataType="{x:Type sys:Single}"
+                                                       MaxValue="{x:Static sys:Single.MaxValue}"
+                                                       MinValue="{x:Static sys:Single.MinValue}"
+                                                       Value="{Binding Value.Value}"></toolkit:ValueRangeTextBox>
+                        </DataTemplate>
+                    </toolkit:EditorTemplateDefinition.EditingTemplate>
+                </toolkit:EditorTemplateDefinition>
+                <toolkit:EditorTemplateDefinition TargetProperties="{x:Type modbus:DevUShort}">
+                    <toolkit:EditorTemplateDefinition.EditingTemplate>
+                        <DataTemplate>
+                            <toolkit:ValueRangeTextBox ValueDataType="{x:Type sys:UInt16}"
+                                                       MaxValue="{x:Static sys:UInt16.MaxValue}"
+                                                       MinValue="{x:Static sys:UInt16.MinValue}"
+                                                       Value="{Binding Value.Value}"></toolkit:ValueRangeTextBox>
+                        </DataTemplate>
+                    </toolkit:EditorTemplateDefinition.EditingTemplate>
+                </toolkit:EditorTemplateDefinition>
+                <toolkit:EditorTemplateDefinition TargetProperties="{x:Type modbus:DevULong}">
+                    <toolkit:EditorTemplateDefinition.EditingTemplate>
+                        <DataTemplate>
+                            <toolkit:ValueRangeTextBox ValueDataType="{x:Type sys:UInt32}"
+                                                       MaxValue="{x:Static sys:UInt32.MaxValue}"
+                                                       MinValue="{x:Static sys:UInt32.MinValue}"
+                                                       Value="{Binding Value.Value}"></toolkit:ValueRangeTextBox>
+                        </DataTemplate>
+                    </toolkit:EditorTemplateDefinition.EditingTemplate>
+                </toolkit:EditorTemplateDefinition>
+            </toolkit:PropertyGrid.EditorDefinitions>
+        </toolkit:PropertyGrid>
+        <Button Grid.Column="0" Grid.Row="1" Background="LightGreen" FontSize="14" Margin="3"
+                Click="Button_Click" IsDefault="True">OK</Button>
+        <Button Grid.Column="1" Grid.Row="1" Background="LightCoral" FontSize="14" Margin="3"
+                IsCancel="True">Cancel</Button>
     </Grid>
 </Window>

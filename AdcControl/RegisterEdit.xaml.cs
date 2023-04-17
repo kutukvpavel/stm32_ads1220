@@ -49,8 +49,11 @@ namespace AdcControl
 
         private void ConvertToText()
         {
-            ValueText = Register.Value.ToString();
-            Dispatcher.InvokeAsync(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValueText))));
+            Dispatcher.InvokeAsync(() =>
+            {
+                ValueText = Register.Value.ToString();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValueText)));
+            });
         }
         private async Task SimpleRead()
         {
@@ -66,7 +69,7 @@ namespace AdcControl
         {
             Register.Value.Set(ValueText);
             await App.Stm32Ads1220.WriteRegister(Register);
-            await Task.Run(() => btnRead_Click(this, e));
+            await SimpleRead();
         }
 
         private async void btnOpenEditor_Click(object sender, RoutedEventArgs e)

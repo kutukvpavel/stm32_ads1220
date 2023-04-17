@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AdcControl"
         mc:Ignorable="d"
-        Title="RegisterView" Height="400" Width="800"
+        Title="RegisterView" Height="800" Width="700"
         Name="RegisterViewWindow">
     <Window.Resources>
         <Style TargetType="TextBlock">
