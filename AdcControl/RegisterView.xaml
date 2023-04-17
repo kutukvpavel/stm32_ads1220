@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AdcControl"
         mc:Ignorable="d"
-        Title="RegisterView" Height="400" Width="800">
+        Title="RegisterView" Height="400" Width="800"
+        Name="RegisterViewWindow">
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="18"></Setter>
@@ -23,10 +24,17 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Column="0" FontWeight="Bold">Input registers:</TextBlock>
-        <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Column="0" Grid.Row="1">
+        <!--<TextBlock Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Regular" Foreground="OrangeRed" FontSize="14" TextWrapping="Wrap"
+                   Visibility="{Binding ElementName=RegisterViewWindow, Path=AcquisitionWarningVisibility}">
+            Warning: acquisition is in progress. Poll-eligible registers are updated continuosly.
+            However, device-wide register read, that normally takes place when this window is opened, is disabled.
+            Use manual read buttons.
+        </TextBlock>-->
+        <TextBlock Grid.Column="0" Grid.Row="1" FontWeight="Bold">Input registers:</TextBlock>
+        <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Column="0" Grid.Row="2">
             <ItemsControl
                           ItemsSource="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=RegisterMap.InputRegisters}">
                 <ItemsControl.ItemTemplate>
@@ -36,8 +44,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <TextBlock Grid.Column="1" FontWeight="Bold">Holding registers:</TextBlock>
-        <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Column="1" Grid.Row="1">
+        <TextBlock Grid.Column="1" Grid.Row="1" FontWeight="Bold">Holding registers:</TextBlock>
+        <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Column="1" Grid.Row="2">
             <ItemsControl
                       ItemsSource="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=RegisterMap.HoldingRegisters}">
                 <ItemsControl.ItemTemplate>

@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace AdcControl
 {
@@ -29,8 +20,15 @@ namespace AdcControl
 
         private async void RegisterEdit_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            if (DataContext == null || Register == null) return;
             if (IsSimpleType) await SimpleRead();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+            Register.PropertyChanged += Register_PropertyChanged;
+        }
+
+        private void Register_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Register.Value)) Dispatcher.InvokeAsync(() => ConvertToText());
         }
 
         public bool IsSimpleType { 
@@ -43,15 +41,21 @@ namespace AdcControl
         public Visibility SimpleEditorVisibility => IsSimpleType ? Visibility.Visible : Visibility.Collapsed;
         public Visibility ComplexEditorVisibility => IsSimpleType ? Visibility.Collapsed : Visibility.Visible;
         public bool IsReadonly { get; set; } = false;
+        public bool IsNotReadonly => !IsReadonly;
         public string ValueText { get; set; } = "";
         public Modbus.IRegister Register => DataContext as Modbus.IRegister;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private void ConvertToText()
+        {
+            ValueText = Register.Value.ToString();
+            Dispatcher.InvokeAsync(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValueText))));
+        }
         private async Task SimpleRead()
         {
-            ValueText = (await App.Stm32Ads1220.ReadRegister(Register.Name)).ToString();
-            await Task.Run(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValueText))));
+            await App.Stm32Ads1220.ReadRegister(Register.Name);
+            ConvertToText();
         }
         private async void btnRead_Click(object sender, RoutedEventArgs e)
         {

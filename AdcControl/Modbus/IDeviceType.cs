@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 
 namespace AdcControl.Modbus
 {
-    public interface IDeviceType
+    public interface IDeviceType : INotifyPropertyChanged
     {
         public static Type[] SimpleTypes { get; } =
         {

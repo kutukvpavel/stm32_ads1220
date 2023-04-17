@@ -8,11 +8,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
-using org.mariuszgromada.math.mxparser;
-using Expression = org.mariuszgromada.math.mxparser.Expression;
-using System.Windows.Input;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Threading;
+using Expression = org.mariuszgromada.math.mxparser.Expression;
 
 namespace AdcControl
 {

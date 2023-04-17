@@ -40,7 +40,8 @@
         <Button x:Name="btnRead" Click="btnRead_Click" Grid.Row="1" Grid.Column="1" Background="LightGreen"
                 Visibility="{Binding ElementName=RegisterEditControl, Path=SimpleEditorVisibility}">R</Button>
         <Button x:Name="btnWrite" Click="btnWrite_Click" Grid.Row="1" Grid.Column="2" Background="LightSalmon"
-                Visibility="{Binding ElementName=RegisterEditControl, Path=SimpleEditorVisibility}">W</Button>
+                Visibility="{Binding ElementName=RegisterEditControl, Path=SimpleEditorVisibility}"
+                IsEnabled="{Binding ElementName=RegisterEditControl, Path=IsNotReadonly}">W</Button>
         <Button x:Name="btnOpenEditor" Click="btnOpenEditor_Click" Grid.ColumnSpan="3" Grid.Row="1"
                 Visibility="{Binding ElementName=RegisterEditControl, Path=ComplexEditorVisibility}">Edit...</Button>
     </Grid>

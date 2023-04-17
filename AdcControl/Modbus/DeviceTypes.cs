@@ -1,29 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace AdcControl.Modbus
 {
-    public class DevFloat : IDeviceType
+    public abstract class DevTypeBase : IDeviceType
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public abstract ushort Size { get; }
+
+        public abstract object Get();
+        public abstract ushort[] GetWords();
+        public abstract void Set(byte[] data);
+        public abstract void Set(string data);
+
+        protected void OnPropertyChanged(string name = null)
+        {
+            Task.Run(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)));
+        }
+    }
+
+    public class DevFloat : DevTypeBase
     {
         public float Value { get; set; }
 
-        public ushort Size => 2;
-        public object Get()
+        public override ushort Size => 2;
+
+        public override object Get()
         {
             return this;
         }
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             Value = BitConverter.ToSingle(data);
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             Value = float.Parse(data);
+            OnPropertyChanged();
         }
         public override string ToString()
         {
@@ -34,26 +55,29 @@ namespace AdcControl.Modbus
         public static explicit operator DevFloat(float v) => new DevFloat() { Value = v };
     }
 
-    public class DevUShort : IDeviceType
+    public class DevUShort : DevTypeBase
     {
         public ushort Value { get; set; }
 
-        public ushort Size => 1;
-        public object Get()
+        public override ushort Size => 1;
+
+        public override object Get()
         {
             return this;
         }
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             Value = BitConverter.ToUInt16(data);
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             Value = ushort.Parse(data);
+            OnPropertyChanged();
         }
         public override string ToString()
         {
@@ -64,26 +88,28 @@ namespace AdcControl.Modbus
         public static explicit operator DevUShort(ushort v) => new DevUShort() { Value = v };
     }
 
-    public class DevULong : IDeviceType
+    public class DevULong : DevTypeBase
     {
         public uint Value { get; set; }
 
-        public ushort Size => 2;
-        public object Get()
+        public override ushort Size => 2;
+        public override object Get()
         {
             return this;
         }
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             return IDeviceType.BytesToWords(BitConverter.GetBytes(Value), Size);
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             Value = BitConverter.ToUInt32(data);
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             Value = uint.Parse(data);
+            OnPropertyChanged();
         }
         public override string ToString()
         {
@@ -94,91 +120,94 @@ namespace AdcControl.Modbus
         public static explicit operator DevULong(uint v) => new DevULong() { Value = v };
     }
 
-    public class AdcChannelCal : IDeviceType
+    public class AdcChannelCal : DevTypeBase
     {
         public float K { get; set; }
         public float B { get; set; }
         public ushort Invert { get; set; }
 
-        public ushort Size => 2 * 2 + 1;
-        public object Get()
+        public override ushort Size => 2 * 2 + 1 + 1; //32-bit trailing alignment!
+        public override object Get()
         {
             return this;
         }
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             int startIndex = 0;
             K = BitConverter.ToSingle(data, startIndex);
             B = BitConverter.ToSingle(data, startIndex += sizeof(float));
             Invert = BitConverter.ToUInt16(data, startIndex += sizeof(float));
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             throw new NotImplementedException();
         }
     }
 
-    public class DacCal : IDeviceType
+    public class DacCal : DevTypeBase
     {
         public float K { get; set; }
         public float B { get; set; }
         public float Current_K { get; set; }
         public float Current_B { get; set; }
 
-        public ushort Size => 2 * 4;
-        public object Get()
+        public override ushort Size => 2 * 4;
+        public override object Get()
         {
             return this;
         }
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             int startIndex = 0;
             K = BitConverter.ToSingle(data, startIndex);
             B = BitConverter.ToSingle(data, startIndex += sizeof(float));
             Current_K = BitConverter.ToSingle(data, startIndex += sizeof(float));
             Current_B = BitConverter.ToSingle(data, startIndex += sizeof(float));
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             throw new NotImplementedException();
         }
     }
 
-    public class AioCal : IDeviceType
+    public class AioCal : DevTypeBase
     {
         public float K { get; set; }
         public float B { get; set; }
 
-        public ushort Size => 2 * 2;
-        public object Get()
+        public override ushort Size => 2 * 2;
+        public override object Get()
         {
             return this;
         }
 
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             K = BitConverter.ToSingle(data);
             B = BitConverter.ToSingle(data, sizeof(float));
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             throw new NotImplementedException();
         }
     }
 
-    public class MotorParams : IDeviceType
+    public class MotorParams : DevTypeBase
     {
         public float RateToSpeed { get; set; }
         public ushort Microsteps { get; set; }
@@ -187,16 +216,16 @@ namespace AdcControl.Modbus
         public ushort InvertError { get; set; }
         public ushort Direction { get; set; }
 
-        public ushort Size => 2 + 1 * 5;
-        public object Get()
+        public override ushort Size => 2 + 1 * 5 + 1; //Trailing padding (32-bit alignment)!
+        public override object Get()
         {
             return this;
         }
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             throw new NotImplementedException();
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             int startIndex = 0;
             RateToSpeed = BitConverter.ToSingle(data, startIndex);
@@ -205,14 +234,15 @@ namespace AdcControl.Modbus
             InvertEnable = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             InvertError = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             Direction = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             throw new NotImplementedException();
         }
     }
 
-    public class RegulatorParams : IDeviceType
+    public class RegulatorParams : DevTypeBase
     {
         public float kP { get; set; }
         public float kI { get; set; }
@@ -225,12 +255,12 @@ namespace AdcControl.Modbus
         //public ushort Reserved1 { get; set; }
         public float TotalFlowrate { get; set; }
 
-        public ushort Size => 2 * 3 + 1 * 6 + 2 * 1;
-        public object Get()
+        public override ushort Size => 2 * 3 + 1 * 6 + 2 * 1;
+        public override object Get()
         {
             return this;
         }
-        public ushort[] GetWords()
+        public override ushort[] GetWords()
         {
             List<byte> buf = new List<byte>(Size * sizeof(ushort));
             buf.AddRange(BitConverter.GetBytes(kP));
@@ -247,7 +277,7 @@ namespace AdcControl.Modbus
                 throw new InvalidOperationException("Device type write buffer size is not equal to defined type size!");
             return IDeviceType.BytesToWords(buf.ToArray(), Size);
         }
-        public void Set(byte[] data)
+        public override void Set(byte[] data)
         {
             int startIndex = 0;
             kP = BitConverter.ToSingle(data, startIndex);
@@ -260,9 +290,9 @@ namespace AdcControl.Modbus
             HighConcDacChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             startIndex += sizeof(ushort); //Reserved1
             TotalFlowrate = BitConverter.ToSingle(data, startIndex += sizeof(ushort));
-
+            OnPropertyChanged();
         }
-        public void Set(string data)
+        public override void Set(string data)
         {
             throw new NotImplementedException();
         }

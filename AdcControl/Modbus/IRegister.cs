@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 
 namespace AdcControl.Modbus
 {
-    public interface IRegister
+    public interface IRegister : INotifyPropertyChanged
     {
         public IDeviceType Value { get; }
         public Type Type { get; }
