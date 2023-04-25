@@ -263,6 +263,7 @@ namespace AdcControl
             try
             {
                 //Add coils first
+                DacControlBits.Clear();
                 StatusBits.Clear();
                 var coils = await ReadCoils();
                 for (int i = 0; i < (int)AdcConstants.Coils.LEN; i++)
