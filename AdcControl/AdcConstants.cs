@@ -103,5 +103,6 @@ namespace AdcControl
         public static readonly string DacDepoPercentNameTemplate = "DEPO_PERCENT_";
         public static readonly string DacDepoIntervalNameTemplate = "DEPO_INVERAL_";
         public static readonly string DacDepoSetpointNameTemplate = "DEPO_SETPOINT_";
+        public static readonly string MotorSpeedNameTemplate = "MOTOR_SPEED_";
     }
 }

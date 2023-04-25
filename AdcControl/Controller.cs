@@ -324,6 +324,7 @@ namespace AdcControl
                 RegisterMap.AddHolding<Modbus.DevULong>(AdcConstants.DacDepoIntervalNameTemplate, dacTotal);
                 RegisterMap.AddHolding<Modbus.RegulatorParams>("REGULATOR_PARAMS", 1);
                 RegisterMap.AddHolding<Modbus.DevFloat>("REGULATOR_SETPOINT", 1);
+                RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.MotorSpeedNameTemplate, motorTotal);
 
                 DacChannels.Clear();
                 for (int i = 0; i < dacPresent; i++)
