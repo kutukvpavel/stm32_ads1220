@@ -25,7 +25,7 @@ namespace AdcControl
 
         public enum Coils : ushort
         {
-            Acquire,
+            Acquire = 0, //First bit of the 32-bit status bitfield
             CorrectDAC,
             EnableMotors,
             Ready,
@@ -33,7 +33,8 @@ namespace AdcControl
             HaveNewData,
             Regulate,
             Depolarize,
-            ADC_RES,
+            Reset,
+            ADC_RES = 32, //SR IO Outputs
             ADC_EN,
             DAC_RES,
             DAC_EN,
