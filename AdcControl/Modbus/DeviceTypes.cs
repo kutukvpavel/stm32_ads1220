@@ -44,12 +44,12 @@ namespace AdcControl.Modbus
         }
         public override void Set(string data)
         {
-            Value = float.Parse(data);
+            Value = float.Parse(data, System.Globalization.NumberStyles.Float);
             OnPropertyChanged();
         }
         public override string ToString()
         {
-            return Value.ToString("F6");
+            return Value.ToString(MathF.Abs(Value) < 0.001 ? "E6" : "F6");
         }
 
         public static explicit operator float(DevFloat v) => v.Value;
