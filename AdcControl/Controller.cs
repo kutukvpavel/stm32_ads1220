@@ -266,7 +266,7 @@ namespace AdcControl
                 DacControlBits.Clear();
                 StatusBits.Clear();
                 var coils = await ReadCoils();
-                for (int i = 0; i < (int)AdcConstants.Coils.LEN; i++)
+                for (ushort i = 0; i < (ushort)AdcConstants.Coils.LEN; i++)
                 {
                     if (!Enum.IsDefined(typeof(AdcConstants.Coils), i)) continue;
                     StatusBits.Add(new StatusBit(this, (AdcConstants.Coils)i, coils[i]));
