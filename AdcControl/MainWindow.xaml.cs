@@ -350,14 +350,16 @@ namespace AdcControl
         {
             if (App.Stm32Ads1220.AcquisitionInProgress)
             {
-                e.Cancel = true;
-                MessageBox.Show(
+                if (MessageBox.Show(
                     Default.strStopAcquisitionBeforeExiting,
                     Default.strApplicationNameCaption,
-                    MessageBoxButton.OK,
+                    MessageBoxButton.OKCancel,
                     MessageBoxImage.Exclamation
-                    );
-                return;
+                    ) != MessageBoxResult.OK)
+                {
+                    e.Cancel = true;
+                    return;
+                }
             }
             MouseTimer.Stop();
             MouseTimer.Tick -= MouseTimer_Elapsed;

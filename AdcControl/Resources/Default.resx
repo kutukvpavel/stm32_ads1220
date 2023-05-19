@@ -442,7 +442,7 @@
     <value>Available constants: {0}; arguments: {1}.</value>
   </data>
   <data name="strStopAcquisitionBeforeExiting" xml:space="preserve">
-    <value>Stop data acquisition before exiting!</value>
+    <value>Data acquisition in progress. Exit anyway?</value>
   </data>
   <data name="stsRecalculating" xml:space="preserve">
     <value>Recalculating data...</value>

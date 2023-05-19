@@ -1125,7 +1125,7 @@ namespace AdcControl.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Stop data acquisition before exiting!.
+        ///   Ищет локализованную строку, похожую на Data acquisition in progress. Exit anyway?.
         /// </summary>
         public static string strStopAcquisitionBeforeExiting {
             get {
