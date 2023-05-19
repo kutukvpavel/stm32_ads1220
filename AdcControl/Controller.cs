@@ -249,9 +249,11 @@ namespace AdcControl
                 res.Timestamp = DateTime.Now;
                 int adcPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_ADC_CHANNELS);
                 int dacPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_DAC_MODULES);
+                int motorsPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.MOTORS_NUM);
                 float[] adcBuffer = new float[adcPresent];
                 float[] dacBuffer = new float[dacPresent];
                 float[] dacCorrBuffer = new float[dacPresent];
+                float[] pumpSpeedBuffer = new float[motorsPresent];
                 for (int i = 0; i < adcPresent; i++)
                 {
                     adcBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.AdcVoltagesNameTemplate + i.ToString());
@@ -261,9 +263,14 @@ namespace AdcControl
                     dacBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.DacCurrentsNameTemplate + i.ToString());
                     dacCorrBuffer[i] = RegisterMap.GetInputFloat(AdcConstants.DacCorrectedNameTemplate + i.ToString());
                 }
+                for (int i = 0; i < motorsPresent; i++)
+                {
+                    pumpSpeedBuffer[i] = RegisterMap.GetHoldingFloat(AdcConstants.MotorSpeedNameTemplate + i.ToString());
+                }
                 res.Voltages = adcBuffer;
                 res.Currents = dacBuffer;
                 res.CorrectedVoltages = dacCorrBuffer;
+                res.PumpSpeeds = pumpSpeedBuffer;
                 return res;
             }
             catch (Exception ex)
