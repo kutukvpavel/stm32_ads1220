@@ -276,7 +276,7 @@ namespace AdcControl.Modbus
         //public ushort Reserved1 { get; set; }
         public float TotalFlowrate { get; set; }
 
-        public override ushort Size => 2 * 3 + 1 * 6 + 2 * 1;
+        public override ushort Size => 2 * 3 + 1 * 8 + 2 * 1;
         public override object Get()
         {
             return this;
