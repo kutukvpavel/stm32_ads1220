@@ -10,5 +10,6 @@ namespace AdcControl
         public float[] Voltages { get; set; }
         public float[] Currents { get; set; }
         public float[] CorrectedVoltages { get; set; }
+        public float[] PumpSpeeds { get; set; }
     }
 }

@@ -48,9 +48,9 @@ namespace AdcControl.Modbus
         {
             return (ushort)(DevUShort)GetConfig(reg).Value;
         }
-        public void AddHolding<T>(string name, int num) where T : IDeviceType, new()
+        public void AddHolding<T>(string name, int num, bool poll = false) where T : IDeviceType, new()
         {
-            Add<T>(HoldingRegisters, name, num);
+            Add<T>(HoldingRegisters, name, num, poll: poll);
         }
         public void AddInput<T>(string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType, new()
         {

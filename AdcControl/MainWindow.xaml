@@ -213,6 +213,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <local:RegisterEdit DataContext="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=PressureSetpoint}"></local:RegisterEdit>
                     <ItemsControl ItemsSource="{Binding Source={x:Static local:App.Stm32Ads1220}, Path=DacChannels, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>

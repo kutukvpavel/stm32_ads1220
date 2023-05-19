@@ -22,6 +22,7 @@ namespace AdcControl
 
         public const int DacCurrentsBase = 0xD00;
         public const int DacCorrectedVoltagesBase = 0xC00;
+        public const int PumpSpeedBase = 0xF00;
 
         public enum Coils : ushort
         {
@@ -105,5 +106,6 @@ namespace AdcControl
         public static readonly string DacDepoIntervalNameTemplate = "DEPO_INVERAL_";
         public static readonly string DacDepoSetpointNameTemplate = "DEPO_SETPOINT_";
         public static readonly string MotorSpeedNameTemplate = "MOTOR_SPEED_";
+        public static readonly string PressureSetpointTemplate = "PRESSURE_SETPOINT";
     }
 }

@@ -106,6 +106,11 @@ namespace AdcControl
                         {
                             AcquisitionDataReceived?.Invoke(this, item);
                         }
+                        foreach (var item in value.PumpSpeeds.Select((x, i) =>
+                            new AcquisitionEventArgs(i + AdcConstants.PumpSpeedBase, x, value.Timestamp)))
+                        {
+                            AcquisitionDataReceived?.Invoke(this, item);
+                        }
                     }).Start();
                 }
             }
@@ -168,6 +173,10 @@ namespace AdcControl
         public ObservableCollection<DacChannel> DacChannels { get; } = new ObservableCollection<DacChannel>();
         public ObservableCollection<StatusBit> StatusBits { get; } = new ObservableCollection<StatusBit>();
         public ObservableCollection<StatusBit> DacControlBits { get; } = new ObservableCollection<StatusBit>();
+        public Modbus.IRegister PressureSetpoint
+        {
+            get => (Modbus.IRegister)RegisterMap.HoldingRegisters[AdcConstants.PressureSetpointTemplate];
+        }
 
         #endregion
 
@@ -325,8 +334,9 @@ namespace AdcControl
                 RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.DacDepoSetpointNameTemplate, dacTotal);
                 RegisterMap.AddHolding<Modbus.DevULong>(AdcConstants.DacDepoIntervalNameTemplate, dacTotal);
                 RegisterMap.AddHolding<Modbus.RegulatorParams>("REGULATOR_PARAMS", 1);
-                RegisterMap.AddHolding<Modbus.DevFloat>("REGULATOR_SETPOINT", 1);
-                RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.MotorSpeedNameTemplate, motorTotal);
+                RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.PressureSetpointTemplate, 1);
+                RegisterMap.AddHolding<Modbus.DevFloat>(AdcConstants.MotorSpeedNameTemplate, motorTotal, true);
+                RegisterMap.AddHolding<Modbus.DevFloat>("FURNACE_TEMP", 1);
 
                 DacChannels.Clear();
                 for (int i = 0; i < dacPresent; i++)
