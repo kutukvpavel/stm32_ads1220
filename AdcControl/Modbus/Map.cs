@@ -13,14 +13,16 @@ namespace AdcControl.Modbus
         public OrderedDictionary HoldingRegisters { get; } = new OrderedDictionary();
         public OrderedDictionary InputRegisters { get; } = new OrderedDictionary();
         public List<string> ConfigRegisters { get; } = new List<string>();
-        public List<string> PollRegisters { get; } = new List<string>();
+        public List<string> PollInputRegisters { get; } = new List<string>();
+        public List<string> PollHoldingRegisters { get; } = new List<string>();
 
         public void Clear()
         {
             HoldingRegisters.Clear();
             InputRegisters.Clear();
             ConfigRegisters.Clear();
-            PollRegisters.Clear();
+            PollInputRegisters.Clear();
+            PollHoldingRegisters.Clear();
         }
         public IRegister GetHolding(string name, int index)
         {
@@ -50,14 +52,14 @@ namespace AdcControl.Modbus
         }
         public void AddHolding<T>(string name, int num, bool poll = false) where T : IDeviceType, new()
         {
-            Add<T>(HoldingRegisters, name, num, poll: poll);
+            Add<T>(HoldingRegisters, name, num, poll: poll, pollList: PollHoldingRegisters);
         }
         public void AddInput<T>(string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType, new()
         {
-            Add<T>(InputRegisters, name, num, cfg, poll);
+            Add<T>(InputRegisters, name, num, cfg, poll, PollInputRegisters);
         }
 
-        private void Add<T>(OrderedDictionary to, string name, int num, bool cfg = false, bool poll = false) where T : IDeviceType, new()
+        private void Add<T>(OrderedDictionary to, string name, int num, bool cfg = false, bool poll = false, List<string> pollList = null) where T : IDeviceType, new()
         {
             int addr = 0;
             if (to.Count > 0)
@@ -72,7 +74,7 @@ namespace AdcControl.Modbus
                 var item = new Register<T>((ushort)addr, n);
                 to.Add(n, item);
                 if (cfg) ConfigRegisters.Add(n);
-                if (poll) PollRegisters.Add(n);
+                if (poll) pollList.Add(n);
                 addr += item.Length;
             }
         }

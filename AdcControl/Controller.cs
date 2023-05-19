@@ -236,10 +236,15 @@ namespace AdcControl
             try
             {
                 AdcResult res = new AdcResult();
-                foreach (var item in RegisterMap.PollRegisters)
+                foreach (var item in RegisterMap.PollInputRegisters)
                 {
                     var reg = RegisterMap.InputRegisters[item] as Modbus.IRegister;
                     reg.Set(await Master.ReadInputRegistersAsync(UnitAddress, reg.Address, reg.Length));
+                }
+                foreach (var item in RegisterMap.PollHoldingRegisters)
+                {
+                    var reg = RegisterMap.HoldingRegisters[item] as Modbus.IRegister;
+                    reg.Set(await Master.ReadHoldingRegistersAsync(UnitAddress, reg.Address, reg.Length));
                 }
                 res.Timestamp = DateTime.Now;
                 int adcPresent = RegisterMap.GetConfigValue(AdcConstants.ConfigurationRegisters.PRESENT_ADC_CHANNELS);
