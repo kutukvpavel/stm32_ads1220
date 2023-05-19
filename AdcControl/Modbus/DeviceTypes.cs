@@ -271,6 +271,8 @@ namespace AdcControl.Modbus
         public ushort SensingAdcChannel { get; set; }
         public ushort LowConcDacChannel { get; set; }
         public ushort HighConcDacChannel { get; set; }
+        public ushort LowConcAdcChannel { get; set; }
+        public ushort HighConcAdcChannel { get; set; }
         //public ushort Reserved1 { get; set; }
         public float TotalFlowrate { get; set; }
 
@@ -290,6 +292,8 @@ namespace AdcControl.Modbus
             buf.AddRange(BitConverter.GetBytes(SensingAdcChannel));
             buf.AddRange(BitConverter.GetBytes(LowConcDacChannel));
             buf.AddRange(BitConverter.GetBytes(HighConcDacChannel));
+            buf.AddRange(BitConverter.GetBytes(LowConcAdcChannel));
+            buf.AddRange(BitConverter.GetBytes(HighConcAdcChannel));
             buf.AddRange(BitConverter.GetBytes((ushort)0)); //Reserved1
             buf.AddRange(BitConverter.GetBytes(TotalFlowrate));
             if (buf.Count != Size * sizeof(ushort))
@@ -306,6 +310,8 @@ namespace AdcControl.Modbus
             SensingAdcChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             LowConcDacChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             HighConcDacChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            LowConcAdcChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
+            HighConcAdcChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             startIndex += sizeof(ushort); //Reserved1
             TotalFlowrate = BitConverter.ToSingle(data, startIndex += sizeof(ushort));
             OnPropertyChanged();
