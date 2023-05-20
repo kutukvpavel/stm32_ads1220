@@ -273,7 +273,7 @@ namespace AdcControl.Modbus
         public ushort HighConcDacChannel { get; set; }
         public ushort LowConcAdcChannel { get; set; }
         public ushort HighConcAdcChannel { get; set; }
-        //public ushort Reserved1 { get; set; }
+        public ushort LowFlowrateLimit { get; set; }
         public float TotalFlowrate { get; set; }
 
         public override ushort Size => 2 * 3 + 1 * 8 + 2 * 1;
@@ -294,7 +294,7 @@ namespace AdcControl.Modbus
             buf.AddRange(BitConverter.GetBytes(HighConcDacChannel));
             buf.AddRange(BitConverter.GetBytes(LowConcAdcChannel));
             buf.AddRange(BitConverter.GetBytes(HighConcAdcChannel));
-            buf.AddRange(BitConverter.GetBytes((ushort)0)); //Reserved1
+            buf.AddRange(BitConverter.GetBytes(LowFlowrateLimit));
             buf.AddRange(BitConverter.GetBytes(TotalFlowrate));
             if (buf.Count != Size * sizeof(ushort))
                 throw new InvalidOperationException("Device type write buffer size is not equal to defined type size!");
@@ -312,7 +312,7 @@ namespace AdcControl.Modbus
             HighConcDacChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             LowConcAdcChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             HighConcAdcChannel = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
-            startIndex += sizeof(ushort); //Reserved1
+            LowFlowrateLimit = BitConverter.ToUInt16(data, startIndex += sizeof(ushort));
             TotalFlowrate = BitConverter.ToSingle(data, startIndex += sizeof(ushort));
             OnPropertyChanged();
         }
